@@ -989,8 +989,12 @@ async function resetMasa(){
   const t=tables.find(x=>x.id===curTblId);if(t)t.dolu=false;
   delete openOrders[curTblId];
   toast('✓ Masa sıfırlandı.');
+  const resetTid=curTblId;
   curTblId=null;curOrdId=null;
-  showScreen('tables');renderTables();updateCiro();
+  showScreen('tables');
+  await loadTables();
+  await loadOpenOrders();
+  renderTables();updateCiro();
 }
 function refreshOrderView(){const o=openOrders[curTblId];if(o)renderOrderItems(o.siparis_kalemleri||[])}
 
