@@ -157,6 +157,8 @@ input,textarea,select{font-family:inherit;outline:none}
 .btn-pay-cash{background:var(--toffee);color:#fff}
 .btn-pay-cash:hover{background:var(--toffee-l)}
 .btn-pay-iban{background:var(--s2);color:var(--cream);border:1.5px solid var(--border-2)}
+.btn-reset-masa{width:100%;background:var(--red-dim);color:#ff8888;border:1.5px solid var(--red-border);border-radius:var(--radius-sm);padding:11px;font-size:13px;font-weight:600;margin-top:2px;display:none}
+.btn-reset-masa.owner-only{display:block}
 .btn-pay-iban:hover{border-color:var(--toffee);color:var(--toffee-l)}
 .pay-sub{font-size:10px;opacity:.75;font-weight:400}
 
@@ -361,26 +363,6 @@ input,textarea,select{font-family:inherit;outline:none}
       <button class="hdr-btn" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i></button>
     </div>
   </div>
-  <div class="ciro-bar-row" id="ciro-bar-row">
-    <div class="ciro-cell ciro-main">
-      <span class="ciro-cell-icon"><i class="fa-solid fa-coins"></i></span>
-      <div>
-        <div class="ciro-cell-val" id="cv-daily">0 MKD</div>
-        <div class="ciro-cell-sub">
-          <span class="ci-nakit" id="cv-nakit"><i class="fa-solid fa-money-bill-wave"></i> 0 MKD</span>
-          <span class="ci-iban" id="cv-iban"><i class="fa-solid fa-building-columns"></i> 0 MKD</span>
-        </div>
-      </div>
-    </div>
-    <div class="ciro-divider"></div>
-    <div class="ciro-cell">
-      <span class="ciro-cell-icon"><i class="fa-solid fa-chair"></i></span>
-      <div>
-        <div class="ciro-cell-val" id="cv-open">0</div>
-        <div class="ciro-cell-label">Açık Masa</div>
-      </div>
-    </div>
-  </div>
   <div class="area-tabs">
     <button class="area-tab active" id="tab-k" onclick="switchArea('kapali')"><i class="fa-solid fa-house"></i> Kapalı Alan</button>
     <button class="area-tab" id="tab-b" onclick="switchArea('bahce')"><i class="fa-solid fa-leaf"></i> Bahçe</button>
@@ -414,6 +396,7 @@ input,textarea,select{font-family:inherit;outline:none}
         <span><i class="fa-solid fa-building-columns"></i> IBAN</span><span class="pay-sub">Alınacak</span>
       </button>
     </div>
+    <button class="btn-reset-masa" id="btn-reset-masa" onclick="resetMasa()"><i class="fa-solid fa-rotate-left"></i> Masayı Sıfırla</button>
   </div>
 </div>
 
@@ -811,8 +794,11 @@ function doLogout(){
 // ==============================
 async function initApp(){
   showScreen('tables');
-  if(me.role==='owner'){show('btn-admin');show('btn-mutfak');document.getElementById('ciro-bar-row').style.display='flex'}
-  else{hide('btn-admin');show('btn-mutfak');document.getElementById('ciro-bar-row').style.display='none'}
+  if(me.role==='owner'){show('btn-admin');show('btn-mutfak')}
+  else{hide('btn-admin');show('btn-mutfak')}
+  // Ciro barı ana menüden kaldırıldı, yönetim panelinden görüntülenir
+  const ciroEl=document.getElementById('ciro-bar-row');
+  if(ciroEl)ciroEl.style.display='none';
   document.getElementById('tbl-sub').textContent=me.display+' · '+new Date().toLocaleDateString('tr-TR');
   area='kapali';
   await Promise.all([loadTables(),loadOpenOrders(),loadSettings(),loadMutfakUrunler()]);
@@ -943,16 +929,9 @@ async function renderMutfakTab(){
 function calcTotal(items){return items.reduce((s,i)=>s+(parseFloat(i.fiyat)*i.miktar),0)}
 
 async function updateCiro(){
-  const today=new Date().toISOString().split('T')[0];
-  const{data}=await sb.from('siparisler').select('toplam,odeme_yontemi,kapandi_at').eq('durum','kapali');
-  const todayRows=(data||[]).filter(o=>o.kapandi_at?.startsWith(today));
-  const nakit=todayRows.filter(o=>o.odeme_yontemi==='nakit').reduce((s,o)=>s+(parseFloat(o.toplam)||0),0);
-  const iban=todayRows.filter(o=>o.odeme_yontemi==='iban').reduce((s,o)=>s+(parseFloat(o.toplam)||0),0);
-  const daily=nakit+iban;
-  const dEl=document.getElementById('cv-daily');if(dEl)dEl.textContent=fmt(daily);
-  const nEl=document.getElementById('cv-nakit');if(nEl)nEl.innerHTML='<i class="fa-solid fa-money-bill-wave"></i> '+Math.round(nakit)+' MKD';
-  const iEl=document.getElementById('cv-iban');if(iEl)iEl.innerHTML='<i class="fa-solid fa-building-columns"></i> '+Math.round(iban)+' MKD';
-  const oEl=document.getElementById('cv-open');if(oEl)oEl.textContent=tables.filter(t=>t.dolu).length;
+  // Sadece açık masa sayısını güncelle (ciro yönetim panelinde)
+  const oEl=document.getElementById('cv-open');
+  if(oEl)oEl.textContent=tables.filter(t=>t.dolu).length;
 }
 
 // ==============================
@@ -965,12 +944,20 @@ async function openTable(tid){
   document.getElementById('ord-tname').textContent=tbl.isim;
   document.getElementById('ord-tarea').textContent=tbl.alan==='bahce'?'🌿 Bahçe':'🏠 Kapalı Alan';
   showScreen('order');
+  // Masayı Sıfırla sadece owner'a görünür
+  const resetBtn=document.getElementById('btn-reset-masa');
+  if(resetBtn)resetBtn.className='btn-reset-masa'+(me?.role==='owner'?' owner-only':'');
   if(!tbl.dolu){
-    const{data,error}=await sb.from('siparisler').insert({masa_id:tid,masa_adi:tbl.isim,durum:'acik',toplam:0}).select().single();
-    if(error){toast('Masa açılırken hata!');showScreen('tables');return}
-    // Masayı henüz dolu yapmıyoruz — ilk ürün girildiğinde dolu olacak
-    curOrdId=data.id;
-    openOrders[tid]={...data,siparis_kalemleri:[]};renderOrderItems([]);
+    // Açık ama boş bir sipariş zaten var mı kontrol et
+    const{data:existing}=await sb.from('siparisler').select('*, siparis_kalemleri(*)').eq('masa_id',tid).eq('durum','acik').maybeSingle();
+    if(existing){
+      curOrdId=existing.id;openOrders[tid]=existing;renderOrderItems(existing.siparis_kalemleri||[]);
+    } else {
+      const{data,error}=await sb.from('siparisler').insert({masa_id:tid,masa_adi:tbl.isim,durum:'acik',toplam:0}).select().single();
+      if(error){toast('Masa açılırken hata!');showScreen('tables');return}
+      curOrdId=data.id;
+      openOrders[tid]={...data,siparis_kalemleri:[]};renderOrderItems([]);
+    }
   }else{
     const{data}=await sb.from('siparisler').select('*, siparis_kalemleri(*)').eq('masa_id',tid).eq('durum','acik').maybeSingle();
     if(data){curOrdId=data.id;openOrders[tid]=data;renderOrderItems(data.siparis_kalemleri||[])}
@@ -991,6 +978,20 @@ async function backToTables(){
   await loadOpenOrders();renderTables();updateCiro();
 }
 function scrollToPayment(){document.getElementById('pay-btns').scrollIntoView({behavior:'smooth'})}
+
+async function resetMasa(){
+  if(!curTblId||!curOrdId)return;
+  const tbl=tables.find(t=>t.id===curTblId);
+  if(!confirm((tbl?.isim||'Bu masa')+"nın tüm siparişleri silinecek ve masa sıfırlanacak. Emin misiniz?"))return;
+  await sb.from('siparis_kalemleri').delete().eq('siparis_id',curOrdId);
+  await sb.from('siparisler').delete().eq('id',curOrdId);
+  await sb.from('masalar').update({dolu:false}).eq('id',curTblId);
+  const t=tables.find(x=>x.id===curTblId);if(t)t.dolu=false;
+  delete openOrders[curTblId];
+  toast('✓ Masa sıfırlandı.');
+  curTblId=null;curOrdId=null;
+  showScreen('tables');renderTables();updateCiro();
+}
 function refreshOrderView(){const o=openOrders[curTblId];if(o)renderOrderItems(o.siparis_kalemleri||[])}
 
 function renderOrderItems(items){
@@ -1059,6 +1060,13 @@ async function changeQty(itemId,delta){
   if(nq<=0){
     await sb.from('siparis_kalemleri').delete().eq('id',itemId);
     ord.siparis_kalemleri=ord.siparis_kalemleri.filter(i=>i.id!==itemId);
+    // Tüm kalemler silindiyse masayı boşa al ama sipariş kaydını koru
+    if(ord.siparis_kalemleri.length===0){
+      await sb.from('masalar').update({dolu:false}).eq('id',curTblId);
+      const tblReset=tables.find(t=>t.id===curTblId);
+      if(tblReset)tblReset.dolu=false;
+      await sb.from('siparisler').update({toplam:0}).eq('id',curOrdId);
+    }
   } else {
     await sb.from('siparis_kalemleri').update({miktar:nq}).eq('id',itemId);
     item.miktar=nq;
