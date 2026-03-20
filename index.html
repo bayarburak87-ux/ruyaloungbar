@@ -23,7 +23,7 @@
   --radius:12px; --radius-sm:8px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;zoom:1.5}
 button{font-family:inherit;cursor:pointer;border:none;outline:none}
 input,textarea,select{font-family:inherit;outline:none}
 .hidden{display:none!important}
@@ -77,11 +77,11 @@ input,textarea,select{font-family:inherit;outline:none}
 /* HEADER */
 .app-header{background:var(--s1);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:20;gap:8px}
 .hdr-left{display:flex;flex-direction:column}
-.hdr-title{font-size:17px;font-weight:700;color:var(--cream)}
-.hdr-sub{font-size:11px;color:var(--cream-3);margin-top:1px}
+.hdr-title{font-size:18px;font-weight:700;color:#ffffff}
+.hdr-sub{font-size:12px;color:var(--cream-2);margin-top:1px}
 .hdr-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.hdr-btn{background:var(--s3);color:var(--cream-2);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:500;border:none}
-.hdr-btn:hover{background:var(--border-2);color:var(--cream)}
+.hdr-btn{background:var(--s3);color:var(--cream);border-radius:8px;padding:7px 11px;font-size:12px;font-weight:500;border:none}
+.hdr-btn:hover{background:var(--border-2);color:#fff}
 .hdr-btn.toffee{background:var(--toffee-deep);color:var(--toffee-l)}
 
 /* CIRO INLINE */
@@ -98,8 +98,8 @@ input,textarea,select{font-family:inherit;outline:none}
 
 /* AREA TABS */
 .area-tabs{display:flex;background:var(--s1);border-bottom:1px solid var(--border);flex-shrink:0}
-.area-tab{flex:1;padding:10px 4px;text-align:center;font-size:12px;font-weight:500;color:var(--cream-3);border-bottom:2.5px solid transparent;background:none;transition:all .15s}
-.area-tab.active{color:var(--toffee-l);border-bottom-color:var(--toffee);font-weight:600}
+.area-tab{flex:1;padding:10px 4px;text-align:center;font-size:13px;font-weight:500;color:var(--cream-2);border-bottom:2.5px solid transparent;background:none;transition:all .15s}
+.area-tab.active{color:#fff;border-bottom-color:var(--toffee-l);font-weight:700}
 
 /* TABLES GRID */
 .tables-content{flex:1;overflow-y:auto;padding:11px}
@@ -113,7 +113,7 @@ input,textarea,select{font-family:inherit;outline:none}
 .t-badge{font-size:9px;font-weight:600;padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.04em;margin-top:1px}
 .occupied .t-badge{background:rgba(224,80,80,.25);color:#ff9090}
 .empty .t-badge{background:var(--s3);color:var(--cream-3)}
-.t-price{font-size:11px;font-weight:600;color:#ff9090}
+.t-price{font-size:11px;font-weight:700;color:#ffffff;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.5);border-radius:6px;padding:2px 8px;margin-top:2px}
 
 /* ORDER SCREEN */
 .order-header{background:var(--s1);border-bottom:1px solid var(--border);color:var(--cream);padding:10px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;position:sticky;top:0;z-index:10}
@@ -834,19 +834,23 @@ function setupRealtime(){
     .on('postgres_changes',{event:'*',schema:'public',table:'siparis_kalemleri'},async()=>{await loadOpenOrders();if(curTblId&&isScreenActive('order'))refreshOrderView()})
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'mutfak_bildirimleri'},async(payload)=>{
       const d=payload.new;
-      // Only play ready sound if it's a "hazır" notification from chef, not a send notification
-      if(d.urun_listesi&&!d.urun_listesi.includes('(yeni)')&&!d.urun_listesi.includes('(güncellendi)')){
+      if(d.urun_listesi&&d.urun_listesi.startsWith('[HAZIR]')){
         playReadyAlert();
-        toast('✅ '+d.masa_adi+' hazır! '+d.urun_listesi);
+        toast('✅ '+d.masa_adi+' — '+d.urun_listesi.replace('[HAZIR] ',''));
       }
+      // [GONDERILDI] gelince hiçbir şey yapma (garson zaten gönderdi)
     })
     .subscribe();
 }
 
 function setupChefRealtime(){
   const chefCh=sb.channel('rk-chef')
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'mutfak_bildirimleri'},async()=>{
-      playKitchenAlert();await renderChefOrders();
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'mutfak_bildirimleri'},async(payload)=>{
+      const d=payload.new;
+      if(d.urun_listesi&&d.urun_listesi.startsWith('[GONDERILDI]')){
+        playKitchenAlert();
+      }
+      await renderChefOrders();
     })
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'siparis_kalemleri'},async()=>{await renderChefOrders()})
     .on('postgres_changes',{event:'DELETE',schema:'public',table:'siparis_kalemleri'},async()=>{await renderChefOrders()})
@@ -1033,12 +1037,21 @@ async function changeQty(itemId,delta){
   const ord=openOrders[curTblId];if(!ord)return;
   const item=(ord.siparis_kalemleri||[]).find(i=>i.id===itemId);if(!item)return;
   const nq=item.miktar+delta;
+  const tbl=tables.find(t=>t.id===curTblId);
   if(nq<=0){
     await sb.from('siparis_kalemleri').delete().eq('id',itemId);
     ord.siparis_kalemleri=ord.siparis_kalemleri.filter(i=>i.id!==itemId);
   } else {
     await sb.from('siparis_kalemleri').update({miktar:nq}).eq('id',itemId);
     item.miktar=nq;
+    // Adet artışı + zaten mutfağa gönderilmişse aşçıya bildir
+    if(delta>0&&item.mutfak_gonderildi&&isMutfakUrun(item.urun_adi)){
+      await sb.from('mutfak_bildirimleri').insert({
+        masa_adi:tbl?.isim||'?',
+        urun_listesi:'[GONDERILDI] '+item.urun_adi+' x'+nq+' (güncellendi)',
+        okundu:false
+      });
+    }
   }
   renderOrderItems(ord.siparis_kalemleri);syncTotal();
 }
@@ -1119,9 +1132,10 @@ async function gonderMutfaga(){
   await sb.from('siparis_kalemleri').update({mutfak_gonderildi:true}).in('id',ids);
   unsent.forEach(i=>{i.mutfak_gonderildi=true});
   const urunOzet=unsent.map(i=>i.urun_adi+' x'+i.miktar+(i.not_metni?' ['+i.not_metni+']':'')).join(', ');
-  await sb.from('mutfak_bildirimleri').insert({masa_adi:tbl?.isim||'?',urun_listesi:urunOzet,okundu:false});
+  await sb.from('mutfak_bildirimleri').insert({masa_adi:tbl?.isim||'?',urun_listesi:'[GONDERILDI] '+urunOzet,okundu:false});
   renderOrderItems(ord.siparis_kalemleri);
   toast('🍳 Mutfağa gönderildi!');
+  // Ses çalmıyor — aşçı tarafında ses çalacak
 }
 
 // ==============================
@@ -1210,7 +1224,7 @@ async function confirmChefReady(){
   if(!ids.length){toast('Kalem bulunamadı.');chefReadyTableId=null;return;}
   const{error}=await sb.from('siparis_kalemleri').update({mutfak_hazir:true}).in('id',ids);
   if(error){toast('Hata: '+error.message);return;}
-  await sb.from('mutfak_bildirimleri').insert({masa_adi:masa,urun_listesi:ids.length+' kalem',okundu:false});
+  await sb.from('mutfak_bildirimleri').insert({masa_adi:masa,urun_listesi:'[HAZIR] '+ids.length+' kalem hazırlandı',okundu:false});
   toast('✅ Garson bildirildi!');
   chefReadyTableId=null;
   await renderChefOrders();
@@ -1515,13 +1529,15 @@ function switchAdminTab(tab){
 function playKitchenAlert(){
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    [[0,880],[0.35,880],[0.7,880]].forEach(([t,f])=>{
+    // Tok, kalın mutfak zili — 220Hz + 330Hz harmonik, triangle wave
+    [[0,220],[0,330],[0.45,220],[0.45,330],[0.9,220],[0.9,330]].forEach(([t,f],i)=>{
       const osc=ctx.createOscillator(),gain=ctx.createGain();
       osc.connect(gain);gain.connect(ctx.destination);
-      osc.frequency.value=f;osc.type='sine';
-      gain.gain.setValueAtTime(0.5,ctx.currentTime+t);
-      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+0.3);
-      osc.start(ctx.currentTime+t);osc.stop(ctx.currentTime+t+0.35);
+      osc.frequency.value=f;
+      osc.type=i%2===0?'triangle':'sine';
+      gain.gain.setValueAtTime(i%2===0?0.7:0.3,ctx.currentTime+t);
+      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+0.4);
+      osc.start(ctx.currentTime+t);osc.stop(ctx.currentTime+t+0.45);
     });
   }catch(e){}
 }
@@ -1529,13 +1545,15 @@ function playKitchenAlert(){
 function playReadyAlert(){
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    [[0,660],[0.2,880],[0.4,1100]].forEach(([t,f])=>{
+    // Tok yükselen akor — 330/440/550 Hz triangle, güçlü sustain
+    [[0,330],[0,440],[0.28,440],[0.28,550],[0.56,550],[0.56,660]].forEach(([t,f],i)=>{
       const osc=ctx.createOscillator(),gain=ctx.createGain();
       osc.connect(gain);gain.connect(ctx.destination);
-      osc.frequency.value=f;osc.type='sine';
-      gain.gain.setValueAtTime(0.4,ctx.currentTime+t);
-      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+0.4);
-      osc.start(ctx.currentTime+t);osc.stop(ctx.currentTime+t+0.45);
+      osc.frequency.value=f;
+      osc.type='triangle';
+      gain.gain.setValueAtTime(i%2===0?0.65:0.35,ctx.currentTime+t);
+      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+0.45);
+      osc.start(ctx.currentTime+t);osc.stop(ctx.currentTime+t+0.5);
     });
   }catch(e){}
 }
