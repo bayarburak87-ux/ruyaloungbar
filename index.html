@@ -77,11 +77,11 @@ input,textarea,select{font-family:inherit;outline:none}
 /* HEADER */
 .app-header{background:var(--s1);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:20;gap:8px}
 .hdr-left{display:flex;flex-direction:column}
-.hdr-title{font-size:17px;font-weight:700;color:var(--cream)}
-.hdr-sub{font-size:11px;color:var(--cream-3);margin-top:1px}
+.hdr-title{font-size:18px;font-weight:700;color:#ffffff}
+.hdr-sub{font-size:12px;color:var(--cream-2);margin-top:1px}
 .hdr-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.hdr-btn{background:var(--s3);color:var(--cream-2);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:500;border:none}
-.hdr-btn:hover{background:var(--border-2);color:var(--cream)}
+.hdr-btn{background:var(--s3);color:var(--cream);border-radius:8px;padding:7px 11px;font-size:12px;font-weight:500;border:none}
+.hdr-btn:hover{background:var(--border-2);color:#fff}
 .hdr-btn.toffee{background:var(--toffee-deep);color:var(--toffee-l)}
 
 /* CIRO INLINE */
@@ -98,8 +98,8 @@ input,textarea,select{font-family:inherit;outline:none}
 
 /* AREA TABS */
 .area-tabs{display:flex;background:var(--s1);border-bottom:1px solid var(--border);flex-shrink:0}
-.area-tab{flex:1;padding:10px 4px;text-align:center;font-size:12px;font-weight:500;color:var(--cream-3);border-bottom:2.5px solid transparent;background:none;transition:all .15s}
-.area-tab.active{color:var(--toffee-l);border-bottom-color:var(--toffee);font-weight:600}
+.area-tab{flex:1;padding:10px 4px;text-align:center;font-size:13px;font-weight:500;color:var(--cream-2);border-bottom:2.5px solid transparent;background:none;transition:all .15s}
+.area-tab.active{color:#fff;border-bottom-color:var(--toffee-l);font-weight:700}
 
 /* TABLES GRID */
 .tables-content{flex:1;overflow-y:auto;padding:11px}
@@ -113,7 +113,7 @@ input,textarea,select{font-family:inherit;outline:none}
 .t-badge{font-size:9px;font-weight:600;padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.04em;margin-top:1px}
 .occupied .t-badge{background:rgba(224,80,80,.25);color:#ff9090}
 .empty .t-badge{background:var(--s3);color:var(--cream-3)}
-.t-price{font-size:11px;font-weight:600;color:#ff9090}
+.t-price{font-size:11px;font-weight:700;color:#ffffff;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.5);border-radius:6px;padding:2px 8px;margin-top:2px}
 
 /* ORDER SCREEN */
 .order-header{background:var(--s1);border-bottom:1px solid var(--border);color:var(--cream);padding:10px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;position:sticky;top:0;z-index:10}
@@ -157,7 +157,8 @@ input,textarea,select{font-family:inherit;outline:none}
 .btn-pay-cash{background:var(--toffee);color:#fff}
 .btn-pay-cash:hover{background:var(--toffee-l)}
 .btn-pay-iban{background:var(--s2);color:var(--cream);border:1.5px solid var(--border-2)}
-.btn-reset-masa{width:100%;background:var(--red-dim);color:#ff8888;border:1.5px solid var(--red-border);border-radius:var(--radius-sm);padding:11px;font-size:13px;font-weight:600;margin-top:6px}
+.btn-reset-masa{width:100%;background:var(--red-dim);color:#ff8888;border:1.5px solid var(--red-border);border-radius:var(--radius-sm);padding:11px;font-size:13px;font-weight:600;margin-top:2px;display:none}
+.btn-reset-masa.owner-only{display:block}
 .btn-pay-iban:hover{border-color:var(--toffee);color:var(--toffee-l)}
 .pay-sub{font-size:10px;opacity:.75;font-weight:400}
 
@@ -177,7 +178,7 @@ input,textarea,select{font-family:inherit;outline:none}
 .k-item{padding:9px 14px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:3px}
 .k-item:last-child{border-bottom:none}
 .k-item-main{display:flex;align-items:center;gap:8px}
-.k-item-qty{background:var(--toffee-deep);color:var(--toffee-l);border-radius:5px;padding:2px 7px;font-size:12px;font-weight:700;flex-shrink:0}
+.k-item-qty{background:var(--toffee-d);color:#ffffff;border-radius:5px;padding:3px 9px;font-size:12px;font-weight:700;flex-shrink:0}
 .k-item-name{font-size:13px;font-weight:500;color:var(--cream);flex:1}
 .k-item-note{font-size:11px;color:var(--toffee-l);background:var(--toffee-deep);padding:3px 8px;border-radius:4px;margin-top:2px;display:inline-block}
 .btn-hazir{background:var(--green-ok);color:#fff;border-radius:var(--radius-sm);padding:9px 16px;font-size:13px;font-weight:600;width:calc(100% - 28px);margin:10px 14px;border:none}
@@ -250,11 +251,7 @@ input,textarea,select{font-family:inherit;outline:none}
 .admin-panel.active{display:block}
 .sec-title{font-size:11px;font-weight:700;color:var(--cream-3);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 8px}
 .sec-title:first-child{margin-top:0}
-.pa-cat-block{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
-.pa-cat-header{background:var(--s2);padding:9px 14px;font-size:12px;font-weight:700;color:var(--toffee-l);display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--border)}
-.pa-cat-count{font-size:10px;font-weight:500;color:var(--cream-3);margin-left:auto}
-.pa-item{background:var(--s1);border-bottom:1px solid var(--border);padding:10px 13px;display:flex;align-items:center;gap:9px}
-.pa-item:last-child{border-bottom:none}
+.pa-item{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;display:flex;align-items:center;gap:9px;margin-bottom:6px}
 .pa-info{flex:1}
 .pa-name{font-size:14px;font-weight:500;color:var(--cream)}
 .pa-meta{font-size:11px;color:var(--cream-3);margin-top:2px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
@@ -268,8 +265,6 @@ input,textarea,select{font-family:inherit;outline:none}
 .t-chips{display:flex;flex-wrap:wrap;gap:6px}
 .t-chip{background:var(--s2);border:1px solid var(--border-2);border-radius:6px;padding:4px 9px;font-size:12px;display:flex;align-items:center;gap:5px;color:var(--cream-2)}
 .btn-chip-del{background:none;color:var(--red);font-size:13px;padding:0;line-height:1;border:none}
-.btn-chip-edit{background:none;color:var(--cream-3);font-size:10px;padding:0 3px;border:none;cursor:pointer}
-.btn-chip-edit:hover{color:var(--toffee-l)}
 .settings-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:13px;margin-bottom:10px}
 .s-label{font-size:12px;color:var(--cream-3);margin-bottom:6px;font-weight:500}
 .s-input{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--s2);color:var(--cream);margin-bottom:8px}
@@ -368,26 +363,6 @@ input,textarea,select{font-family:inherit;outline:none}
       <button class="hdr-btn" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i></button>
     </div>
   </div>
-  <div class="ciro-bar-row">
-    <div class="ciro-cell ciro-main">
-      <span class="ciro-cell-icon"><i class="fa-solid fa-coins"></i></span>
-      <div>
-        <div class="ciro-cell-val" id="cv-daily">0 MKD</div>
-        <div class="ciro-cell-sub">
-          <span class="ci-nakit" id="cv-nakit"><i class="fa-solid fa-money-bill-wave"></i> 0 MKD</span>
-          <span class="ci-iban" id="cv-iban"><i class="fa-solid fa-building-columns"></i> 0 MKD</span>
-        </div>
-      </div>
-    </div>
-    <div class="ciro-divider"></div>
-    <div class="ciro-cell">
-      <span class="ciro-cell-icon"><i class="fa-solid fa-chair"></i></span>
-      <div>
-        <div class="ciro-cell-val" id="cv-open">0</div>
-        <div class="ciro-cell-label">Açık Masa</div>
-      </div>
-    </div>
-  </div>
   <div class="area-tabs">
     <button class="area-tab active" id="tab-k" onclick="switchArea('kapali')"><i class="fa-solid fa-house"></i> Kapalı Alan</button>
     <button class="area-tab" id="tab-b" onclick="switchArea('bahce')"><i class="fa-solid fa-leaf"></i> Bahçe</button>
@@ -421,7 +396,7 @@ input,textarea,select{font-family:inherit;outline:none}
         <span><i class="fa-solid fa-building-columns"></i> IBAN</span><span class="pay-sub">Alınacak</span>
       </button>
     </div>
-    <button class="btn-reset-masa hidden" id="btn-reset-masa" onclick="resetMasa()"><i class="fa-solid fa-rotate-left"></i> Masayı Sıfırla</button>
+    <button class="btn-reset-masa" id="btn-reset-masa" onclick="resetMasa()"><i class="fa-solid fa-rotate-left"></i> Masayı Sıfırla</button>
   </div>
 </div>
 
@@ -496,6 +471,14 @@ input,textarea,select{font-family:inherit;outline:none}
       </div>
       <p class="sec-title"><i class="fa-solid fa-fire-burner"></i> Mutfak Listesi</p>
       <div id="mutfak-urun-list" style="background:var(--s1);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden"></div>
+      <div class="settings-card" style="margin-top:12px">
+        <p class="s-label"><i class="fa-solid fa-key"></i> Aşçı Şifresi</p>
+        <input type="text" class="s-input" id="s-asci-sifre" placeholder="Aşçı giriş şifresi">
+        <div class="s-row">
+          <button class="btn-save" onclick="saveSetting('asci_sifre','s-asci-sifre')"><i class="fa-solid fa-floppy-disk"></i> Kaydet</button>
+          <span style="font-size:11px;color:var(--cream-3)">Kullanıcı adı: <strong style="color:var(--toffee-l)">asci</strong></span>
+        </div>
+      </div>
     </div>
     <!-- İSTATİSTİK -->
     <div id="ap-istatistik" class="admin-panel">
@@ -512,15 +495,15 @@ input,textarea,select{font-family:inherit;outline:none}
     </div>
     <!-- AYARLAR -->
     <div id="ap-ayarlar" class="admin-panel">
-      <div class="settings-card">
+      <div class="settings-card" id="gunluk-ciro-card">
         <p class="s-label"><i class="fa-solid fa-sun"></i> Günlük Ciro</p>
         <div class="ciro-total-card">
           <div class="ct-row"><span class="ct-label"><i class="fa-solid fa-money-bill-wave"></i> Nakit (Bugün)</span><span class="ct-val nakit" id="ct-gun-nakit">—</span></div>
           <div class="ct-row"><span class="ct-label"><i class="fa-solid fa-building-columns"></i> IBAN (Bugün)</span><span class="ct-val iban" id="ct-gun-iban">—</span></div>
-          <div class="ct-row"><span class="ct-label" style="font-weight:700;color:var(--cream)">Günlük Toplam</span><span class="ct-val total" id="ct-gun-toplam">—</span></div>
+          <div class="ct-row"><span class="ct-label" style="font-weight:700;color:var(--cream)"><i class="fa-solid fa-sigma"></i> Günlük Toplam</span><span class="ct-val total" id="ct-gun-toplam">—</span></div>
         </div>
         <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
-          <input type="password" id="gun-ciro-pwd" class="s-input" placeholder="Yönetim şifresi" style="margin-bottom:0;flex:1">
+          <input type="password" id="gun-ciro-pwd" class="s-input" placeholder="Ciroyu görüntülemek için yönetim şifresini girin." style="margin-bottom:0;flex:1">
           <button class="btn-save" onclick="loadGunlukCiroWithPwd()"><i class="fa-solid fa-eye"></i> Göster</button>
         </div>
         <div id="gun-ciro-pwd-err" style="font-size:11px;color:var(--red);margin-top:4px;min-height:14px"></div>
@@ -533,18 +516,10 @@ input,textarea,select{font-family:inherit;outline:none}
           <div class="ct-row"><span class="ct-label" style="font-weight:700;color:var(--cream)"><i class="fa-solid fa-sigma"></i> Genel Toplam</span><span class="ct-val total" id="ct-total">—</span></div>
         </div>
         <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
-          <input type="password" id="ciro-pwd" class="s-input" placeholder="Yönetim şifresi" style="margin-bottom:0;flex:1">
-          <button class="btn-save" onclick="loadCiroTotalWithPwd()"><i class="fa-solid fa-unlock"></i> Yenile</button>
+          <input type="password" id="ciro-pwd" class="s-input" placeholder="Ciroyu görüntülemek için yönetim şifresini girin." style="margin-bottom:0;flex:1">
+          <button class="btn-save" onclick="loadCiroTotalWithPwd()"><i class="fa-solid fa-eye"></i> Göster</button>
         </div>
         <div id="ciro-pwd-err" style="font-size:11px;color:var(--red);margin-top:4px;min-height:14px"></div>
-      </div>
-      <div class="settings-card">
-        <p class="s-label"><i class="fa-solid fa-key"></i> Aşçı Şifresi</p>
-        <input type="text" class="s-input" id="s-asci-sifre" placeholder="Aşçı giriş şifresi">
-        <div class="s-row">
-          <button class="btn-save" onclick="saveSetting('asci_sifre','s-asci-sifre')"><i class="fa-solid fa-floppy-disk"></i> Kaydet</button>
-          <span style="font-size:11px;color:var(--cream-3)">Kullanıcı adı: <strong style="color:var(--toffee-l)">asci</strong></span>
-        </div>
       </div>
       <div class="settings-card">
         <p class="s-label"><i class="fa-solid fa-file-excel"></i> Excel Döküm</p>
@@ -618,21 +593,6 @@ input,textarea,select{font-family:inherit;outline:none}
       <p class="s-label">Kategori</p><input type="text" class="s-input" id="ep-cat">
       <p class="s-label">Açıklama</p><textarea class="s-textarea" id="ep-desc"></textarea>
       <button class="btn-add-prod" onclick="updateProduct()"><i class="fa-solid fa-pen"></i> Güncelle</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: RESET MASA -->
-<div id="m-reset-masa" class="modal-overlay hidden">
-  <div class="modal-sheet">
-    <div class="confirm-body">
-      <div class="confirm-icon">⚠️</div>
-      <div class="confirm-title" id="m-reset-masa-title">Masayi Sifirla</div>
-      <div class="confirm-desc" id="m-reset-masa-desc">Odemeyi aldiniza emin misiniz?</div>
-      <div class="confirm-btns">
-        <button class="btn-cy" onclick="doResetMasa()"><i class="fa-solid fa-check"></i> Evet, Sifirla</button>
-        <button class="btn-cn" onclick="closeModal('m-reset-masa')">Iptal</button>
-      </div>
     </div>
   </div>
 </div>
@@ -834,10 +794,11 @@ function doLogout(){
 // ==============================
 async function initApp(){
   showScreen('tables');
-  if(me.role==='owner'){show('btn-admin');show('btn-mutfak')}else{hide('btn-admin');show('btn-mutfak')}
-  // Ciro bar her zaman gizli — yönetim panelinde şifreyle görülür
-  const ciroBar=document.getElementById('ciro-bar-row');
-  if(ciroBar)ciroBar.style.display='none';
+  if(me.role==='owner'){show('btn-admin');show('btn-mutfak')}
+  else{hide('btn-admin');show('btn-mutfak')}
+  // Ciro barı ana menüden kaldırıldı, yönetim panelinden görüntülenir
+  const ciroEl=document.getElementById('ciro-bar-row');
+  if(ciroEl)ciroEl.style.display='none';
   document.getElementById('tbl-sub').textContent=me.display+' · '+new Date().toLocaleDateString('tr-TR');
   area='kapali';
   await Promise.all([loadTables(),loadOpenOrders(),loadSettings(),loadMutfakUrunler()]);
@@ -874,24 +835,25 @@ function setupRealtime(){
     .on('postgres_changes',{event:'*',schema:'public',table:'siparis_kalemleri'},async()=>{await loadOpenOrders();if(curTblId&&isScreenActive('order'))refreshOrderView()})
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'mutfak_bildirimleri'},async(payload)=>{
       const d=payload.new;
-      if(d&&d.urun_listesi&&d.urun_listesi.startsWith('[HAZIR]')){
+      if(d.urun_listesi&&d.urun_listesi.startsWith('[HAZIR]')){
         playReadyAlert();
-        toast('Hazir: '+d.masa_adi+' — '+d.urun_listesi.replace('[HAZIR] ',''));
+        toast('✅ '+d.masa_adi+' — '+d.urun_listesi.replace('[HAZIR] ',''));
       }
-      // [GONDERILDI] gelince garson sessiz kalir
+      // [GONDERILDI] gelince hiçbir şey yapma (garson zaten gönderdi)
     })
-.subscribe();
+    .subscribe();
 }
 
 function setupChefRealtime(){
   chefCh=sb.channel('rk-chef')
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'mutfak_bildirimleri'},async(payload)=>{
       const d=payload.new;
-      if(d&&d.urun_listesi&&d.urun_listesi.startsWith('[GONDERILDI]')){
+      if(d.urun_listesi&&d.urun_listesi.startsWith('[GONDERILDI]')){
         playKitchenAlert();
       }
       await renderChefOrders();
-    })    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'siparis_kalemleri'},async()=>{await renderChefOrders()})
+    })
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'siparis_kalemleri'},async()=>{await renderChefOrders()})
     .on('postgres_changes',{event:'DELETE',schema:'public',table:'siparis_kalemleri'},async()=>{await renderChefOrders()})
     .on('postgres_changes',{event:'*',schema:'public',table:'siparisler'},async()=>{await renderChefOrders()})
     .subscribe();
@@ -951,29 +913,25 @@ async function renderMutfakTab(){
   pending.forEach(row=>{if(!byTable[row.masa_adi])byTable[row.masa_adi]=[];byTable[row.masa_adi].push(row)});
   const byTable2={};
   pending.forEach(row=>{if(!byTable2[row.masa_adi])byTable2[row.masa_adi]=[];byTable2[row.masa_adi].push(row)});
-  el.innerHTML=Object.entries(byTable2).map(([masa,items])=>`
-    <div class="k-order-card">
+  el.innerHTML=Object.entries(byTable2).map(([masa,items])=>{
+    const merged2={};
+    items.forEach(i=>{const k=i.urun_adi;if(!merged2[k])merged2[k]={...i};else{merged2[k].miktar+=i.miktar;if(i.not_metni&&!merged2[k].not_metni)merged2[k].not_metni=i.not_metni;}});
+    const mi=Object.values(merged2);
+    return`<div class="k-order-card">
       <div class="k-order-hdr"><span class="k-order-tname">🍽 ${esc(masa)}</span></div>
-      ${items.map(i=>`<div class="k-item">
-        <div class="k-item-main"><span class="k-item-qty">x${i.miktar}</span><span class="k-item-name">${esc(i.urun_adi)}</span></div>
+      ${mi.map(i=>`<div class="k-item">
+        <div class="k-item-main"><span class="k-item-qty">${i.miktar} Adet</span><span class="k-item-name">${esc(i.urun_adi)}</span></div>
         ${i.not_metni?`<span class="k-item-note">📝 ${esc(i.not_metni)}</span>`:''}
       </div>`).join('')}
-    </div>`).join('');
+    </div>`;}).join('');
 }
 
 function calcTotal(items){return items.reduce((s,i)=>s+(parseFloat(i.fiyat)*i.miktar),0)}
 
 async function updateCiro(){
-  const today=new Date().toISOString().split('T')[0];
-  const{data}=await sb.from('siparisler').select('toplam,odeme_yontemi,kapandi_at').eq('durum','kapali');
-  const todayRows=(data||[]).filter(o=>o.kapandi_at?.startsWith(today));
-  const nakit=todayRows.filter(o=>o.odeme_yontemi==='nakit').reduce((s,o)=>s+(parseFloat(o.toplam)||0),0);
-  const iban=todayRows.filter(o=>o.odeme_yontemi==='iban').reduce((s,o)=>s+(parseFloat(o.toplam)||0),0);
-  const daily=nakit+iban;
-  const dEl=document.getElementById('cv-daily');if(dEl)dEl.textContent=fmt(daily);
-  const nEl=document.getElementById('cv-nakit');if(nEl)nEl.innerHTML='<i class="fa-solid fa-money-bill-wave"></i> '+Math.round(nakit)+' MKD';
-  const iEl=document.getElementById('cv-iban');if(iEl)iEl.innerHTML='<i class="fa-solid fa-building-columns"></i> '+Math.round(iban)+' MKD';
-  const oEl=document.getElementById('cv-open');if(oEl)oEl.textContent=tables.filter(t=>t.dolu).length;
+  // Sadece açık masa sayısını güncelle (ciro yönetim panelinde)
+  const oEl=document.getElementById('cv-open');
+  if(oEl)oEl.textContent=tables.filter(t=>t.dolu).length;
 }
 
 // ==============================
@@ -986,14 +944,20 @@ async function openTable(tid){
   document.getElementById('ord-tname').textContent=tbl.isim;
   document.getElementById('ord-tarea').textContent=tbl.alan==='bahce'?'🌿 Bahçe':'🏠 Kapalı Alan';
   showScreen('order');
+  // Masayı Sıfırla sadece owner'a görünür
   const resetBtn=document.getElementById('btn-reset-masa');
-  if(resetBtn){if(me&&me.role==='owner')resetBtn.classList.remove('hidden');else resetBtn.classList.add('hidden');}
+  if(resetBtn)resetBtn.className='btn-reset-masa'+(me?.role==='owner'?' owner-only':'');
   if(!tbl.dolu){
-    const{data,error}=await sb.from('siparisler').insert({masa_id:tid,masa_adi:tbl.isim,durum:'acik',toplam:0}).select().single();
-    if(error){toast('Masa açılırken hata!');showScreen('tables');return}
-    // Masayı henüz dolu yapmıyoruz — ilk ürün girildiğinde dolu olacak
-    curOrdId=data.id;
-    openOrders[tid]={...data,siparis_kalemleri:[]};renderOrderItems([]);
+    // Açık ama boş bir sipariş zaten var mı kontrol et
+    const{data:existing}=await sb.from('siparisler').select('*, siparis_kalemleri(*)').eq('masa_id',tid).eq('durum','acik').maybeSingle();
+    if(existing){
+      curOrdId=existing.id;openOrders[tid]=existing;renderOrderItems(existing.siparis_kalemleri||[]);
+    } else {
+      const{data,error}=await sb.from('siparisler').insert({masa_id:tid,masa_adi:tbl.isim,durum:'acik',toplam:0}).select().single();
+      if(error){toast('Masa açılırken hata!');showScreen('tables');return}
+      curOrdId=data.id;
+      openOrders[tid]={...data,siparis_kalemleri:[]};renderOrderItems([]);
+    }
   }else{
     const{data}=await sb.from('siparisler').select('*, siparis_kalemleri(*)').eq('masa_id',tid).eq('durum','acik').maybeSingle();
     if(data){curOrdId=data.id;openOrders[tid]=data;renderOrderItems(data.siparis_kalemleri||[])}
@@ -1013,39 +977,25 @@ async function backToTables(){
   showScreen('tables');
   await loadOpenOrders();renderTables();updateCiro();
 }
-function resetMasa(){
-  if(!curTblId){toast('Once bir masa sec.');return;}
-  document.getElementById('m-reset-masa-title').textContent='Masayi Sifirla';
-  document.getElementById('m-reset-masa-desc').textContent='Odemeyi aldiniza emin misiniz? Masa bosaltilacak.';
-  openModal('m-reset-masa');
-}
-async function doResetMasa(){
-  closeModal('m-reset-masa');
-  if(!curTblId)return;
-  // Açık sipariş varsa tüm kalemleri ve siparişi sil
-  if(curOrdId){
-    await sb.from('siparis_kalemleri').delete().eq('siparis_id',curOrdId);
-    await sb.from('siparisler').delete().eq('id',curOrdId);
-  } else {
-    // curOrdId yoksa DB'den kontrol et
-    const{data:acik}=await sb.from('siparisler').select('id').eq('masa_id',curTblId).eq('durum','acik');
-    for(const s of (acik||[])){
-      await sb.from('siparis_kalemleri').delete().eq('siparis_id',s.id);
-      await sb.from('siparisler').delete().eq('id',s.id);
-    }
-  }
+function scrollToPayment(){document.getElementById('pay-btns').scrollIntoView({behavior:'smooth'})}
+
+async function resetMasa(){
+  if(!curTblId||!curOrdId)return;
+  const tbl=tables.find(t=>t.id===curTblId);
+  if(!confirm((tbl?.isim||'Bu masa')+"nın tüm siparişleri silinecek ve masa sıfırlanacak. Emin misiniz?"))return;
+  await sb.from('siparis_kalemleri').delete().eq('siparis_id',curOrdId);
+  await sb.from('siparisler').delete().eq('id',curOrdId);
   await sb.from('masalar').update({dolu:false}).eq('id',curTblId);
   const t=tables.find(x=>x.id===curTblId);if(t)t.dolu=false;
   delete openOrders[curTblId];
-  const tid=curTblId;
+  toast('✓ Masa sıfırlandı.');
+  const resetTid=curTblId;
   curTblId=null;curOrdId=null;
-  toast('Masa sifirlandi.');
   showScreen('tables');
   await loadTables();
   await loadOpenOrders();
   renderTables();updateCiro();
 }
-function scrollToPayment(){document.getElementById('pay-btns').scrollIntoView({behavior:'smooth'})}
 function refreshOrderView(){const o=openOrders[curTblId];if(o)renderOrderItems(o.siparis_kalemleri||[])}
 
 function renderOrderItems(items){
@@ -1110,12 +1060,28 @@ async function changeQty(itemId,delta){
   const ord=openOrders[curTblId];if(!ord)return;
   const item=(ord.siparis_kalemleri||[]).find(i=>i.id===itemId);if(!item)return;
   const nq=item.miktar+delta;
+  const tbl=tables.find(t=>t.id===curTblId);
   if(nq<=0){
     await sb.from('siparis_kalemleri').delete().eq('id',itemId);
     ord.siparis_kalemleri=ord.siparis_kalemleri.filter(i=>i.id!==itemId);
+    // Tüm kalemler silindiyse masayı boşa al ama sipariş kaydını koru
+    if(ord.siparis_kalemleri.length===0){
+      await sb.from('masalar').update({dolu:false}).eq('id',curTblId);
+      const tblReset=tables.find(t=>t.id===curTblId);
+      if(tblReset)tblReset.dolu=false;
+      await sb.from('siparisler').update({toplam:0}).eq('id',curOrdId);
+    }
   } else {
     await sb.from('siparis_kalemleri').update({miktar:nq}).eq('id',itemId);
     item.miktar=nq;
+    // Adet artışı + zaten mutfağa gönderilmişse aşçıya bildir
+    if(delta>0&&item.mutfak_gonderildi&&isMutfakUrun(item.urun_adi)){
+      await sb.from('mutfak_bildirimleri').insert({
+        masa_adi:tbl?.isim||'?',
+        urun_listesi:'[GONDERILDI] '+item.urun_adi+' x'+nq+' (güncellendi)',
+        okundu:false
+      });
+    }
   }
   renderOrderItems(ord.siparis_kalemleri);syncTotal();
 }
@@ -1160,15 +1126,19 @@ async function addItem(pid){
   try{
     const p=products.find(x=>x.id===pid);if(!p||!curOrdId)return;
     const ord=openOrders[curTblId];
-    const ex=(ord?.siparis_kalemleri||[]).find(i=>i.urun_adi===p.isim&&parseFloat(i.fiyat)===parseFloat(p.fiyat));
+    // Her zaman aynı ürünün adedini artır (gönderilmiş olsa bile)
+    const ex=(ord?.siparis_kalemleri||[]).find(i=>i.urun_adi===p.isim&&parseFloat(i.fiyat)===parseFloat(p.fiyat)&&!i.mutfak_hazir);
     if(ex){
-      // Zaten gönderilmişse yeni satır aç, gönderilmemişse sadece adet artır
-      if(ex.mutfak_gonderildi){
-        const{data,error}=await sb.from('siparis_kalemleri').insert({siparis_id:curOrdId,urun_adi:p.isim,fiyat:p.fiyat,miktar:1,mutfak_hazir:false,mutfak_gonderildi:false}).select().single();
-        if(!error&&data){ord.siparis_kalemleri.push(data)}
-      } else {
-        await sb.from('siparis_kalemleri').update({miktar:ex.miktar+1}).eq('id',ex.id);
-        ex.miktar++;
+      await sb.from('siparis_kalemleri').update({miktar:ex.miktar+1}).eq('id',ex.id);
+      ex.miktar++;
+      // Zaten gönderilmişse mutfağa güncelleme bildirimi gönder
+      if(ex.mutfak_gonderildi&&isMutfakUrun(p.isim)){
+        const tblM=tables.find(t=>t.id===curTblId);
+        await sb.from('mutfak_bildirimleri').insert({
+          masa_adi:tblM?.isim||'?',
+          urun_listesi:'[GONDERILDI] '+p.isim+' x'+ex.miktar+' (güncellendi)',
+          okundu:false
+        });
       }
     } else {
       const{data,error}=await sb.from('siparis_kalemleri').insert({siparis_id:curOrdId,urun_adi:p.isim,fiyat:p.fiyat,miktar:1,mutfak_hazir:false,mutfak_gonderildi:false}).select().single();
@@ -1180,7 +1150,7 @@ async function addItem(pid){
       await sb.from('masalar').update({dolu:true}).eq('id',curTblId);
       tbl2.dolu=true;
     }
-    renderOrderItems(ord.siparis_kalemleri);syncTotal();toast('✓ '+p.isim);
+    renderOrderItems(ord.siparis_kalemleri);syncTotal();toast('✓ '+p.isim);closeModal('m-prods');
   }finally{addingItem=false}
 }
 
@@ -1199,6 +1169,7 @@ async function gonderMutfaga(){
   await sb.from('mutfak_bildirimleri').insert({masa_adi:tbl?.isim||'?',urun_listesi:'[GONDERILDI] '+urunOzet,okundu:false});
   renderOrderItems(ord.siparis_kalemleri);
   toast('🍳 Mutfağa gönderildi!');
+  // Ses çalmıyor — aşçı tarafında ses çalacak
 }
 
 // ==============================
@@ -1207,19 +1178,20 @@ async function gonderMutfaga(){
 function initCashPayment(){
   const ord=openOrders[curTblId];
   const items=ord?.siparis_kalemleri||[];
-  if(!items.length){toast('Önce ürün ekleyin.');return;}
+  if(!items.length){toast('⚠️ Şu an bir ürün eklemediniz.');return}
   const total=calcTotal(items);
-  document.getElementById('m-cash-desc').textContent='Toplam: '+fmt(total)+' — Nakit ödeme alındı mı?';
+  document.getElementById('m-cash-desc').textContent=`Toplam: ${fmt(total)} — Nakit ödeme alındı mı?`;
   openModal('m-cash');
 }
 async function confirmCash(){closeModal('m-cash');await finalizeOrder('nakit','alindi')}
 
 async function openIbanModal(){
-  const ord2=openOrders[curTblId];
-  if(!(ord2?.siparis_kalemleri?.length)){toast('Önce ürün ekleyin.');return;}
+  const ord=openOrders[curTblId];
+  const items=ord?.siparis_kalemleri||[];
+  if(!items.length){toast('⚠️ Şu an bir ürün eklemediniz.');return}
   await loadSettings();
   const iban=settings['iban_no']||'',qr=settings['iban_qr']||'';
-  const ord=openOrders[curTblId],rawTotal=calcTotal(ord?.siparis_kalemleri||[]),total=rawTotal+60;
+  const rawTotal=calcTotal(items),total=rawTotal+60;
   let html;
   if(!iban&&!qr){html=`<div class="iban-not-set">🏦<br><br>IBAN henüz ayarlanmamış.<br><span style="font-size:11px">Yönetim → Ayarlar bölümünden ekleyin.</span></div>`}
   else{html=`<div class="iban-box">${iban?`<div class="iban-lbl">IBAN</div><div class="iban-num">${esc(iban)}</div>`:''}${qr?`<img src="${esc(qr)}" class="iban-qr" alt="QR">`:''}
@@ -1264,12 +1236,17 @@ async function renderChefOrders(){
   pending.forEach(row=>{if(!pendingByTable[row.masa_adi])pendingByTable[row.masa_adi]=[];pendingByTable[row.masa_adi].push(row)});
   el.innerHTML=Object.entries(pendingByTable).map(([masa,items])=>{
     const masaKey=masa.replace(/'/g,"\'");
+    // Aynı ürünleri birleştir
     const merged={};
-    items.forEach(i=>{if(!merged[i.urun_adi])merged[i.urun_adi]={...i};else{merged[i.urun_adi].miktar+=i.miktar;if(i.not_metni&&!merged[i.urun_adi].not_metni)merged[i.urun_adi].not_metni=i.not_metni;}});
-    const mi=Object.values(merged);
+    items.forEach(i=>{
+      const k=i.urun_adi;
+      if(!merged[k])merged[k]={...i};
+      else{merged[k].miktar+=i.miktar;if(i.not_metni&&!merged[k].not_metni)merged[k].not_metni=i.not_metni;}
+    });
+    const mergedItems=Object.values(merged);
     return`<div class="k-order-card">
-      <div class="k-order-hdr"><span class="k-order-tname">🍽 ${esc(masa)}</span><span class="k-order-time">${mi.length} kalem</span></div>
-      ${mi.map(i=>`<div class="k-item">
+      <div class="k-order-hdr"><span class="k-order-tname">🍽 ${esc(masa)}</span><span class="k-order-time">${mergedItems.length} kalem</span></div>
+      ${mergedItems.map(i=>`<div class="k-item">
         <div class="k-item-main"><span class="k-item-qty">${i.miktar} Adet</span><span class="k-item-name">${esc(i.urun_adi)}</span></div>
         ${i.not_metni?`<span class="k-item-note">📝 ${esc(i.not_metni)}</span>`:''}
       </div>`).join('')}
@@ -1378,28 +1355,17 @@ async function exportExcel(){
 async function loadAdminProds(){
   const{data}=await sb.from('urunler').select('*').order('kategori').order('isim');
   const el=document.getElementById('admin-prods');
-  if(!data?.length){el.innerHTML='<div style="text-align:center;color:var(--cream-3);font-size:13px;padding:1rem">Henuz urun yok.</div>';return;}
-  const cats={};
-  data.forEach(p=>{const k=p.kategori||'Genel';if(!cats[k])cats[k]=[];cats[k].push(p);});
-  let html='';
-  Object.entries(cats).forEach(([cat,prods])=>{
-    html+='<div class="pa-cat-block"><div class="pa-cat-header"><i class="fa-solid fa-tag"></i> '+esc(cat)+'<span class="pa-cat-count">'+prods.length+' urun</span></div>';
-    prods.forEach(p=>{
-      html+='<div class="pa-item" data-id="'+esc(p.id)+'">';
-      html+='<div class="pa-info"><div class="pa-name">'+esc(p.isim)+'</div>';
-      html+='<div class="pa-meta">'+fmt(p.fiyat)+(p.aciklama?' · '+esc(p.aciklama):'')+'</div></div>';
-      html+='<div style="display:flex;gap:5px;flex-shrink:0">';
-      html+='<button class="btn-edit" onclick="startEditById(this)"><i class="fa-solid fa-pen"></i> Duzenle</button>';
-      html+='<button class="btn-del" onclick="delProdById(this)"><i class="fa-solid fa-trash"></i> Sil</button>';
-      html+='</div></div>';
-    });
-    html+='</div>';
-  });
-  el.innerHTML=html;
+  if(!data?.length){el.innerHTML=`<div style="text-align:center;color:var(--cream-3);font-size:13px;padding:1rem">Henüz ürün yok.</div>`;return}
+  el.innerHTML=data.map(p=>`<div class="pa-item">
+    <div class="pa-info"><div class="pa-name">${esc(p.isim)}</div>
+    <div class="pa-meta"><span class="cat-badge">${esc(p.kategori||'Genel')}</span>${fmt(p.fiyat)}${p.aciklama?` · ${esc(p.aciklama)}`:''}</div></div>
+    <div style="display:flex;gap:5px;flex-shrink:0">
+      <button class="btn-edit" onclick="startEdit('${p.id}')">Düzenle</button>
+      <button class="btn-del" onclick="delProd('${p.id}')">Sil</button>
+    </div></div>`).join('');
   products=data;
 }
-function startEditById(btn){const id=btn.closest('[data-id]').dataset.id;startEdit(id);}
-function delProdById(btn){const id=btn.closest('[data-id]').dataset.id;delProd(id);}
+
 async function addProduct(){
   const name=document.getElementById('np-name').value.trim(),price=parseFloat(document.getElementById('np-price').value),cat=document.getElementById('np-cat').value.trim()||'Genel',desc=document.getElementById('np-desc').value.trim();
   if(!name||isNaN(price)){toast('Ad ve fiyat zorunludur.');return}
@@ -1423,34 +1389,10 @@ async function delProd(id){if(!confirm('Bu ürünü silmek istiyor musunuz?'))re
 // ADMIN — TABLES
 // ==============================
 async function loadAdminTables(){
-  const renderChips=(alanKey,elId)=>{
-    const el=document.getElementById(elId);
-    const list=tables.filter(t=>t.alan===alanKey);
-    if(!list.length){el.innerHTML='<span style="font-size:12px;color:var(--cream-3)">Masa yok</span>';return;}
-    el.innerHTML=list.map(t=>'<div class="t-chip" data-id="'+t.id+'" data-name="'+esc(t.isim)+'">'
-      +'<span>'+esc(t.isim)+'</span>'
-      +'<button class="btn-chip-edit" onclick="editTableNameById(this)" title="Duzenle"><i class="fa-solid fa-pen" style="font-size:10px"></i></button>'
-      +'<button class="btn-chip-del" onclick="delTableById(this)">✕</button>'
-      +'</div>').join('');
-  };
-  renderChips('bahce','adm-b');
-  renderChips('kapali','adm-k');
+  const renderChips=(alanKey,elId)=>{const el=document.getElementById(elId),list=tables.filter(t=>t.alan===alanKey);el.innerHTML=list.length?list.map(t=>`<div class="t-chip">${esc(t.isim)}<button class="btn-chip-del" onclick="delTable('${t.id}','${esc(t.isim)}')">✕</button></div>`).join(''):`<span style="font-size:12px;color:var(--cream-3)">Masa yok</span>`};
+  renderChips('bahce','adm-b');renderChips('kapali','adm-k');
 }
-function editTableNameById(btn){
-  const chip=btn.closest('[data-id]');
-  const id=chip.dataset.id;
-  const currentName=chip.dataset.name;
-  const newName=prompt('Yeni masa adi:',currentName);
-  if(!newName||newName.trim()===currentName)return;
-  sb.from('masalar').update({isim:newName.trim()}).eq('id',id).then(async({error})=>{
-    if(error){toast('Hata: '+error.message);return;}
-    await loadTables();renderTables();loadAdminTables();toast('Masa adi guncellendi.');
-  });
-}
-function delTableById(btn){
-  const chip=btn.closest('[data-id]');
-  delTable(chip.dataset.id, chip.dataset.name);
-}
+
 async function addTable(alan){
   const prefix=alan==='bahce'?'B':'K',n=tables.filter(t=>t.alan===alan).length+1,name=prefix+n;
   const{error}=await sb.from('masalar').insert({isim:name,alan,dolu:false});
@@ -1460,18 +1402,16 @@ async function addTable(alan){
 
 async function delTable(id,name){
   const t=tables.find(x=>x.id===id);
-  if(t&&t.dolu){
-    if(!confirm('"'+name+'" masasi su an DOLU. Silmek istiyor musunuz? Acik adisyon kapanacak.'))return;
-    const{data:acik}=await sb.from('siparisler').select('id').eq('masa_id',id).eq('durum','acik');
-    for(const s of (acik||[])){
-      await sb.from('siparis_kalemleri').delete().eq('siparis_id',s.id);
-      await sb.from('siparisler').delete().eq('id',s.id);
-    }
+  if(t?.dolu){
+    if(!confirm(`"${name}" masası şu an DOLU. Silmek istediğinize emin misiniz?
+
+Masayı silmek açık adisyonu da kapatacak.`))return;
+    // Açık siparişi kapat
+    await sb.from('siparisler').update({durum:'kapali',kapandi_at:new Date().toISOString()}).eq('masa_id',id).eq('durum','acik');
   } else {
-    if(!confirm('"'+name+'" silinsin mi?'))return;
+    if(!confirm(`"${name}" silinsin mi?`))return;
   }
-  await sb.from('masalar').delete().eq('id',id);
-  await loadTables();renderTables();loadAdminTables();toast(name+' silindi.');
+  await sb.from('masalar').delete().eq('id',id);await loadTables();renderTables();loadAdminTables();toast(name+' silindi.');
 }
 
 // ==============================
@@ -1486,7 +1426,9 @@ async function loadAdminMutfak(){
   const el=document.getElementById('mutfak-urun-list');
   if(!mutfakUrunler.length){el.innerHTML=`<div style="text-align:center;padding:1rem;color:var(--cream-3);font-size:13px">Henüz mutfak ürünü yok.</div>`;return}
   el.innerHTML=mutfakUrunler.map(m=>`<div class="mutfak-prod-item"><span class="mutfak-prod-name">🔥 ${esc(m.urun_adi)}</span><button class="btn-mutfak-del" onclick="delMutfakUrun('${m.id}','${esc(m.urun_adi)}')">Kaldır</button></div>`).join('');
+  // chef pw
   await loadSettings();
+  document.getElementById('s-asci-sifre').value=settings['asci_sifre']||'mutfak123';
 }
 
 async function addMutfakUrun(){
@@ -1554,20 +1496,20 @@ async function loadAdminSettings(){
   await loadSettings();
   document.getElementById('s-iban').value=settings['iban_no']||'';
   document.getElementById('s-qr').value=settings['iban_qr']||'';
-  const asciEl=document.getElementById('s-asci-sifre');
-  if(asciEl)asciEl.value=settings['asci_sifre']||'mutfak123';
   loadCatSortPanel();
   // Ciro is password-protected, reset fields
   const errEl=document.getElementById('ciro-pwd-err');if(errEl)errEl.textContent='';
   ['ct-nakit','ct-iban','ct-total'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—'});
+  const errEl2=document.getElementById('gun-ciro-pwd-err');if(errEl2)errEl2.textContent='';
+  ['ct-gun-nakit','ct-gun-iban','ct-gun-toplam'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—'});
 }
 
 async function loadGunlukCiroWithPwd(){
   const pwd=document.getElementById('gun-ciro-pwd').value;
   const errEl=document.getElementById('gun-ciro-pwd-err');
-  if(!pwd){if(errEl)errEl.textContent='Şifre gerekli.';return;}
-  if(pwd!=='adanakebap'){if(errEl)errEl.textContent='Yanliş şifre.';return;}
-  if(errEl)errEl.textContent='';
+  if(!pwd){errEl.textContent='Şifre gerekli.';return}
+  if(pwd!=='adanakebap'){errEl.textContent='Yanlış şifre.';return}
+  errEl.textContent='';
   document.getElementById('gun-ciro-pwd').value='';
   const today=new Date().toISOString().split('T')[0];
   const{data}=await sb.from('siparisler').select('toplam,odeme_yontemi,kapandi_at').eq('durum','kapali');
@@ -1577,8 +1519,9 @@ async function loadGunlukCiroWithPwd(){
   document.getElementById('ct-gun-nakit').textContent=fmt(nakit);
   document.getElementById('ct-gun-iban').textContent=fmt(iban);
   document.getElementById('ct-gun-toplam').textContent=fmt(nakit+iban);
-  toast('Günlük ciro yüklendi.');
+  toast('✓ Günlük ciro yüklendi.');
 }
+
 async function loadCiroTotal(){
   const{data}=await sb.from('siparisler').select('toplam,odeme_yontemi').eq('durum','kapali');
   const nakit=(data||[]).filter(o=>o.odeme_yontemi==='nakit').reduce((s,o)=>s+(parseFloat(o.toplam)||0),0);
@@ -1663,13 +1606,15 @@ function switchAdminTab(tab){
 function playKitchenAlert(){
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    [[0,880],[0.35,880],[0.7,880]].forEach(([t,f])=>{
+    // Tok, kalın mutfak zili — 220Hz + 330Hz harmonik, triangle wave
+    [[0,220],[0,330],[0.45,220],[0.45,330],[0.9,220],[0.9,330]].forEach(([t,f],i)=>{
       const osc=ctx.createOscillator(),gain=ctx.createGain();
       osc.connect(gain);gain.connect(ctx.destination);
-      osc.frequency.value=f;osc.type='sine';
-      gain.gain.setValueAtTime(0.5,ctx.currentTime+t);
-      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+0.3);
-      osc.start(ctx.currentTime+t);osc.stop(ctx.currentTime+t+0.35);
+      osc.frequency.value=f;
+      osc.type=i%2===0?'triangle':'sine';
+      gain.gain.setValueAtTime(i%2===0?0.7:0.3,ctx.currentTime+t);
+      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+0.4);
+      osc.start(ctx.currentTime+t);osc.stop(ctx.currentTime+t+0.45);
     });
   }catch(e){}
 }
@@ -1677,13 +1622,15 @@ function playKitchenAlert(){
 function playReadyAlert(){
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    [[0,660],[0.2,880],[0.4,1100]].forEach(([t,f])=>{
+    // Tok yükselen akor — 330/440/550 Hz triangle, güçlü sustain
+    [[0,330],[0,440],[0.28,440],[0.28,550],[0.56,550],[0.56,660]].forEach(([t,f],i)=>{
       const osc=ctx.createOscillator(),gain=ctx.createGain();
       osc.connect(gain);gain.connect(ctx.destination);
-      osc.frequency.value=f;osc.type='sine';
-      gain.gain.setValueAtTime(0.4,ctx.currentTime+t);
-      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+0.4);
-      osc.start(ctx.currentTime+t);osc.stop(ctx.currentTime+t+0.45);
+      osc.frequency.value=f;
+      osc.type='triangle';
+      gain.gain.setValueAtTime(i%2===0?0.65:0.35,ctx.currentTime+t);
+      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+0.45);
+      osc.start(ctx.currentTime+t);osc.stop(ctx.currentTime+t+0.5);
     });
   }catch(e){}
 }
