@@ -539,8 +539,11 @@ input,textarea,select{font-family:inherit;outline:none}
       </div>
       <div class="settings-card">
         <p class="s-label"><i class="fa-solid fa-qrcode"></i> IBAN QR Kodu</p>
-        <p style="font-size:11px;color:var(--cream-3);margin-bottom:8px;line-height:1.6">imgbb.com'a yükle → direct link URL'sini yapıştır</p>
-        <input type="url" class="s-input" id="s-qr" placeholder="https://i.ibb.co/xxx/qr.png">
+        <p style="font-size:11px;color:var(--cream-3);margin-bottom:8px;line-height:1.6">
+          QR görselini <strong style="color:var(--cream-2)">postimages.org</strong> veya <strong style="color:var(--cream-2)">imgur.com</strong>'a yükleyin,
+          <strong style="color:var(--cream-2)">direkt resim linkini</strong> (.png/.jpg ile biten) yapıştırın.
+        </p>
+        <input type="url" class="s-input" id="s-qr" placeholder="https://i.postimg.cc/xxx/qr.png">
         <button class="btn-save" onclick="saveSetting('iban_qr','s-qr')"><i class="fa-solid fa-floppy-disk"></i> Kaydet</button>
       </div>
       <div class="settings-card">
@@ -1004,7 +1007,7 @@ function resetMasa(){
   if(!curTblId||!curOrdId){toast('Aktif sipariş bulunamadı.');return;}
   const tbl=tables.find(t=>t.id===curTblId);
   document.getElementById('m-reset-masa-title').textContent=(tbl?.isim||'Masa')+' Sıfırla';
-  document.getElementById('m-reset-masa-desc').textContent='Ödemeyi aldığınıza emin misiniz? '+( tbl?.isim||'Bu masa')+\'nın tüm siparişleri silinecek ve masa boşa alınacak.';
+  document.getElementById('m-reset-masa-desc').textContent='Ödemeyi aldığınıza emin misiniz? '+(tbl?.isim||'Bu masa')+' sıfırlanacak, tüm siparişler silinecek.';
   openModal('m-reset-masa');
 }
 async function doResetMasa(){
@@ -1221,7 +1224,7 @@ async function openIbanModal(){
   const rawTotal=calcTotal(items),total=rawTotal+60;
   let html;
   if(!iban&&!qr){html=`<div class="iban-not-set">🏦<br><br>IBAN henüz ayarlanmamış.<br><span style="font-size:11px">Yönetim → Ayarlar bölümünden ekleyin.</span></div>`}
-  else{html=`<div class="iban-box">${iban?`<div class="iban-lbl">IBAN</div><div class="iban-num">${esc(iban)}</div>`:''}${qr?`<img src="${esc(qr)}" class="iban-qr" alt="QR">`:''}
+  else{html=`<div class="iban-box">${iban?`<div class="iban-lbl">IBAN</div><div class="iban-num">${esc(iban)}</div>`:''}${qr?`<img src="${esc(qr)}" class="iban-qr" alt="QR" onerror="this.style.display='none';this.nextSibling.style.display='block'">`+''}
   </div><div class="iban-total">Toplam: ${fmt(total)}</div><div class="iban-surcharge">+ 60 MKD havale ücreti dahil</div>`}
   document.getElementById('m-iban-body').innerHTML=html;
   openModal('m-iban');
