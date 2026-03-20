@@ -85,7 +85,7 @@ input,textarea,select{font-family:inherit;outline:none}
 .hdr-btn.toffee{background:var(--toffee-deep);color:var(--toffee-l)}
 
 /* CIRO INLINE */
-.ciro-bar-row{display:flex;align-items:center;background:var(--s1);border-bottom:1px solid var(--border);padding:7px 14px;gap:0;flex-shrink:0}
+.ciro-bar-row{display:none;align-items:center;background:var(--s1);border-bottom:1px solid var(--border);padding:7px 14px;gap:0;flex-shrink:0}
 .ciro-cell{display:flex;align-items:center;gap:9px;flex:1}
 .ciro-cell.ciro-main{flex:2}
 .ciro-cell-icon{font-size:18px;color:var(--toffee-l);flex-shrink:0}
@@ -176,7 +176,7 @@ input,textarea,select{font-family:inherit;outline:none}
 .k-item{padding:9px 14px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:3px}
 .k-item:last-child{border-bottom:none}
 .k-item-main{display:flex;align-items:center;gap:8px}
-.k-item-qty{background:var(--toffee-deep);color:var(--toffee-l);border-radius:5px;padding:2px 7px;font-size:12px;font-weight:700;flex-shrink:0}
+.k-item-qty{background:var(--toffee-d);color:#ffffff;border-radius:5px;padding:3px 9px;font-size:12px;font-weight:700;flex-shrink:0}
 .k-item-name{font-size:13px;font-weight:500;color:var(--cream);flex:1}
 .k-item-note{font-size:11px;color:var(--toffee-l);background:var(--toffee-deep);padding:3px 8px;border-radius:4px;margin-top:2px;display:inline-block}
 .btn-hazir{background:var(--green-ok);color:#fff;border-radius:var(--radius-sm);padding:9px 16px;font-size:13px;font-weight:600;width:calc(100% - 28px);margin:10px 14px;border:none}
@@ -512,6 +512,19 @@ input,textarea,select{font-family:inherit;outline:none}
     </div>
     <!-- AYARLAR -->
     <div id="ap-ayarlar" class="admin-panel">
+      <div class="settings-card" id="gunluk-ciro-card">
+        <p class="s-label"><i class="fa-solid fa-sun"></i> Günlük Ciro</p>
+        <div class="ciro-total-card">
+          <div class="ct-row"><span class="ct-label"><i class="fa-solid fa-money-bill-wave"></i> Nakit (Bugün)</span><span class="ct-val nakit" id="ct-gun-nakit">—</span></div>
+          <div class="ct-row"><span class="ct-label"><i class="fa-solid fa-building-columns"></i> IBAN (Bugün)</span><span class="ct-val iban" id="ct-gun-iban">—</span></div>
+          <div class="ct-row"><span class="ct-label" style="font-weight:700;color:var(--cream)"><i class="fa-solid fa-sigma"></i> Günlük Toplam</span><span class="ct-val total" id="ct-gun-toplam">—</span></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+          <input type="password" id="gun-ciro-pwd" class="s-input" placeholder="Ciroyu görüntülemek için yönetim şifresini girin." style="margin-bottom:0;flex:1">
+          <button class="btn-save" onclick="loadGunlukCiroWithPwd()"><i class="fa-solid fa-eye"></i> Göster</button>
+        </div>
+        <div id="gun-ciro-pwd-err" style="font-size:11px;color:var(--red);margin-top:4px;min-height:14px"></div>
+      </div>
       <div class="settings-card">
         <p class="s-label"><i class="fa-solid fa-coins"></i> Toplam Ciro</p>
         <div class="ciro-total-card" id="ciro-total-card">
@@ -520,8 +533,8 @@ input,textarea,select{font-family:inherit;outline:none}
           <div class="ct-row"><span class="ct-label" style="font-weight:700;color:var(--cream)"><i class="fa-solid fa-sigma"></i> Genel Toplam</span><span class="ct-val total" id="ct-total">—</span></div>
         </div>
         <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
-          <input type="password" id="ciro-pwd" class="s-input" placeholder="Yönetim şifresi" style="margin-bottom:0;flex:1">
-          <button class="btn-save" onclick="loadCiroTotalWithPwd()"><i class="fa-solid fa-unlock"></i> Yenile</button>
+          <input type="password" id="ciro-pwd" class="s-input" placeholder="Ciroyu görüntülemek için yönetim şifresini girin." style="margin-bottom:0;flex:1">
+          <button class="btn-save" onclick="loadCiroTotalWithPwd()"><i class="fa-solid fa-eye"></i> Göster</button>
         </div>
         <div id="ciro-pwd-err" style="font-size:11px;color:var(--red);margin-top:4px;min-height:14px"></div>
       </div>
@@ -798,8 +811,8 @@ function doLogout(){
 // ==============================
 async function initApp(){
   showScreen('tables');
-  if(me.role==='owner'){show('btn-admin');show('btn-mutfak');show('ciro-bar-row')}
-  else{hide('btn-admin');show('btn-mutfak');hide('ciro-bar-row')}
+  if(me.role==='owner'){show('btn-admin');show('btn-mutfak');document.getElementById('ciro-bar-row').style.display='flex'}
+  else{hide('btn-admin');show('btn-mutfak');document.getElementById('ciro-bar-row').style.display='none'}
   document.getElementById('tbl-sub').textContent=me.display+' · '+new Date().toLocaleDateString('tr-TR');
   area='kapali';
   await Promise.all([loadTables(),loadOpenOrders(),loadSettings(),loadMutfakUrunler()]);
@@ -914,14 +927,17 @@ async function renderMutfakTab(){
   pending.forEach(row=>{if(!byTable[row.masa_adi])byTable[row.masa_adi]=[];byTable[row.masa_adi].push(row)});
   const byTable2={};
   pending.forEach(row=>{if(!byTable2[row.masa_adi])byTable2[row.masa_adi]=[];byTable2[row.masa_adi].push(row)});
-  el.innerHTML=Object.entries(byTable2).map(([masa,items])=>`
-    <div class="k-order-card">
+  el.innerHTML=Object.entries(byTable2).map(([masa,items])=>{
+    const merged2={};
+    items.forEach(i=>{const k=i.urun_adi;if(!merged2[k])merged2[k]={...i};else{merged2[k].miktar+=i.miktar;if(i.not_metni&&!merged2[k].not_metni)merged2[k].not_metni=i.not_metni;}});
+    const mi=Object.values(merged2);
+    return`<div class="k-order-card">
       <div class="k-order-hdr"><span class="k-order-tname">🍽 ${esc(masa)}</span></div>
-      ${items.map(i=>`<div class="k-item">
-        <div class="k-item-main"><span class="k-item-qty">x${i.miktar}</span><span class="k-item-name">${esc(i.urun_adi)}</span></div>
+      ${mi.map(i=>`<div class="k-item">
+        <div class="k-item-main"><span class="k-item-qty">${i.miktar} Adet</span><span class="k-item-name">${esc(i.urun_adi)}</span></div>
         ${i.not_metni?`<span class="k-item-note">📝 ${esc(i.not_metni)}</span>`:''}
       </div>`).join('')}
-    </div>`).join('');
+    </div>`;}).join('');
 }
 
 function calcTotal(items){return items.reduce((s,i)=>s+(parseFloat(i.fiyat)*i.miktar),0)}
@@ -1098,15 +1114,19 @@ async function addItem(pid){
   try{
     const p=products.find(x=>x.id===pid);if(!p||!curOrdId)return;
     const ord=openOrders[curTblId];
-    const ex=(ord?.siparis_kalemleri||[]).find(i=>i.urun_adi===p.isim&&parseFloat(i.fiyat)===parseFloat(p.fiyat));
+    // Her zaman aynı ürünün adedini artır (gönderilmiş olsa bile)
+    const ex=(ord?.siparis_kalemleri||[]).find(i=>i.urun_adi===p.isim&&parseFloat(i.fiyat)===parseFloat(p.fiyat)&&!i.mutfak_hazir);
     if(ex){
-      // Zaten gönderilmişse yeni satır aç, gönderilmemişse sadece adet artır
-      if(ex.mutfak_gonderildi){
-        const{data,error}=await sb.from('siparis_kalemleri').insert({siparis_id:curOrdId,urun_adi:p.isim,fiyat:p.fiyat,miktar:1,mutfak_hazir:false,mutfak_gonderildi:false}).select().single();
-        if(!error&&data){ord.siparis_kalemleri.push(data)}
-      } else {
-        await sb.from('siparis_kalemleri').update({miktar:ex.miktar+1}).eq('id',ex.id);
-        ex.miktar++;
+      await sb.from('siparis_kalemleri').update({miktar:ex.miktar+1}).eq('id',ex.id);
+      ex.miktar++;
+      // Zaten gönderilmişse mutfağa güncelleme bildirimi gönder
+      if(ex.mutfak_gonderildi&&isMutfakUrun(p.isim)){
+        const tblM=tables.find(t=>t.id===curTblId);
+        await sb.from('mutfak_bildirimleri').insert({
+          masa_adi:tblM?.isim||'?',
+          urun_listesi:'[GONDERILDI] '+p.isim+' x'+ex.miktar+' (güncellendi)',
+          okundu:false
+        });
       }
     } else {
       const{data,error}=await sb.from('siparis_kalemleri').insert({siparis_id:curOrdId,urun_adi:p.isim,fiyat:p.fiyat,miktar:1,mutfak_hazir:false,mutfak_gonderildi:false}).select().single();
@@ -1118,7 +1138,7 @@ async function addItem(pid){
       await sb.from('masalar').update({dolu:true}).eq('id',curTblId);
       tbl2.dolu=true;
     }
-    renderOrderItems(ord.siparis_kalemleri);syncTotal();toast('✓ '+p.isim);
+    renderOrderItems(ord.siparis_kalemleri);syncTotal();toast('✓ '+p.isim);closeModal('m-prods');
   }finally{addingItem=false}
 }
 
@@ -1144,16 +1164,22 @@ async function gonderMutfaga(){
 // PAYMENT
 // ==============================
 function initCashPayment(){
-  const ord=openOrders[curTblId],total=calcTotal(ord?.siparis_kalemleri||[]);
+  const ord=openOrders[curTblId];
+  const items=ord?.siparis_kalemleri||[];
+  if(!items.length){toast('⚠️ Şu an bir ürün eklemediniz.');return}
+  const total=calcTotal(items);
   document.getElementById('m-cash-desc').textContent=`Toplam: ${fmt(total)} — Nakit ödeme alındı mı?`;
   openModal('m-cash');
 }
 async function confirmCash(){closeModal('m-cash');await finalizeOrder('nakit','alindi')}
 
 async function openIbanModal(){
+  const ord=openOrders[curTblId];
+  const items=ord?.siparis_kalemleri||[];
+  if(!items.length){toast('⚠️ Şu an bir ürün eklemediniz.');return}
   await loadSettings();
   const iban=settings['iban_no']||'',qr=settings['iban_qr']||'';
-  const ord=openOrders[curTblId],rawTotal=calcTotal(ord?.siparis_kalemleri||[]),total=rawTotal+60;
+  const rawTotal=calcTotal(items),total=rawTotal+60;
   let html;
   if(!iban&&!qr){html=`<div class="iban-not-set">🏦<br><br>IBAN henüz ayarlanmamış.<br><span style="font-size:11px">Yönetim → Ayarlar bölümünden ekleyin.</span></div>`}
   else{html=`<div class="iban-box">${iban?`<div class="iban-lbl">IBAN</div><div class="iban-num">${esc(iban)}</div>`:''}${qr?`<img src="${esc(qr)}" class="iban-qr" alt="QR">`:''}
@@ -1198,10 +1224,18 @@ async function renderChefOrders(){
   pending.forEach(row=>{if(!pendingByTable[row.masa_adi])pendingByTable[row.masa_adi]=[];pendingByTable[row.masa_adi].push(row)});
   el.innerHTML=Object.entries(pendingByTable).map(([masa,items])=>{
     const masaKey=masa.replace(/'/g,"\'");
+    // Aynı ürünleri birleştir
+    const merged={};
+    items.forEach(i=>{
+      const k=i.urun_adi;
+      if(!merged[k])merged[k]={...i};
+      else{merged[k].miktar+=i.miktar;if(i.not_metni&&!merged[k].not_metni)merged[k].not_metni=i.not_metni;}
+    });
+    const mergedItems=Object.values(merged);
     return`<div class="k-order-card">
-      <div class="k-order-hdr"><span class="k-order-tname">🍽 ${esc(masa)}</span><span class="k-order-time">${items.length} kalem</span></div>
-      ${items.map(i=>`<div class="k-item">
-        <div class="k-item-main"><span class="k-item-qty">x${i.miktar}</span><span class="k-item-name">${esc(i.urun_adi)}</span></div>
+      <div class="k-order-hdr"><span class="k-order-tname">🍽 ${esc(masa)}</span><span class="k-order-time">${mergedItems.length} kalem</span></div>
+      ${mergedItems.map(i=>`<div class="k-item">
+        <div class="k-item-main"><span class="k-item-qty">${i.miktar} Adet</span><span class="k-item-name">${esc(i.urun_adi)}</span></div>
         ${i.not_metni?`<span class="k-item-note">📝 ${esc(i.not_metni)}</span>`:''}
       </div>`).join('')}
       <button class="btn-hazir" onclick="initChefReady('${masaKey}')">✅ Hazırlandı — Bildir</button>
@@ -1226,7 +1260,8 @@ async function confirmChefReady(){
   if(!ids.length){toast('Kalem bulunamadı.');chefReadyTableId=null;return;}
   const{error}=await sb.from('siparis_kalemleri').update({mutfak_hazir:true}).in('id',ids);
   if(error){toast('Hata: '+error.message);return;}
-  await sb.from('mutfak_bildirimleri').insert({masa_adi:masa,urun_listesi:'[HAZIR] '+ids.length+' kalem hazırlandı',okundu:false});
+  const urunAdlari=items.map(i=>i.urun_adi+(i.miktar>1?' x'+i.miktar:'')).join(', ');
+  await sb.from('mutfak_bildirimleri').insert({masa_adi:masa,urun_listesi:'[HAZIR] '+urunAdlari,okundu:false});
   toast('✅ Garson bildirildi!');
   chefReadyTableId=null;
   await renderChefOrders();
@@ -1354,8 +1389,16 @@ async function addTable(alan){
 }
 
 async function delTable(id,name){
-  const t=tables.find(x=>x.id===id);if(t?.dolu){toast('Dolu masa silinemez!');return}
-  if(!confirm(`"${name}" silinsin mi?`))return;
+  const t=tables.find(x=>x.id===id);
+  if(t?.dolu){
+    if(!confirm(`"${name}" masası şu an DOLU. Silmek istediğinize emin misiniz?
+
+Masayı silmek açık adisyonu da kapatacak.`))return;
+    // Açık siparişi kapat
+    await sb.from('siparisler').update({durum:'kapali',kapandi_at:new Date().toISOString()}).eq('masa_id',id).eq('durum','acik');
+  } else {
+    if(!confirm(`"${name}" silinsin mi?`))return;
+  }
   await sb.from('masalar').delete().eq('id',id);await loadTables();renderTables();loadAdminTables();toast(name+' silindi.');
 }
 
@@ -1445,6 +1488,26 @@ async function loadAdminSettings(){
   // Ciro is password-protected, reset fields
   const errEl=document.getElementById('ciro-pwd-err');if(errEl)errEl.textContent='';
   ['ct-nakit','ct-iban','ct-total'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—'});
+  const errEl2=document.getElementById('gun-ciro-pwd-err');if(errEl2)errEl2.textContent='';
+  ['ct-gun-nakit','ct-gun-iban','ct-gun-toplam'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—'});
+}
+
+async function loadGunlukCiroWithPwd(){
+  const pwd=document.getElementById('gun-ciro-pwd').value;
+  const errEl=document.getElementById('gun-ciro-pwd-err');
+  if(!pwd){errEl.textContent='Şifre gerekli.';return}
+  if(pwd!=='adanakebap'){errEl.textContent='Yanlış şifre.';return}
+  errEl.textContent='';
+  document.getElementById('gun-ciro-pwd').value='';
+  const today=new Date().toISOString().split('T')[0];
+  const{data}=await sb.from('siparisler').select('toplam,odeme_yontemi,kapandi_at').eq('durum','kapali');
+  const todayRows=(data||[]).filter(o=>o.kapandi_at?.startsWith(today));
+  const nakit=todayRows.filter(o=>o.odeme_yontemi==='nakit').reduce((s,o)=>s+(parseFloat(o.toplam)||0),0);
+  const iban=todayRows.filter(o=>o.odeme_yontemi==='iban').reduce((s,o)=>s+(parseFloat(o.toplam)||0),0);
+  document.getElementById('ct-gun-nakit').textContent=fmt(nakit);
+  document.getElementById('ct-gun-iban').textContent=fmt(iban);
+  document.getElementById('ct-gun-toplam').textContent=fmt(nakit+iban);
+  toast('✓ Günlük ciro yüklendi.');
 }
 
 async function loadCiroTotal(){
