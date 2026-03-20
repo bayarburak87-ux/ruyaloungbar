@@ -23,7 +23,7 @@
   --radius:12px; --radius-sm:8px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;zoom:1.15}
 button{font-family:inherit;cursor:pointer;border:none;outline:none}
 input,textarea,select{font-family:inherit;outline:none}
 .hidden{display:none!important}
@@ -513,6 +513,19 @@ input,textarea,select{font-family:inherit;outline:none}
     <!-- AYARLAR -->
     <div id="ap-ayarlar" class="admin-panel">
       <div class="settings-card">
+        <p class="s-label"><i class="fa-solid fa-sun"></i> Günlük Ciro</p>
+        <div class="ciro-total-card">
+          <div class="ct-row"><span class="ct-label"><i class="fa-solid fa-money-bill-wave"></i> Nakit (Bugün)</span><span class="ct-val nakit" id="ct-gun-nakit">—</span></div>
+          <div class="ct-row"><span class="ct-label"><i class="fa-solid fa-building-columns"></i> IBAN (Bugün)</span><span class="ct-val iban" id="ct-gun-iban">—</span></div>
+          <div class="ct-row"><span class="ct-label" style="font-weight:700;color:var(--cream)">Günlük Toplam</span><span class="ct-val total" id="ct-gun-toplam">—</span></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+          <input type="password" id="gun-ciro-pwd" class="s-input" placeholder="Yönetim şifresi" style="margin-bottom:0;flex:1">
+          <button class="btn-save" onclick="loadGunlukCiroWithPwd()"><i class="fa-solid fa-eye"></i> Göster</button>
+        </div>
+        <div id="gun-ciro-pwd-err" style="font-size:11px;color:var(--red);margin-top:4px;min-height:14px"></div>
+      </div>
+      <div class="settings-card">
         <p class="s-label"><i class="fa-solid fa-coins"></i> Toplam Ciro</p>
         <div class="ciro-total-card" id="ciro-total-card">
           <div class="ct-row"><span class="ct-label"><i class="fa-solid fa-money-bill-wave"></i> Nakit Tahsilat</span><span class="ct-val nakit" id="ct-nakit">—</span></div>
@@ -746,7 +759,7 @@ function resetSetup(){
 // ==============================
 // STATE
 // ==============================
-let sb=null,me=null,area='kapali',tables=[],products=[],openOrders={},settings={},curTblId=null,curOrdId=null,rtCh=null,mutfakUrunler=[],catSortOrder=[],chefReadyTableId=null,addingItem=false;
+let sb=null,me=null,area='kapali',tables=[],products=[],openOrders={},settings={},curTblId=null,curOrdId=null,rtCh=null,chefCh=null,mutfakUrunler=[],catSortOrder=[],chefReadyTableId=null,addingItem=false;
 
 // ==============================
 // INIT
@@ -810,6 +823,7 @@ function doLogout(){
   me=null;
   localStorage.removeItem('rk_session');
   if(rtCh){sb.removeChannel(rtCh);rtCh=null}
+  if(chefCh){sb.removeChannel(chefCh);chefCh=null}
   showScreen('login');
   document.getElementById('l-user').value='';
   document.getElementById('l-pass').value='';
@@ -860,21 +874,24 @@ function setupRealtime(){
     .on('postgres_changes',{event:'*',schema:'public',table:'siparis_kalemleri'},async()=>{await loadOpenOrders();if(curTblId&&isScreenActive('order'))refreshOrderView()})
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'mutfak_bildirimleri'},async(payload)=>{
       const d=payload.new;
-      // Only play ready sound if it's a "hazır" notification from chef, not a send notification
-      if(d.urun_listesi&&!d.urun_listesi.includes('(yeni)')&&!d.urun_listesi.includes('(güncellendi)')){
+      if(d&&d.urun_listesi&&d.urun_listesi.startsWith('[HAZIR]')){
         playReadyAlert();
-        toast('✅ '+d.masa_adi+' hazır! '+d.urun_listesi);
+        toast('Hazir: '+d.masa_adi+' — '+d.urun_listesi.replace('[HAZIR] ',''));
       }
+      // [GONDERILDI] gelince garson sessiz kalir
     })
-    .subscribe();
+.subscribe();
 }
 
 function setupChefRealtime(){
-  const chefCh=sb.channel('rk-chef')
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'mutfak_bildirimleri'},async()=>{
-      playKitchenAlert();await renderChefOrders();
-    })
-    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'siparis_kalemleri'},async()=>{await renderChefOrders()})
+  chefCh=sb.channel('rk-chef')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'mutfak_bildirimleri'},async(payload)=>{
+      const d=payload.new;
+      if(d&&d.urun_listesi&&d.urun_listesi.startsWith('[GONDERILDI]')){
+        playKitchenAlert();
+      }
+      await renderChefOrders();
+    })    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'siparis_kalemleri'},async()=>{await renderChefOrders()})
     .on('postgres_changes',{event:'DELETE',schema:'public',table:'siparis_kalemleri'},async()=>{await renderChefOrders()})
     .on('postgres_changes',{event:'*',schema:'public',table:'siparisler'},async()=>{await renderChefOrders()})
     .subscribe();
@@ -1179,7 +1196,7 @@ async function gonderMutfaga(){
   await sb.from('siparis_kalemleri').update({mutfak_gonderildi:true}).in('id',ids);
   unsent.forEach(i=>{i.mutfak_gonderildi=true});
   const urunOzet=unsent.map(i=>i.urun_adi+' x'+i.miktar+(i.not_metni?' ['+i.not_metni+']':'')).join(', ');
-  await sb.from('mutfak_bildirimleri').insert({masa_adi:tbl?.isim||'?',urun_listesi:urunOzet,okundu:false});
+  await sb.from('mutfak_bildirimleri').insert({masa_adi:tbl?.isim||'?',urun_listesi:'[GONDERILDI] '+urunOzet,okundu:false});
   renderOrderItems(ord.siparis_kalemleri);
   toast('🍳 Mutfağa gönderildi!');
 }
@@ -1188,13 +1205,18 @@ async function gonderMutfaga(){
 // PAYMENT
 // ==============================
 function initCashPayment(){
-  const ord=openOrders[curTblId],total=calcTotal(ord?.siparis_kalemleri||[]);
-  document.getElementById('m-cash-desc').textContent=`Toplam: ${fmt(total)} — Nakit ödeme alındı mı?`;
+  const ord=openOrders[curTblId];
+  const items=ord?.siparis_kalemleri||[];
+  if(!items.length){toast('Önce ürün ekleyin.');return;}
+  const total=calcTotal(items);
+  document.getElementById('m-cash-desc').textContent='Toplam: '+fmt(total)+' — Nakit ödeme alındı mı?';
   openModal('m-cash');
 }
 async function confirmCash(){closeModal('m-cash');await finalizeOrder('nakit','alindi')}
 
 async function openIbanModal(){
+  const ord2=openOrders[curTblId];
+  if(!(ord2?.siparis_kalemleri?.length)){toast('Önce ürün ekleyin.');return;}
   await loadSettings();
   const iban=settings['iban_no']||'',qr=settings['iban_qr']||'';
   const ord=openOrders[curTblId],rawTotal=calcTotal(ord?.siparis_kalemleri||[]),total=rawTotal+60;
@@ -1242,10 +1264,13 @@ async function renderChefOrders(){
   pending.forEach(row=>{if(!pendingByTable[row.masa_adi])pendingByTable[row.masa_adi]=[];pendingByTable[row.masa_adi].push(row)});
   el.innerHTML=Object.entries(pendingByTable).map(([masa,items])=>{
     const masaKey=masa.replace(/'/g,"\'");
+    const merged={};
+    items.forEach(i=>{if(!merged[i.urun_adi])merged[i.urun_adi]={...i};else{merged[i.urun_adi].miktar+=i.miktar;if(i.not_metni&&!merged[i.urun_adi].not_metni)merged[i.urun_adi].not_metni=i.not_metni;}});
+    const mi=Object.values(merged);
     return`<div class="k-order-card">
-      <div class="k-order-hdr"><span class="k-order-tname">🍽 ${esc(masa)}</span><span class="k-order-time">${items.length} kalem</span></div>
-      ${items.map(i=>`<div class="k-item">
-        <div class="k-item-main"><span class="k-item-qty">x${i.miktar}</span><span class="k-item-name">${esc(i.urun_adi)}</span></div>
+      <div class="k-order-hdr"><span class="k-order-tname">🍽 ${esc(masa)}</span><span class="k-order-time">${mi.length} kalem</span></div>
+      ${mi.map(i=>`<div class="k-item">
+        <div class="k-item-main"><span class="k-item-qty">${i.miktar} Adet</span><span class="k-item-name">${esc(i.urun_adi)}</span></div>
         ${i.not_metni?`<span class="k-item-note">📝 ${esc(i.not_metni)}</span>`:''}
       </div>`).join('')}
       <button class="btn-hazir" onclick="initChefReady('${masaKey}')">✅ Hazırlandı — Bildir</button>
@@ -1270,7 +1295,8 @@ async function confirmChefReady(){
   if(!ids.length){toast('Kalem bulunamadı.');chefReadyTableId=null;return;}
   const{error}=await sb.from('siparis_kalemleri').update({mutfak_hazir:true}).in('id',ids);
   if(error){toast('Hata: '+error.message);return;}
-  await sb.from('mutfak_bildirimleri').insert({masa_adi:masa,urun_listesi:ids.length+' kalem',okundu:false});
+  const urunAdlari=items.map(i=>i.urun_adi+(i.miktar>1?' x'+i.miktar:'')).join(', ');
+  await sb.from('mutfak_bildirimleri').insert({masa_adi:masa,urun_listesi:'[HAZIR] '+urunAdlari,okundu:false});
   toast('✅ Garson bildirildi!');
   chefReadyTableId=null;
   await renderChefOrders();
@@ -1433,9 +1459,19 @@ async function addTable(alan){
 }
 
 async function delTable(id,name){
-  const t=tables.find(x=>x.id===id);if(t?.dolu){toast('Dolu masa silinemez!');return}
-  if(!confirm(`"${name}" silinsin mi?`))return;
-  await sb.from('masalar').delete().eq('id',id);await loadTables();renderTables();loadAdminTables();toast(name+' silindi.');
+  const t=tables.find(x=>x.id===id);
+  if(t&&t.dolu){
+    if(!confirm('"'+name+'" masasi su an DOLU. Silmek istiyor musunuz? Acik adisyon kapanacak.'))return;
+    const{data:acik}=await sb.from('siparisler').select('id').eq('masa_id',id).eq('durum','acik');
+    for(const s of (acik||[])){
+      await sb.from('siparis_kalemleri').delete().eq('siparis_id',s.id);
+      await sb.from('siparisler').delete().eq('id',s.id);
+    }
+  } else {
+    if(!confirm('"'+name+'" silinsin mi?'))return;
+  }
+  await sb.from('masalar').delete().eq('id',id);
+  await loadTables();renderTables();loadAdminTables();toast(name+' silindi.');
 }
 
 // ==============================
@@ -1526,6 +1562,23 @@ async function loadAdminSettings(){
   ['ct-nakit','ct-iban','ct-total'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—'});
 }
 
+async function loadGunlukCiroWithPwd(){
+  const pwd=document.getElementById('gun-ciro-pwd').value;
+  const errEl=document.getElementById('gun-ciro-pwd-err');
+  if(!pwd){if(errEl)errEl.textContent='Şifre gerekli.';return;}
+  if(pwd!=='adanakebap'){if(errEl)errEl.textContent='Yanliş şifre.';return;}
+  if(errEl)errEl.textContent='';
+  document.getElementById('gun-ciro-pwd').value='';
+  const today=new Date().toISOString().split('T')[0];
+  const{data}=await sb.from('siparisler').select('toplam,odeme_yontemi,kapandi_at').eq('durum','kapali');
+  const todayRows=(data||[]).filter(o=>o.kapandi_at?.startsWith(today));
+  const nakit=todayRows.filter(o=>o.odeme_yontemi==='nakit').reduce((s,o)=>s+(parseFloat(o.toplam)||0),0);
+  const iban=todayRows.filter(o=>o.odeme_yontemi==='iban').reduce((s,o)=>s+(parseFloat(o.toplam)||0),0);
+  document.getElementById('ct-gun-nakit').textContent=fmt(nakit);
+  document.getElementById('ct-gun-iban').textContent=fmt(iban);
+  document.getElementById('ct-gun-toplam').textContent=fmt(nakit+iban);
+  toast('Günlük ciro yüklendi.');
+}
 async function loadCiroTotal(){
   const{data}=await sb.from('siparisler').select('toplam,odeme_yontemi').eq('durum','kapali');
   const nakit=(data||[]).filter(o=>o.odeme_yontemi==='nakit').reduce((s,o)=>s+(parseFloat(o.toplam)||0),0);
