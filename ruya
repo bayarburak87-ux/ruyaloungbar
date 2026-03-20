@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Rüya Lounge Kafe — Adisyon</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"
+  onerror="document.getElementById('loading').innerHTML='<p style=color:#e88>Supabase yüklenemedi. İnternet bağlantınızı kontrol edin.</p>'"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root{
+  --bg:#0d1520; --s1:#131e2e; --s2:#192538; --s3:#1f2e44;
+  --s4:#243450;
+  --toffee:#c87c2a; --toffee-l:#e8973a; --toffee-d:#9a5e18; --toffee-deep:#1e1008;
+  --cream:#edf2f8; --cream-2:#a8c4d8; --cream-3:#587898;
+  --border:#22334a; --border-2:#2c4060;
+  --red:#d84040; --red-dim:#2a0e0e; --red-border:rgba(216,64,64,.35);
+  --green-ok:#3aac78; --green-dim:#0a2a1c;
+  --blue:#4a8ec8; --blue-dim:#0e2040;
+  --text:var(--cream); --text-muted:var(--cream-2);
+  --radius:12px; --radius-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+input,textarea,select{font-family:inherit;outline:none}
+.hidden{display:none!important}
+.screen{display:none;flex-direction:column;min-height:100vh}
+.screen.active{display:flex}
+
+/* LOADING */
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:12px}
+.spinner{width:36px;height:36px;border:3px solid var(--s3);border-top-color:var(--toffee);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loading p{font-size:12px;color:var(--cream-3)}
+
+/* TOAST */
+#toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-90px);background:var(--s2);border:1px solid var(--toffee);color:var(--cream);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:500;transition:transform .3s;white-space:nowrap;max-width:300px;text-align:center}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+/* KITCHEN BADGE */
+#kitchen-badge{position:fixed;top:20px;right:16px;background:var(--red);color:#fff;border-radius:20px;padding:7px 13px;font-size:13px;font-weight:600;z-index:400;display:none;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* SETUP */
+.setup-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:2rem 1.25rem;overflow-y:auto;background:var(--bg)}
+.setup-logo{width:60px;height:60px;background:var(--toffee);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 1rem}
+.setup-title{font-size:20px;font-weight:700;text-align:center;margin-bottom:.35rem;color:var(--cream)}
+.setup-desc{font-size:13px;color:var(--cream-3);text-align:center;line-height:1.6;margin-bottom:1.5rem}
+.setup-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;width:100%;max-width:400px;margin-bottom:1rem}
+.setup-card h3{font-size:11px;font-weight:700;color:var(--toffee);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.875rem}
+.setup-field{margin-bottom:.75rem}
+.setup-field label{font-size:11px;color:var(--cream-3);display:block;margin-bottom:4px}
+.setup-field input{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--s2);color:var(--cream)}
+.setup-field input:focus{border-color:var(--toffee)}
+.btn-setup{background:var(--toffee);color:#fff;border-radius:var(--radius-sm);padding:11px 24px;font-size:14px;font-weight:600;width:100%;max-width:400px;margin-top:.5rem}
+.btn-setup:hover{background:var(--toffee-l)}
+.setup-sql{background:var(--s2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.875rem;font-family:monospace;font-size:10px;color:var(--cream-2);line-height:1.7;max-height:160px;overflow-y:auto;margin-top:.5rem;white-space:pre-wrap;word-break:break-all}
+.setup-hint{font-size:11px;color:var(--cream-3);margin-top:.75rem;text-align:center;line-height:1.6}
+
+/* LOGIN */
+.login-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.5rem;background:var(--bg)}
+.login-logo{width:72px;height:72px;background:var(--toffee);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 1rem}
+.login-title{font-size:22px;font-weight:700;text-align:center;color:var(--cream);margin-bottom:.25rem}
+.login-sub{font-size:13px;color:var(--cream-3);text-align:center;margin-bottom:1.75rem}
+.login-form{width:100%;max-width:340px;background:var(--s1);border-radius:var(--radius);padding:1.5rem;border:1px solid var(--border)}
+.fgroup{margin-bottom:1rem}
+.fgroup label{font-size:11px;font-weight:600;color:var(--cream-3);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
+.fgroup input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:15px;background:var(--s2);color:var(--cream);transition:border-color .15s}
+.fgroup input:focus{border-color:var(--toffee)}
+.btn-login{width:100%;background:var(--toffee);color:#fff;padding:12px;border-radius:var(--radius-sm);font-size:15px;font-weight:600;margin-top:.5rem}
+.btn-login:hover{background:var(--toffee-l)}
+.login-err{font-size:12px;color:var(--red);text-align:center;margin-top:.75rem;min-height:18px}
+
+/* HEADER */
+.app-header{background:var(--s1);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:20;gap:8px}
+.hdr-left{display:flex;flex-direction:column}
+.hdr-title{font-size:17px;font-weight:700;color:var(--cream)}
+.hdr-sub{font-size:11px;color:var(--cream-3);margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.hdr-btn{background:var(--s3);color:var(--cream-2);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:500;border:none}
+.hdr-btn:hover{background:var(--border-2);color:var(--cream)}
+.hdr-btn.toffee{background:var(--toffee-deep);color:var(--toffee-l)}
+
+/* CIRO INLINE */
+.ciro-bar-row{display:flex;align-items:center;background:var(--s1);border-bottom:1px solid var(--border);padding:7px 14px;gap:0;flex-shrink:0}
+.ciro-cell{display:flex;align-items:center;gap:9px;flex:1}
+.ciro-cell.ciro-main{flex:2}
+.ciro-cell-icon{font-size:18px;color:var(--toffee-l);flex-shrink:0}
+.ciro-cell-val{font-size:15px;font-weight:700;color:var(--toffee-l);line-height:1.2}
+.ciro-cell-label{font-size:10px;color:var(--cream-3);margin-top:2px;text-transform:uppercase;letter-spacing:.04em}
+.ciro-cell-sub{display:flex;gap:5px;margin-top:3px;flex-wrap:wrap}
+.ciro-divider{width:1px;background:var(--border-2);align-self:stretch;margin:0 12px;flex-shrink:0}
+.ci-nakit{font-size:10px;font-weight:600;color:var(--green-ok);background:var(--green-dim);padding:2px 7px;border-radius:4px;display:flex;align-items:center;gap:3px}
+.ci-iban{font-size:10px;font-weight:600;color:var(--blue);background:var(--blue-dim);padding:2px 7px;border-radius:4px;display:flex;align-items:center;gap:3px}
+
+/* AREA TABS */
+.area-tabs{display:flex;background:var(--s1);border-bottom:1px solid var(--border);flex-shrink:0}
+.area-tab{flex:1;padding:10px 4px;text-align:center;font-size:12px;font-weight:500;color:var(--cream-3);border-bottom:2.5px solid transparent;background:none;transition:all .15s}
+.area-tab.active{color:var(--toffee-l);border-bottom-color:var(--toffee);font-weight:600}
+
+/* TABLES GRID */
+.tables-content{flex:1;overflow-y:auto;padding:11px}
+.tables-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.table-card{border-radius:var(--radius-sm);padding:9px 7px;text-align:center;cursor:pointer;transition:transform .1s;min-height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:1.5px solid transparent}
+.table-card:active{transform:scale(.96)}
+.table-card.occupied{background:var(--red-dim);border-color:var(--red);color:var(--cream)}
+.table-card.empty{background:var(--s2);border-color:var(--border);color:var(--cream-2)}
+.table-card.empty:hover{border-color:var(--toffee)}
+.t-num{font-size:14px;font-weight:700}
+.t-badge{font-size:9px;font-weight:600;padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.04em;margin-top:1px}
+.occupied .t-badge{background:rgba(224,80,80,.25);color:#ff9090}
+.empty .t-badge{background:var(--s3);color:var(--cream-3)}
+.t-price{font-size:11px;font-weight:600;color:#ff9090}
+
+/* ORDER SCREEN */
+.order-header{background:var(--s1);border-bottom:1px solid var(--border);color:var(--cream);padding:10px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;position:sticky;top:0;z-index:10}
+.btn-back{background:var(--s3);color:var(--cream-2);border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border:none}
+.order-hdr-info{flex:1}
+.order-hdr-title{font-size:16px;font-weight:700;color:var(--cream)}
+.order-hdr-sub{font-size:11px;color:var(--cream-3)}
+.btn-close-tbl{background:var(--red-dim);border:1px solid rgba(224,80,80,.4);color:#ff9090;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:500;flex-shrink:0}
+.order-body{flex:1;overflow-y:auto;padding:11px;display:flex;flex-direction:column;gap:10px}
+.items-list{background:var(--s1);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden}
+.order-item{border-bottom:1px solid var(--border)}
+.order-item:last-child{border-bottom:none}
+.oi-main{display:flex;align-items:center;padding:10px 12px;gap:8px}
+.oi-name{flex:1;font-size:13px;font-weight:500;color:var(--cream)}
+.oi-qty{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.qty-btn{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border-2);background:var(--s3);color:var(--toffee-l);font-size:16px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.qty-btn:active{background:var(--toffee-deep)}
+.oi-cnt{font-size:14px;font-weight:600;min-width:20px;text-align:center;color:var(--cream)}
+.oi-price{font-size:12px;font-weight:600;color:var(--toffee);min-width:60px;text-align:right;flex-shrink:0}
+.btn-note-toggle{background:none;border:none;font-size:14px;color:var(--cream-3);padding:0 4px;flex-shrink:0;opacity:.6}
+.btn-note-toggle.has-note{color:var(--toffee-l);opacity:1}
+.oi-note-row{display:none;padding:0 12px 10px}
+.oi-note-row.show{display:block}
+.oi-note-row input{width:100%;padding:6px 10px;background:var(--s2);border:1px solid var(--border-2);border-radius:6px;font-size:12px;color:var(--cream);placeholder-color:var(--cream-3)}
+.oi-note-row input:focus{border-color:var(--toffee)}
+.order-empty{text-align:center;padding:2rem 1rem;color:var(--cream-3);font-size:13px}
+.order-empty-icon{font-size:32px;margin-bottom:.5rem}
+.btn-add-item{width:100%;background:var(--s1);color:var(--toffee);border:1.5px dashed var(--border-2);border-radius:var(--radius-sm);padding:10px;font-size:13px;font-weight:600}
+.btn-mutfak-gonder{width:100%;background:var(--toffee-deep);color:var(--toffee-l);border:1.5px solid var(--toffee-d);border-radius:var(--radius-sm);padding:10px;font-size:13px;font-weight:600;display:none}
+.btn-mutfak-gonder.visible{display:block}
+.btn-mutfak-gonder:active{background:var(--toffee-d)}
+.oi-status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px;flex-shrink:0}
+.oi-status-dot.bekliyor{background:#f0a030}
+.oi-status-dot.gonderildi{background:var(--green-ok)}
+.btn-add-item:hover{border-color:var(--toffee);background:var(--toffee-deep)}
+.total-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:13px 16px;display:flex;align-items:center;justify-content:space-between}
+.total-label{font-size:12px;color:var(--cream-3);font-weight:500}
+.total-amount{font-size:22px;font-weight:700;color:var(--toffee-l)}
+.pay-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn-pay{padding:13px 8px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;border:none}
+.btn-pay-cash{background:var(--toffee);color:#fff}
+.btn-pay-cash:hover{background:var(--toffee-l)}
+.btn-pay-iban{background:var(--s2);color:var(--cream);border:1.5px solid var(--border-2)}
+.btn-pay-iban:hover{border-color:var(--toffee);color:var(--toffee-l)}
+.pay-sub{font-size:10px;opacity:.75;font-weight:400}
+
+/* KITCHEN TAB VIEW */
+.kitchen-view{flex:1;overflow-y:auto;padding:11px;background:var(--bg)}
+.area-status-header{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:11px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.ash-title{font-size:13px;font-weight:700;color:var(--cream);display:flex;align-items:center;gap:6px}
+.ash-chips{display:flex;gap:6px;flex-wrap:wrap}
+.ash-chip{font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;display:flex;align-items:center;gap:4px}
+.ash-chip.occupied{background:var(--red-dim);color:#ff8888;border:1px solid var(--red-border)}
+.ash-chip.empty{background:var(--green-dim);color:#5dcca0;border:1px solid rgba(58,172,120,.3)}
+.ash-chip.total{background:var(--s3);color:var(--cream-2);border:1px solid var(--border-2)}
+.k-order-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
+.k-order-hdr{background:var(--s2);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.k-order-tname{font-size:14px;font-weight:700;color:var(--cream)}
+.k-order-time{font-size:11px;color:var(--cream-3)}
+.k-item{padding:9px 14px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:3px}
+.k-item:last-child{border-bottom:none}
+.k-item-main{display:flex;align-items:center;gap:8px}
+.k-item-qty{background:var(--toffee-deep);color:var(--toffee-l);border-radius:5px;padding:2px 7px;font-size:12px;font-weight:700;flex-shrink:0}
+.k-item-name{font-size:13px;font-weight:500;color:var(--cream);flex:1}
+.k-item-note{font-size:11px;color:var(--toffee-l);background:var(--toffee-deep);padding:3px 8px;border-radius:4px;margin-top:2px;display:inline-block}
+.btn-hazir{background:var(--green-ok);color:#fff;border-radius:var(--radius-sm);padding:9px 16px;font-size:13px;font-weight:600;width:calc(100% - 28px);margin:10px 14px;border:none}
+.btn-hazir:hover{background:#4dc894}
+.kitchen-empty{text-align:center;padding:3rem 1rem;color:var(--cream-3)}
+.kitchen-empty-icon{font-size:40px;margin-bottom:.75rem}
+
+/* CHEF SCREEN */
+.chef-header{background:var(--toffee-d);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.chef-title{font-size:18px;font-weight:700;color:#fff}
+.chef-badge{background:rgba(255,255,255,.2);color:#fff;border-radius:6px;padding:3px 10px;font-size:12px}
+.chef-body{flex:1;overflow-y:auto;padding:11px}
+
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:flex;align-items:flex-end;justify-content:center}
+.modal-sheet{background:var(--s1);border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:82vh;display:flex;flex-direction:column;border-top:1px solid var(--border-2)}
+.modal-header{padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-title{font-size:16px;font-weight:700;color:var(--cream)}
+.btn-modal-close{background:var(--s3);color:var(--cream-3);width:28px;height:28px;border-radius:50%;font-size:15px;display:flex;align-items:center;justify-content:center;border:none}
+.modal-body{overflow-y:auto;flex:1;padding:8px}
+.prod-item{display:flex;align-items:center;padding:10px 12px;gap:10px;border-bottom:1px solid var(--border)}
+.prod-item:last-child{border-bottom:none}
+.prod-info{flex:1}
+.prod-name{font-size:14px;font-weight:500;color:var(--cream)}
+.prod-desc{font-size:11px;color:var(--cream-3);margin-top:2px}
+.prod-price{font-size:13px;font-weight:600;color:var(--toffee-l);min-width:72px;text-align:right}
+.btn-prod-add{background:var(--toffee);color:#fff;width:30px;height:30px;border-radius:50%;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:none}
+.btn-prod-add:active{background:var(--toffee-d)}
+.cat-section{border-bottom:1px solid var(--border)}
+.cat-section:last-child{border-bottom:none}
+.cat-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;background:var(--s1);user-select:none;-webkit-user-select:none}
+.cat-header:active{background:var(--s2)}
+.cat-header-left{display:flex;align-items:center;gap:9px}
+.cat-icon{width:32px;height:32px;border-radius:8px;background:var(--toffee-deep);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.cat-hdr-name{font-size:14px;font-weight:600;color:var(--cream)}
+.cat-hdr-count{font-size:11px;color:var(--cream-3);margin-top:1px}
+.cat-chevron{font-size:12px;color:var(--cream-3);transition:transform .2s;flex-shrink:0}
+.cat-chevron.open{transform:rotate(180deg)}
+.cat-items{display:none;background:var(--bg)}
+.cat-items.open{display:block}
+.cat-items .prod-item{border-bottom:1px solid var(--border)}
+.cat-items .prod-item:last-child{border-bottom:none}
+
+/* IBAN MODAL */
+.iban-body{padding:12px}
+.iban-box{background:var(--s2);border:1.5px solid var(--border-2);border-radius:var(--radius-sm);padding:14px;text-align:center;margin-bottom:10px}
+.iban-lbl{font-size:11px;color:var(--cream-3);margin-bottom:5px}
+.iban-num{font-size:15px;font-weight:700;letter-spacing:.04em;color:var(--cream)}
+.iban-qr{width:140px;height:140px;margin:10px auto 0;border-radius:8px;border:1px solid var(--border);object-fit:contain;display:block}
+.iban-total{text-align:center;font-size:15px;font-weight:600;padding:8px 0;color:var(--cream)}
+.iban-surcharge{text-align:center;font-size:12px;color:var(--toffee);margin-top:-4px;margin-bottom:4px}
+.btn-iban-ok{margin:0 12px 12px;width:calc(100% - 24px);background:var(--toffee);color:#fff;padding:12px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;border:none}
+.iban-not-set{text-align:center;color:var(--cream-3);font-size:13px;padding:2rem 1rem;line-height:1.7}
+
+/* CONFIRM MODAL */
+.confirm-body{padding:1.5rem;text-align:center}
+.confirm-icon{font-size:38px;margin-bottom:.75rem}
+.confirm-title{font-size:17px;font-weight:700;margin-bottom:.5rem;color:var(--cream)}
+.confirm-desc{font-size:13px;color:var(--cream-3);line-height:1.5;margin-bottom:1.5rem}
+.confirm-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn-cy{background:var(--toffee);color:#fff;padding:11px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;border:none}
+.btn-cn{background:var(--s3);color:var(--cream-2);border:1px solid var(--border);padding:11px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;border:none}
+
+/* ADMIN */
+.admin-tabs{display:flex;background:var(--s1);border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto}
+.admin-tab{flex:none;padding:10px 12px;text-align:center;font-size:11px;font-weight:500;color:var(--cream-3);border-bottom:2.5px solid transparent;background:none;white-space:nowrap}
+.admin-tab.active{color:var(--toffee-l);border-bottom-color:var(--toffee);font-weight:600}
+.admin-content{flex:1;overflow-y:auto;padding:11px}
+.admin-panel{display:none}
+.admin-panel.active{display:block}
+.sec-title{font-size:11px;font-weight:700;color:var(--cream-3);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 8px}
+.sec-title:first-child{margin-top:0}
+.pa-item{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;display:flex;align-items:center;gap:9px;margin-bottom:6px}
+.pa-info{flex:1}
+.pa-name{font-size:14px;font-weight:500;color:var(--cream)}
+.pa-meta{font-size:11px;color:var(--cream-3);margin-top:2px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.cat-badge{background:var(--toffee-deep);color:var(--toffee-l);border-radius:4px;padding:2px 6px;font-size:10px;font-weight:600}
+.btn-edit{background:var(--s3);color:var(--cream-2);border-radius:6px;padding:5px 10px;font-size:12px;font-weight:500;border:none}
+.btn-del{background:var(--red-dim);color:#ff9090;border:1px solid rgba(224,80,80,.3);border-radius:6px;padding:5px 10px;font-size:12px;font-weight:500}
+.area-sec{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:10px}
+.area-sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.area-sec-title{font-size:14px;font-weight:600;color:var(--cream)}
+.btn-add-tbl{background:var(--toffee);color:#fff;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;border:none}
+.t-chips{display:flex;flex-wrap:wrap;gap:6px}
+.t-chip{background:var(--s2);border:1px solid var(--border-2);border-radius:6px;padding:4px 9px;font-size:12px;display:flex;align-items:center;gap:5px;color:var(--cream-2)}
+.btn-chip-del{background:none;color:var(--red);font-size:13px;padding:0;line-height:1;border:none}
+.settings-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:13px;margin-bottom:10px}
+.s-label{font-size:12px;color:var(--cream-3);margin-bottom:6px;font-weight:500}
+.s-input{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--s2);color:var(--cream);margin-bottom:8px}
+.s-input:focus{border-color:var(--toffee)}
+.s-textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--s2);color:var(--cream);margin-bottom:8px;resize:vertical;min-height:60px;font-family:inherit}
+.s-select{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--s2);color:var(--cream);margin-bottom:8px}
+.btn-save{background:var(--toffee);color:#fff;border-radius:var(--radius-sm);padding:8px 16px;font-size:13px;font-weight:600;border:none}
+.btn-test{background:var(--s2);color:var(--toffee-l);border:1.5px solid var(--border-2);border-radius:var(--radius-sm);padding:8px 16px;font-size:13px;font-weight:600;margin-left:7px;border-radius:var(--radius-sm)}
+.s-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.add-form{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:13px;margin-bottom:10px}
+.add-form .form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.add-form input,.add-form textarea,.add-form select{width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--s2);color:var(--cream);margin-bottom:8px}
+.add-form input:focus,.add-form textarea:focus{border-color:var(--toffee)}
+.add-form textarea{resize:vertical;min-height:52px;margin-bottom:0}
+.btn-add-prod{background:var(--toffee);color:#fff;border-radius:var(--radius-sm);padding:9px;font-size:13px;font-weight:600;width:100%;margin-top:8px;border:none}
+
+/* CATEGORY SORT */
+.cat-sort-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.cat-sort-row{display:flex;align-items:center;gap:9px;background:var(--s2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px}
+.cat-sort-icon{font-size:16px;flex-shrink:0}
+.cat-sort-name{flex:1;font-size:14px;font-weight:500;color:var(--cream)}
+.cat-sort-btns{display:flex;flex-direction:column;gap:3px;flex-shrink:0}
+.btn-cat-mv{background:var(--s3);border:1px solid var(--border);border-radius:5px;width:26px;height:22px;font-size:11px;display:flex;align-items:center;justify-content:center;color:var(--cream-3);cursor:pointer}
+.btn-cat-mv:active{background:var(--toffee-deep)}
+.btn-cat-mv:disabled{opacity:.28;cursor:default}
+
+/* STATS */
+.stat-period-block{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.stat-period-hdr{background:var(--s2);padding:9px 14px;font-size:12px;font-weight:700;color:var(--toffee-l);text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--border)}
+.stat-item{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--border);background:var(--s1)}
+.stat-item:last-child{border-bottom:none}
+.stat-name{font-size:13px;color:var(--cream)}
+.stat-val{font-size:13px;font-weight:700;color:var(--cream-2)}
+.stat-loading{text-align:center;padding:1.5rem;color:var(--cream-3);font-size:13px}
+
+/* HISTORY */
+.hist-item{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;margin-bottom:6px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.hist-info{flex:1}
+.hist-masa{font-size:14px;font-weight:600;color:var(--cream);margin-bottom:2px}
+.hist-meta{font-size:11px;color:var(--cream-3)}
+.hist-pay-cash{font-size:11px;font-weight:600;color:var(--green-ok);background:var(--green-dim);padding:2px 7px;border-radius:4px}
+.hist-pay-iban{font-size:11px;font-weight:600;color:#7ab8f5;background:#0d2040;padding:2px 7px;border-radius:4px}
+.hist-total{font-size:14px;font-weight:700;color:var(--toffee-l);text-align:right}
+
+/* CIRO TOTAL CARD */
+.ciro-total-card{background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+.ct-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border)}
+.ct-row:last-child{border-bottom:none;margin-top:4px;padding-top:8px}
+.ct-label{font-size:13px;color:var(--cream-3)}
+.ct-val{font-size:14px;font-weight:600;color:var(--cream)}
+.ct-val.nakit{color:var(--green-ok)}
+.ct-val.iban{color:#7ab8f5}
+.ct-val.total{font-size:16px;color:var(--toffee-l)}
+
+/* MUTFAK ADMIN */
+.mutfak-prod-item{display:flex;align-items:center;padding:9px 13px;gap:9px;border-bottom:1px solid var(--border);background:var(--s1)}
+.mutfak-prod-item:last-child{border-bottom:none}
+.mutfak-prod-name{flex:1;font-size:13px;color:var(--cream)}
+.btn-mutfak-del{background:var(--red-dim);color:#ff9090;border:1px solid rgba(224,80,80,.3);border-radius:6px;padding:4px 9px;font-size:11px;border:none;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="loading"><div class="spinner"></div><p>Bağlanıyor…</p></div>
+<div id="toast"></div>
+<div id="kitchen-badge"></div>
+
+<!-- LOGIN -->
+<div id="screen-login" class="screen">
+  <div class="login-wrap">
+    <div class="login-logo">☕</div>
+    <h1 class="login-title">Rüya Lounge Kafe</h1>
+    <p class="login-sub">Adisyon sistemi</p>
+    <div class="login-form">
+      <div class="fgroup"><label>Kullanıcı Adı</label><input type="text" id="l-user" autocomplete="username" autocorrect="off" autocapitalize="off"></div>
+      <div class="fgroup"><label>Şifre</label><input type="password" id="l-pass" autocomplete="current-password"></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <input type="checkbox" id="l-remember" style="width:16px;height:16px;accent-color:var(--toffee);flex-shrink:0">
+        <label for="l-remember" style="font-size:13px;color:var(--cream-2);cursor:pointer">Beni hatırla</label>
+      </div>
+      <button class="btn-login" onclick="doLogin()"><i class="fa-solid fa-right-to-bracket"></i> Giriş Yap</button>
+      <div id="l-err" class="login-err"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TABLES SCREEN -->
+<div id="screen-tables" class="screen">
+  <div class="app-header">
+    <div class="hdr-left">
+      <span class="hdr-title"><i class="fa-solid fa-mug-hot"></i> Rüya Lounge Kafe</span>
+      <span class="hdr-sub" id="tbl-sub">—</span>
+    </div>
+    <div class="hdr-right">
+      <button class="hdr-btn hidden" id="btn-mutfak" onclick="goMutfakView()"><i class="fa-solid fa-kitchen-set"></i> Mutfak</button>
+      <button class="hdr-btn hidden" id="btn-admin" onclick="goAdmin()"><i class="fa-solid fa-gear"></i> Yönetim</button>
+      <button class="hdr-btn" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+  </div>
+  <div class="ciro-bar-row">
+    <div class="ciro-cell ciro-main">
+      <span class="ciro-cell-icon"><i class="fa-solid fa-coins"></i></span>
+      <div>
+        <div class="ciro-cell-val" id="cv-daily">0 MKD</div>
+        <div class="ciro-cell-sub">
+          <span class="ci-nakit" id="cv-nakit"><i class="fa-solid fa-money-bill-wave"></i> 0 MKD</span>
+          <span class="ci-iban" id="cv-iban"><i class="fa-solid fa-building-columns"></i> 0 MKD</span>
+        </div>
+      </div>
+    </div>
+    <div class="ciro-divider"></div>
+    <div class="ciro-cell">
+      <span class="ciro-cell-icon"><i class="fa-solid fa-chair"></i></span>
+      <div>
+        <div class="ciro-cell-val" id="cv-open">0</div>
+        <div class="ciro-cell-label">Açık Masa</div>
+      </div>
+    </div>
+  </div>
+  <div class="area-tabs">
+    <button class="area-tab active" id="tab-k" onclick="switchArea('kapali')"><i class="fa-solid fa-house"></i> Kapalı Alan</button>
+    <button class="area-tab" id="tab-b" onclick="switchArea('bahce')"><i class="fa-solid fa-leaf"></i> Bahçe</button>
+  </div>
+  <div class="tables-content" id="main-content">
+    <div id="area-status-bar"></div>
+    <div class="tables-grid" id="tbl-grid"></div>
+  </div>
+</div>
+
+<!-- ORDER SCREEN -->
+<div id="screen-order" class="screen">
+  <div class="order-header">
+    <button class="btn-back" onclick="backToTables()"><i class="fa-solid fa-arrow-left"></i></button>
+    <div class="order-hdr-info">
+      <div class="order-hdr-title" id="ord-tname">—</div>
+      <div class="order-hdr-sub" id="ord-tarea">—</div>
+    </div>
+    <button class="btn-close-tbl" onclick="scrollToPayment()"><i class="fa-solid fa-receipt"></i> Ödeme</button>
+  </div>
+  <div class="order-body">
+    <div id="ord-items"></div>
+    <button class="btn-add-item" onclick="openProdModal()"><i class="fa-solid fa-plus"></i> Ürün Ekle</button>
+    <button class="btn-mutfak-gonder" id="btn-mutfak-gonder" onclick="gonderMutfaga()"><i class="fa-solid fa-fire-burner"></i> Mutfağa Gönder</button>
+    <div class="total-card"><div><div class="total-label">Toplam Tutar</div></div><div class="total-amount" id="ord-total">0 MKD</div></div>
+    <div class="pay-btns">
+      <button class="btn-pay btn-pay-cash" onclick="initCashPayment()">
+        <span><i class="fa-solid fa-money-bill-wave"></i> CASH</span><span class="pay-sub">Alındı</span>
+      </button>
+      <button class="btn-pay btn-pay-iban" onclick="openIbanModal()">
+        <span><i class="fa-solid fa-building-columns"></i> IBAN</span><span class="pay-sub">Alınacak</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- CHEF SCREEN -->
+<div id="screen-chef" class="screen">
+  <div class="chef-header">
+    <div class="chef-title">🍳 Mutfak</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="chef-badge" id="chef-pending-badge"></span>
+      <button class="hdr-btn" onclick="doLogout()">Çıkış</button>
+    </div>
+  </div>
+  <div class="chef-body" id="chef-orders"></div>
+</div>
+
+<!-- MUTFAK OVERLAY SCREEN -->
+<div id="screen-mutfak" class="screen">
+  <div class="app-header">
+    <div class="hdr-left"><span class="hdr-title">🍳 Mutfak Durumu</span></div>
+    <div class="hdr-right"><button class="hdr-btn" onclick="showScreen('tables')"><i class="fa-solid fa-arrow-left"></i> Masalar</button></div>
+  </div>
+  <div class="kitchen-view" id="kitchen-view-inner"></div>
+</div>
+
+<!-- ADMIN SCREEN -->
+<div id="screen-admin" class="screen">
+  <div class="app-header">
+    <div class="hdr-left"><span class="hdr-title">⚙ Yönetim</span></div>
+    <div class="hdr-right"><button class="hdr-btn" onclick="showScreen('tables')"><i class="fa-solid fa-arrow-left"></i> Masalar</button></div>
+  </div>
+  <div class="admin-tabs">
+    <button class="admin-tab active" id="at-menu" onclick="switchAdminTab('menu')"><i class="fa-solid fa-utensils"></i> Menü</button>
+    <button class="admin-tab" id="at-masalar" onclick="switchAdminTab('masalar')"><i class="fa-solid fa-table-cells"></i> Masalar</button>
+    <button class="admin-tab" id="at-mutfak" onclick="switchAdminTab('mutfak')"><i class="fa-solid fa-kitchen-set"></i> Mutfak</button>
+    <button class="admin-tab" id="at-istatistik" onclick="switchAdminTab('istatistik')"><i class="fa-solid fa-chart-bar"></i> İstatistik</button>
+    <button class="admin-tab" id="at-ayarlar" onclick="switchAdminTab('ayarlar')"><i class="fa-solid fa-sliders"></i> Ayarlar</button>
+  </div>
+  <div class="admin-content">
+    <!-- MENU -->
+    <div id="ap-menu" class="admin-panel active">
+      <div class="add-form">
+        <p class="sec-title"><i class="fa-solid fa-circle-plus"></i> Yeni Ürün Ekle</p>
+        <div class="form-row">
+          <input type="text" id="np-name" placeholder="Ürün adı *">
+          <input type="number" id="np-price" placeholder="Fiyat MKD *" min="0" step="0.5">
+        </div>
+        <input type="text" id="np-cat" placeholder="Kategori (ör: İçecek, Gözleme)">
+        <textarea id="np-desc" placeholder="Açıklama (isteğe bağlı)"></textarea>
+        <button class="btn-add-prod" onclick="addProduct()"><i class="fa-solid fa-plus"></i> Ürün Ekle</button>
+      </div>
+      <p class="sec-title"><i class="fa-solid fa-list"></i> Mevcut Ürünler</p>
+      <div id="admin-prods"></div>
+    </div>
+    <!-- MASALAR -->
+    <div id="ap-masalar" class="admin-panel">
+      <div class="area-sec">
+        <div class="area-sec-hdr"><span class="area-sec-title">🌿 Bahçe</span><button class="btn-add-tbl" onclick="addTable('bahce')"><i class="fa-solid fa-plus"></i> Masa Ekle</button></div>
+        <div class="t-chips" id="adm-b"></div>
+      </div>
+      <div class="area-sec">
+        <div class="area-sec-hdr"><span class="area-sec-title">🏠 Kapalı Alan</span><button class="btn-add-tbl" onclick="addTable('kapali')"><i class="fa-solid fa-plus"></i> Masa Ekle</button></div>
+        <div class="t-chips" id="adm-k"></div>
+      </div>
+    </div>
+    <!-- MUTFAK -->
+    <div id="ap-mutfak" class="admin-panel">
+      <div class="add-form">
+        <p class="sec-title">Mutfağa Düşen Ürünler</p>
+        <p style="font-size:11px;color:var(--cream-3);margin-bottom:10px;line-height:1.6">Bu listedeki ürünler sipariş edildiğinde mutfak ekranına ve aşçıya bildirim olarak düşer.</p>
+        <select id="np-mutfak-urun" style="width:100%;padding:9px 12px;background:var(--s2);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--cream);font-size:13px;margin-bottom:8px"><option value="">— Ürün seç —</option></select>
+        <button class="btn-add-prod" onclick="addMutfakUrun()"><i class="fa-solid fa-plus"></i> Mutfağa Ekle</button>
+      </div>
+      <p class="sec-title"><i class="fa-solid fa-fire-burner"></i> Mutfak Listesi</p>
+      <div id="mutfak-urun-list" style="background:var(--s1);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden"></div>
+      <div class="settings-card" style="margin-top:12px">
+        <p class="s-label"><i class="fa-solid fa-key"></i> Aşçı Şifresi</p>
+        <input type="text" class="s-input" id="s-asci-sifre" placeholder="Aşçı giriş şifresi">
+        <div class="s-row">
+          <button class="btn-save" onclick="saveSetting('asci_sifre','s-asci-sifre')"><i class="fa-solid fa-floppy-disk"></i> Kaydet</button>
+          <span style="font-size:11px;color:var(--cream-3)">Kullanıcı adı: <strong style="color:var(--toffee-l)">asci</strong></span>
+        </div>
+      </div>
+    </div>
+    <!-- İSTATİSTİK -->
+    <div id="ap-istatistik" class="admin-panel">
+      <div class="stat-period-block">
+        <div class="stat-period-hdr"><i class="fa-solid fa-sun"></i> Bugün</div>
+        <div id="stats-today"><div class="stat-loading"><i class="fa-solid fa-spinner fa-spin"></i> Yükleniyor…</div></div>
+      </div>
+      <div class="stat-period-block" style="margin-top:10px">
+        <div class="stat-period-hdr"><i class="fa-solid fa-calendar-days"></i> Bu Ay</div>
+        <div id="stats-month"><div class="stat-loading"><i class="fa-solid fa-spinner fa-spin"></i> Yükleniyor…</div></div>
+      </div>
+      <p class="sec-title" style="margin-top:16px"><i class="fa-solid fa-clock-rotate-left"></i> Masa Geçmişi</p>
+      <div id="hist-list"><div class="stat-loading">Yükleniyor…</div></div>
+    </div>
+    <!-- AYARLAR -->
+    <div id="ap-ayarlar" class="admin-panel">
+      <div class="settings-card">
+        <p class="s-label"><i class="fa-solid fa-coins"></i> Toplam Ciro</p>
+        <div class="ciro-total-card" id="ciro-total-card">
+          <div class="ct-row"><span class="ct-label"><i class="fa-solid fa-money-bill-wave"></i> Nakit Tahsilat</span><span class="ct-val nakit" id="ct-nakit">—</span></div>
+          <div class="ct-row"><span class="ct-label"><i class="fa-solid fa-building-columns"></i> IBAN Tahsilat</span><span class="ct-val iban" id="ct-iban">—</span></div>
+          <div class="ct-row"><span class="ct-label" style="font-weight:700;color:var(--cream)"><i class="fa-solid fa-sigma"></i> Genel Toplam</span><span class="ct-val total" id="ct-total">—</span></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+          <input type="password" id="ciro-pwd" class="s-input" placeholder="Yönetim şifresi" style="margin-bottom:0;flex:1">
+          <button class="btn-save" onclick="loadCiroTotalWithPwd()"><i class="fa-solid fa-unlock"></i> Yenile</button>
+        </div>
+        <div id="ciro-pwd-err" style="font-size:11px;color:var(--red);margin-top:4px;min-height:14px"></div>
+      </div>
+      <div class="settings-card">
+        <p class="s-label"><i class="fa-solid fa-file-excel"></i> Excel Döküm</p>
+        <p style="font-size:12px;color:var(--cream-3);line-height:1.6;margin-bottom:10px">Tüm kapanmış siparişleri Excel olarak indir. Her masa için ayrı sekme oluşturulur: Masa · Tarih · Saat · Tutar · Ödeme Şekli</p>
+        <button class="btn-save" style="width:100%" onclick="exportExcel()"><i class="fa-solid fa-download"></i> Excel İndir (.xlsx)</button>
+      </div>
+      <div class="settings-card">
+        <p class="s-label"><i class="fa-solid fa-building-columns"></i> IBAN Numarası</p>
+        <input type="text" class="s-input" id="s-iban" placeholder="MK07 3000 0000 0000 182">
+        <button class="btn-save" onclick="saveSetting('iban_no','s-iban')"><i class="fa-solid fa-floppy-disk"></i> Kaydet</button>
+      </div>
+      <div class="settings-card">
+        <p class="s-label"><i class="fa-solid fa-qrcode"></i> IBAN QR Kodu</p>
+        <p style="font-size:11px;color:var(--cream-3);margin-bottom:8px;line-height:1.6">imgbb.com'a yükle → direct link URL'sini yapıştır</p>
+        <input type="url" class="s-input" id="s-qr" placeholder="https://i.ibb.co/xxx/qr.png">
+        <button class="btn-save" onclick="saveSetting('iban_qr','s-qr')"><i class="fa-solid fa-floppy-disk"></i> Kaydet</button>
+      </div>
+      <div class="settings-card">
+        <p class="s-label"><i class="fa-solid fa-list-ol"></i> Kategori Sıralaması</p>
+        <div class="cat-sort-list" id="cat-sort-list"></div>
+        <button class="btn-save" style="margin-top:10px;width:100%" onclick="saveCatOrder()"><i class="fa-solid fa-floppy-disk"></i> Sıralamayı Kaydet</button>
+      </div>
+      <div class="settings-card">
+        <p class="s-label"><i class="fa-solid fa-screwdriver-wrench"></i> Sistem</p>
+        <button class="btn-test" style="width:100%" onclick="resetSetup()"><i class="fa-solid fa-rotate"></i> Bağlantı Ayarlarını Sıfırla</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: PRODUCTS -->
+<div id="m-prods" class="modal-overlay hidden">
+  <div class="modal-sheet">
+    <div class="modal-header"><span class="modal-title">Ürün Seç</span><button class="btn-modal-close" onclick="closeModal('m-prods')">✕</button></div>
+    <div class="modal-body" id="m-prods-body"></div>
+  </div>
+</div>
+
+<!-- MODAL: IBAN -->
+<div id="m-iban" class="modal-overlay hidden">
+  <div class="modal-sheet" style="max-height:72vh">
+    <div class="modal-header"><span class="modal-title">🏦 IBAN ile Ödeme</span><button class="btn-modal-close" onclick="closeModal('m-iban')">✕</button></div>
+    <div class="modal-body iban-body" id="m-iban-body"></div>
+    <button class="btn-iban-ok" onclick="confirmIban()">Alınacak — Onayla ✓</button>
+  </div>
+</div>
+
+<!-- MODAL: CASH -->
+<div id="m-cash" class="modal-overlay hidden">
+  <div class="modal-sheet">
+    <div class="confirm-body">
+      <div class="confirm-icon">💵</div>
+      <div class="confirm-title">Nakit Ödeme</div>
+      <div class="confirm-desc" id="m-cash-desc">Nakit ödeme alındı mı?</div>
+      <div class="confirm-btns">
+        <button class="btn-cy" onclick="confirmCash()">Alındı ✓</button>
+        <button class="btn-cn" onclick="closeModal('m-cash')">İptal</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: EDIT PRODUCT -->
+<div id="m-edit-prod" class="modal-overlay hidden">
+  <div class="modal-sheet">
+    <div class="modal-header"><span class="modal-title">Ürünü Düzenle</span><button class="btn-modal-close" onclick="closeModal('m-edit-prod')">✕</button></div>
+    <div class="modal-body" style="padding:12px">
+      <input type="hidden" id="ep-id">
+      <p class="s-label">Ürün Adı</p><input type="text" class="s-input" id="ep-name">
+      <p class="s-label">Fiyat (MKD)</p><input type="number" class="s-input" id="ep-price" min="0" step="0.5">
+      <p class="s-label">Kategori</p><input type="text" class="s-input" id="ep-cat">
+      <p class="s-label">Açıklama</p><textarea class="s-textarea" id="ep-desc"></textarea>
+      <button class="btn-add-prod" onclick="updateProduct()"><i class="fa-solid fa-pen"></i> Güncelle</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CHEF CONFIRM READY -->
+<div id="m-chef-confirm" class="modal-overlay hidden">
+  <div class="modal-sheet">
+    <div class="confirm-body">
+      <div class="confirm-icon">✅</div>
+      <div class="confirm-title">Sipariş Hazır mı?</div>
+      <div class="confirm-desc" id="m-chef-desc">Bu masanın siparişleri hazırlandı mı?</div>
+      <div class="confirm-btns">
+        <button class="btn-cy" onclick="confirmChefReady()">Hazır, Bildir ✓</button>
+        <button class="btn-cn" onclick="closeModal('m-chef-confirm')">İptal</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==============================
+// SUPABASE CONFIG
+// ==============================
+const SUPABASE_URL = 'https://apxtlwzbwqseauafjewb.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_b_X7X2KQ86uS_b8ScKIorQ_adFvQmvg';
+
+// ==============================
+// SQL SCHEMA
+// ==============================
+const SQL_SCHEMA = `-- TEMEL TABLOLAR
+create table masalar (
+  id uuid default gen_random_uuid() primary key,
+  isim text not null,
+  alan text not null check (alan in ('bahce','kapali')),
+  dolu boolean default false,
+  created_at timestamptz default now()
+);
+create table urunler (
+  id uuid default gen_random_uuid() primary key,
+  isim text not null,
+  aciklama text,
+  fiyat numeric(10,2) not null,
+  kategori text default 'Genel',
+  aktif boolean default true,
+  created_at timestamptz default now()
+);
+create table siparisler (
+  id uuid default gen_random_uuid() primary key,
+  masa_id uuid references masalar(id) on delete cascade,
+  masa_adi text,
+  durum text default 'acik' check (durum in ('acik','kapali')),
+  toplam numeric(10,2) default 0,
+  odeme_yontemi text,
+  kapandi_at timestamptz,
+  created_at timestamptz default now()
+);
+create table siparis_kalemleri (
+  id uuid default gen_random_uuid() primary key,
+  siparis_id uuid references siparisler(id) on delete cascade,
+  urun_adi text not null,
+  fiyat numeric(10,2) not null,
+  miktar int default 1,
+  not_metni text,
+  mutfak_hazir boolean default false,
+  mutfak_gonderildi boolean default false,
+  created_at timestamptz default now()
+);
+create table mutfak_urunler (
+  id uuid default gen_random_uuid() primary key,
+  urun_adi text not null unique,
+  created_at timestamptz default now()
+);
+create table mutfak_bildirimleri (
+  id uuid default gen_random_uuid() primary key,
+  masa_adi text,
+  urun_listesi text,
+  okundu boolean default false,
+  created_at timestamptz default now()
+);
+create table ayarlar (
+  id uuid default gen_random_uuid() primary key,
+  anahtar text unique not null,
+  deger text,
+  updated_at timestamptz default now()
+);
+insert into ayarlar (anahtar, deger) values
+  ('iban_no',''),('iban_qr',''),
+  ('cat_order','[]'),
+  ('asci_sifre','mutfak123');
+
+-- RLS POLİCİES
+alter table masalar enable row level security;
+alter table urunler enable row level security;
+alter table siparisler enable row level security;
+alter table siparis_kalemleri enable row level security;
+alter table mutfak_urunler enable row level security;
+alter table mutfak_bildirimleri enable row level security;
+alter table ayarlar enable row level security;
+create policy "a" on masalar for all to anon using (true) with check (true);
+create policy "a" on urunler for all to anon using (true) with check (true);
+create policy "a" on siparisler for all to anon using (true) with check (true);
+create policy "a" on siparis_kalemleri for all to anon using (true) with check (true);
+create policy "a" on mutfak_urunler for all to anon using (true) with check (true);
+create policy "a" on mutfak_bildirimleri for all to anon using (true) with check (true);
+create policy "a" on ayarlar for all to anon using (true) with check (true);
+-- REALTIME
+alter publication supabase_realtime add table masalar;
+alter publication supabase_realtime add table siparisler;
+alter publication supabase_realtime add table siparis_kalemleri;
+alter publication supabase_realtime add table mutfak_bildirimleri;`;
+
+
+
+// ==============================
+// CONFIG
+// ==============================
+function resetSetup(){
+  if(confirm('Oturum sıfırlansın mı?')){
+    localStorage.removeItem('rk_session');
+    location.reload();
+  }
+}
+
+// ==============================
+// STATE
+// ==============================
+let sb=null,me=null,area='kapali',tables=[],products=[],openOrders={},settings={},curTblId=null,curOrdId=null,rtCh=null,mutfakUrunler=[],catSortOrder=[],chefReadyTableId=null,addingItem=false;
+
+// ==============================
+// INIT
+// ==============================
+window.addEventListener('load',async()=>{
+  // Guard: supabase script failed to load
+  if(typeof supabase==='undefined'){
+    document.getElementById('loading').innerHTML=
+      '<p style="color:#e88;text-align:center;padding:1rem">Supabase kütüphanesi yüklenemedi.<br>İnternet bağlantınızı kontrol edin ve sayfayı yenileyin.</p>';
+    return;
+  }
+  try{
+    sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+    const saved=localStorage.getItem('rk_session');
+    if(saved){
+      try{
+        const s=JSON.parse(saved);
+        if(s.username&&s.role&&s.display){
+          me={...s};hide('loading');
+          if(me.role==='chef'){await initChef()}else{await initApp()}
+          return;
+        }
+      }catch(e){localStorage.removeItem('rk_session')}
+    }
+    hide('loading');showScreen('login');
+  }
+  catch(e){
+    document.getElementById('loading').innerHTML=
+      '<p style="color:#e88;text-align:center;padding:1rem">Bağlantı hatası:<br>'+e.message+'</p>';
+  }
+});
+
+// ==============================
+// AUTH
+// ==============================
+document.getElementById('l-pass').addEventListener('keypress',e=>{if(e.key==='Enter')doLogin()});
+document.getElementById('l-user').addEventListener('keypress',e=>{if(e.key==='Enter')doLogin()});
+
+async function doLogin(){
+  const u=document.getElementById('l-user').value.trim().toLowerCase();
+  const p=document.getElementById('l-pass').value;
+  document.getElementById('l-err').textContent='';
+  const remember=document.getElementById('l-remember')?.checked;
+  if(u==='asci'){
+    const{data}=await sb.from('ayarlar').select('deger').eq('anahtar','asci_sifre').maybeSingle();
+    const pwd=(data?.deger)||'mutfak123';
+    if(p!==pwd){document.getElementById('l-err').textContent='Şifre hatalı.';return}
+    me={username:'asci',role:'chef',display:'Aşçı'};
+    if(remember)localStorage.setItem('rk_session',JSON.stringify(me));
+    initChef();return;
+  }
+  const CREDS={asli:{password:'adanakebap',role:'owner',display:'Asli'},garson:{password:'fındıklahmacun',role:'waiter',display:'Garson'}};
+  const cred=CREDS[u];
+  if(!cred||cred.password!==p){document.getElementById('l-err').textContent='Kullanıcı adı veya şifre hatalı.';return}
+  me={username:u,...cred};
+  if(remember)localStorage.setItem('rk_session',JSON.stringify(me));
+  initApp();
+}
+
+function doLogout(){
+  me=null;
+  localStorage.removeItem('rk_session');
+  if(rtCh){sb.removeChannel(rtCh);rtCh=null}
+  showScreen('login');
+  document.getElementById('l-user').value='';
+  document.getElementById('l-pass').value='';
+}
+
+// ==============================
+// APP INIT (garson/sahip)
+// ==============================
+async function initApp(){
+  showScreen('tables');
+  if(me.role==='owner'){show('btn-admin');show('btn-mutfak')}else{hide('btn-admin');show('btn-mutfak')}
+  document.getElementById('tbl-sub').textContent=me.display+' · '+new Date().toLocaleDateString('tr-TR');
+  area='kapali';
+  await Promise.all([loadTables(),loadOpenOrders(),loadSettings(),loadMutfakUrunler()]);
+  renderTables();updateCiro();setupRealtime();
+}
+
+// ==============================
+// CHEF INIT
+// ==============================
+async function initChef(){
+  showScreen('chef');
+  await loadSettings();await loadMutfakUrunler();
+  await renderChefOrders();
+  setupChefRealtime();
+}
+
+// ==============================
+// DATA LOADING
+// ==============================
+async function loadTables(){const{data}=await sb.from('masalar').select('*').order('alan').order('isim');tables=data||[]}
+async function loadOpenOrders(){const{data}=await sb.from('siparisler').select('*, siparis_kalemleri(*)').eq('durum','acik');openOrders={};(data||[]).forEach(o=>{openOrders[o.masa_id]=o})}
+async function loadProducts(){const{data}=await sb.from('urunler').select('*').eq('aktif',true).order('kategori').order('isim');products=data||[]}
+async function loadSettings(){const{data}=await sb.from('ayarlar').select('*');settings={};(data||[]).forEach(s=>{settings[s.anahtar]=s.deger})}
+async function loadMutfakUrunler(){const{data}=await sb.from('mutfak_urunler').select('*').order('urun_adi');mutfakUrunler=data||[]}
+function isMutfakUrun(name){return mutfakUrunler.some(m=>m.urun_adi===name)}
+
+// ==============================
+// REALTIME
+// ==============================
+function setupRealtime(){
+  rtCh=sb.channel('rk-main')
+    .on('postgres_changes',{event:'*',schema:'public',table:'masalar'},async()=>{await loadTables();await loadOpenOrders();if(area!=='mutfak')renderTables();updateCiro()})
+    .on('postgres_changes',{event:'*',schema:'public',table:'siparisler'},async()=>{await loadOpenOrders();if(area!=='mutfak')renderTables();updateCiro();if(curTblId&&isScreenActive('order'))refreshOrderView()})
+    .on('postgres_changes',{event:'*',schema:'public',table:'siparis_kalemleri'},async()=>{await loadOpenOrders();if(curTblId&&isScreenActive('order'))refreshOrderView()})
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'mutfak_bildirimleri'},async(payload)=>{
+      const d=payload.new;
+      // Only play ready sound if it's a "hazır" notification from chef, not a send notification
+      if(d.urun_listesi&&!d.urun_listesi.includes('(yeni)')&&!d.urun_listesi.includes('(güncellendi)')){
+        playReadyAlert();
+        toast('✅ '+d.masa_adi+' hazır! '+d.urun_listesi);
+      }
+    })
+    .subscribe();
+}
+
+function setupChefRealtime(){
+  const chefCh=sb.channel('rk-chef')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'mutfak_bildirimleri'},async()=>{
+      playKitchenAlert();await renderChefOrders();
+    })
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'siparis_kalemleri'},async()=>{await renderChefOrders()})
+    .on('postgres_changes',{event:'DELETE',schema:'public',table:'siparis_kalemleri'},async()=>{await renderChefOrders()})
+    .on('postgres_changes',{event:'*',schema:'public',table:'siparisler'},async()=>{await renderChefOrders()})
+    .subscribe();
+}
+
+// ==============================
+// TABLES SCREEN
+// ==============================
+function switchArea(a){
+  area=a;
+  document.getElementById('tab-k').className='area-tab'+(a==='kapali'?' active':'');
+  document.getElementById('tab-b').className='area-tab'+(a==='bahce'?' active':'');
+  const mc=document.getElementById('main-content');
+  mc.innerHTML='<div id="area-status-bar"></div><div class="tables-grid" id="tbl-grid"></div>';
+  renderTables();
+}
+
+function renderTables(){
+  const grid=document.getElementById('tbl-grid');
+  if(!grid)return;
+  const areaT=tables.filter(t=>t.alan===area);
+  const doluCount=areaT.filter(t=>t.dolu).length;
+  const bosCount=areaT.length-doluCount;
+  const bar=document.getElementById('area-status-bar');
+  if(bar){
+    const areaLabel=area==='kapali'?'<i class="fa-solid fa-house"></i> Kapalı Alan':'<i class="fa-solid fa-leaf"></i> Bahçe';
+    bar.innerHTML=`<div class="area-status-header">
+      <span class="ash-title">${areaLabel}</span>
+      <span class="ash-chips">
+        <span class="ash-chip occupied"><i class="fa-solid fa-circle-dot"></i> ${doluCount} Dolu</span>
+        <span class="ash-chip empty"><i class="fa-regular fa-circle"></i> ${bosCount} Boş</span>
+        <span class="ash-chip total"><i class="fa-solid fa-table-cells"></i> ${areaT.length} Masa</span>
+      </span>
+    </div>`;
+  }
+  let html=areaT.map(t=>{
+    const ord=openOrders[t.id];
+    const total=ord?calcTotal(ord.siparis_kalemleri||[]):0;
+    return`<div class="table-card ${t.dolu?'occupied':'empty'}" onclick="openTable('${t.id}')">
+      <div class="t-num">${esc(t.isim)}</div>
+      <div class="t-badge">${t.dolu?'<i class="fa-solid fa-circle-dot"></i> Dolu':'<i class="fa-regular fa-circle"></i> Boş'}</div>
+      ${t.dolu&&total>0?`<div class="t-price">${fmt(total)}</div>`:''}
+    </div>`;
+  }).join('');
+  if(!html)html=`<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--cream-3);font-size:13px"><i class="fa-solid fa-circle-exclamation"></i> Bu alanda masa yok.</div>`;
+  grid.innerHTML=html;
+}
+
+async function renderMutfakTab(){
+  const el=document.getElementById('kitchen-view-inner');
+  if(!el)return;
+  await loadMutfakUrunler();
+  const pending=await getPendingKitchenItems();
+  if(!pending.length){el.innerHTML=`<div class="kitchen-empty"><div class="kitchen-empty-icon">✅</div><p style="color:var(--cream-3);font-size:14px">Bekleyen mutfak siparişi yok.</p></div>`;return}
+  // group by table
+  const byTable={};
+  pending.forEach(row=>{if(!byTable[row.masa_adi])byTable[row.masa_adi]=[];byTable[row.masa_adi].push(row)});
+  const byTable2={};
+  pending.forEach(row=>{if(!byTable2[row.masa_adi])byTable2[row.masa_adi]=[];byTable2[row.masa_adi].push(row)});
+  el.innerHTML=Object.entries(byTable2).map(([masa,items])=>`
+    <div class="k-order-card">
+      <div class="k-order-hdr"><span class="k-order-tname">🍽 ${esc(masa)}</span></div>
+      ${items.map(i=>`<div class="k-item">
+        <div class="k-item-main"><span class="k-item-qty">x${i.miktar}</span><span class="k-item-name">${esc(i.urun_adi)}</span></div>
+        ${i.not_metni?`<span class="k-item-note">📝 ${esc(i.not_metni)}</span>`:''}
+      </div>`).join('')}
+    </div>`).join('');
+}
+
+function calcTotal(items){return items.reduce((s,i)=>s+(parseFloat(i.fiyat)*i.miktar),0)}
+
+async function updateCiro(){
+  const today=new Date().toISOString().split('T')[0];
+  const{data}=await sb.from('siparisler').select('toplam,odeme_yontemi,kapandi_at').eq('durum','kapali');
+  const todayRows=(data||[]).filter(o=>o.kapandi_at?.startsWith(today));
+  const nakit=todayRows.filter(o=>o.odeme_yontemi==='nakit').reduce((s,o)=>s+(parseFloat(o.toplam)||0),0);
+  const iban=todayRows.filter(o=>o.odeme_yontemi==='iban').reduce((s,o)=>s+(parseFloat(o.toplam)||0),0);
+  const daily=nakit+iban;
+  const dEl=document.getElementById('cv-daily');if(dEl)dEl.textContent=fmt(daily);
+  const nEl=document.getElementById('cv-nakit');if(nEl)nEl.innerHTML='<i class="fa-solid fa-money-bill-wave"></i> '+Math.round(nakit)+' MKD';
+  const iEl=document.getElementById('cv-iban');if(iEl)iEl.innerHTML='<i class="fa-solid fa-building-columns"></i> '+Math.round(iban)+' MKD';
+  const oEl=document.getElementById('cv-open');if(oEl)oEl.textContent=tables.filter(t=>t.dolu).length;
+}
+
+// ==============================
+// ORDER SCREEN
+// ==============================
+async function openTable(tid){
+  curTblId=tid;
+  const tbl=tables.find(t=>t.id===tid);
+  if(!tbl)return;
+  document.getElementById('ord-tname').textContent=tbl.isim;
+  document.getElementById('ord-tarea').textContent=tbl.alan==='bahce'?'🌿 Bahçe':'🏠 Kapalı Alan';
+  showScreen('order');
+  if(!tbl.dolu){
+    const{data,error}=await sb.from('siparisler').insert({masa_id:tid,masa_adi:tbl.isim,durum:'acik',toplam:0}).select().single();
+    if(error){toast('Masa açılırken hata!');showScreen('tables');return}
+    // Masayı henüz dolu yapmıyoruz — ilk ürün girildiğinde dolu olacak
+    curOrdId=data.id;
+    openOrders[tid]={...data,siparis_kalemleri:[]};renderOrderItems([]);
+  }else{
+    const{data}=await sb.from('siparisler').select('*, siparis_kalemleri(*)').eq('masa_id',tid).eq('durum','acik').maybeSingle();
+    if(data){curOrdId=data.id;openOrders[tid]=data;renderOrderItems(data.siparis_kalemleri||[])}
+    else renderOrderItems([]);
+  }
+}
+
+async function backToTables(){
+  // Sipariş boşsa (hiç kalem yok) siparişi ve masa açık kaydını temizle
+  if(curTblId&&curOrdId){
+    const ord=openOrders[curTblId];
+    if(ord&&(!ord.siparis_kalemleri||ord.siparis_kalemleri.length===0)){
+      await sb.from('siparisler').delete().eq('id',curOrdId);
+      delete openOrders[curTblId];
+    }
+  }
+  showScreen('tables');
+  await loadOpenOrders();renderTables();updateCiro();
+}
+function scrollToPayment(){document.getElementById('pay-btns').scrollIntoView({behavior:'smooth'})}
+function refreshOrderView(){const o=openOrders[curTblId];if(o)renderOrderItems(o.siparis_kalemleri||[])}
+
+function renderOrderItems(items){
+  const el=document.getElementById('ord-items');
+  const total=calcTotal(items);
+  // Show/hide Mutfağa Gönder button — only if there are unsent mutfak items
+  const hasBekliyor=items.some(i=>isMutfakUrun(i.urun_adi)&&!i.mutfak_gonderildi&&!i.mutfak_hazir);
+  const btn=document.getElementById('btn-mutfak-gonder');
+  if(btn)btn.className='btn-mutfak-gonder'+(hasBekliyor?' visible':'');
+  if(!items.length){
+    el.innerHTML=`<div class="items-list"><div class="order-empty"><div class="order-empty-icon">📋</div><p>Henüz sipariş yok</p></div></div>`;
+  }else{
+    el.innerHTML=`<div class="items-list">${items.map(item=>{
+      const isMutfak=isMutfakUrun(item.urun_adi);
+      const statusDot=isMutfak
+        ?(item.mutfak_hazir
+          ?'<span class="oi-status-dot" style="background:#3db882" title="Hazır"></span>'
+          :(item.mutfak_gonderildi
+            ?'<span class="oi-status-dot gonderildi" title="Mutfakta"></span>'
+            :'<span class="oi-status-dot bekliyor" title="Bekliyor"></span>'))
+        :'';
+      return`<div class="order-item" id="oi-${item.id}">
+        <div class="oi-main">
+          <div class="oi-name">${statusDot}${esc(item.urun_adi)}</div>
+          <div class="oi-qty">
+            <button class="qty-btn" onclick="changeQty('${item.id}',-1)">−</button>
+            <span class="oi-cnt">${item.miktar}</span>
+            <button class="qty-btn" onclick="changeQty('${item.id}',1)">+</button>
+          </div>
+          <div class="oi-price">${fmt(parseFloat(item.fiyat)*item.miktar)}</div>
+          <button class="btn-note-toggle ${item.not_metni?'has-note':''}" onclick="toggleNote('${item.id}')">📝</button>
+        </div>
+        <div class="oi-note-row ${item.not_metni?'show':''}" id="note-row-${item.id}">
+          <input type="text" value="${esc(item.not_metni||'')}" placeholder="Not ekle (ör: bol kaşarlı, tereyağsız)"
+            onblur="saveItemNote('${item.id}',this.value)"
+            onkeypress="if(event.key==='Enter'){this.blur()}">
+        </div>
+      </div>`;}).join('')}</div>`;
+  }
+  document.getElementById('ord-total').textContent=fmt(total);
+}
+
+function toggleNote(itemId){
+  const row=document.getElementById('note-row-'+itemId);
+  if(!row)return;
+  const open=row.classList.contains('show');
+  row.classList.toggle('show',!open);
+  if(!open)row.querySelector('input').focus();
+}
+
+async function saveItemNote(itemId,note){
+  const ord=openOrders[curTblId];if(!ord)return;
+  const item=(ord.siparis_kalemleri||[]).find(i=>i.id===itemId);
+  if(!item)return;
+  item.not_metni=note;
+  await sb.from('siparis_kalemleri').update({not_metni:note||null}).eq('id',itemId);
+  const btn=document.querySelector(`#oi-${itemId} .btn-note-toggle`);
+  if(btn)btn.className='btn-note-toggle'+(note?' has-note':'');
+}
+
+async function changeQty(itemId,delta){
+  const ord=openOrders[curTblId];if(!ord)return;
+  const item=(ord.siparis_kalemleri||[]).find(i=>i.id===itemId);if(!item)return;
+  const nq=item.miktar+delta;
+  if(nq<=0){
+    await sb.from('siparis_kalemleri').delete().eq('id',itemId);
+    ord.siparis_kalemleri=ord.siparis_kalemleri.filter(i=>i.id!==itemId);
+  } else {
+    await sb.from('siparis_kalemleri').update({miktar:nq}).eq('id',itemId);
+    item.miktar=nq;
+  }
+  renderOrderItems(ord.siparis_kalemleri);syncTotal();
+}
+
+async function syncTotal(){
+  const ord=openOrders[curTblId];if(!ord||!curOrdId)return;
+  const t=calcTotal(ord.siparis_kalemleri||[]);
+  await sb.from('siparisler').update({toplam:t}).eq('id',curOrdId);
+}
+
+// ==============================
+// PRODUCT MODAL (accordion)
+// ==============================
+const CAT_ICONS={'Ara Öğün':'🥪','Hamur İşi':'🥐','İçecek':'🥤','Sıcak İçecek':'☕','Soğuk İçecek':'🧃','Tatlı':'🍰','Kahve':'☕','Çay':'🍵','Atıştırmalık':'🍿','Yemek':'🍽','Gözleme':'🫓','Pide':'🥙','Lahmacun':'🫓','Salata':'🥗','Çorba':'🍜','Kahvaltı':'🍳','Pizza':'🍕','Sandviç':'🥪','Meze':'🫙','Izgara':'🔥'};
+function catIcon(name){return CAT_ICONS[name]||'🍴'}
+
+async function openProdModal(){
+  await loadProducts();
+  const body=document.getElementById('m-prods-body');
+  if(!products.length){body.innerHTML=`<div class="order-empty"><p>Henüz ürün yok.</p></div>`;openModal('m-prods');return}
+  const cats={};products.forEach(p=>{if(!cats[p.kategori])cats[p.kategori]=[];cats[p.kategori].push(p)});
+  const allKeys=Object.keys(cats);
+  let so=[];try{so=settings['cat_order']?JSON.parse(settings['cat_order']):[]}catch(e){}
+  const keys=[...so.filter(k=>allKeys.includes(k)),...allKeys.filter(k=>!so.includes(k))];
+  body.innerHTML=keys.map((cat,idx)=>{const ps=cats[cat];return`<div class="cat-section">
+    <div class="cat-header" onclick="toggleCat('cat-${idx}')">
+      <div class="cat-header-left"><div class="cat-icon">${catIcon(cat)}</div><div><div class="cat-hdr-name">${esc(cat)}</div><div class="cat-hdr-count">${ps.length} ürün</div></div></div>
+      <span class="cat-chevron" id="chv-${idx}">▼</span>
+    </div>
+    <div class="cat-items" id="cat-${idx}">${ps.map(p=>`<div class="prod-item">
+      <div class="prod-info"><div class="prod-name">${esc(p.isim)}</div>${p.aciklama?`<div class="prod-desc">${esc(p.aciklama)}</div>`:''}</div>
+      <div class="prod-price">${fmt(p.fiyat)}</div>
+      <button class="btn-prod-add" onclick="addItem('${p.id}')">+</button>
+    </div>`).join('')}</div></div>`}).join('');
+  openModal('m-prods');
+}
+
+function toggleCat(id){const el=document.getElementById(id),idx=id.replace('cat-',''),chv=document.getElementById('chv-'+idx),open=el.classList.contains('open');el.classList.toggle('open',!open);chv.classList.toggle('open',!open)}
+
+async function addItem(pid){
+  if(addingItem)return;addingItem=true;
+  try{
+    const p=products.find(x=>x.id===pid);if(!p||!curOrdId)return;
+    const ord=openOrders[curTblId];
+    const ex=(ord?.siparis_kalemleri||[]).find(i=>i.urun_adi===p.isim&&parseFloat(i.fiyat)===parseFloat(p.fiyat));
+    if(ex){
+      // Zaten gönderilmişse yeni satır aç, gönderilmemişse sadece adet artır
+      if(ex.mutfak_gonderildi){
+        const{data,error}=await sb.from('siparis_kalemleri').insert({siparis_id:curOrdId,urun_adi:p.isim,fiyat:p.fiyat,miktar:1,mutfak_hazir:false,mutfak_gonderildi:false}).select().single();
+        if(!error&&data){ord.siparis_kalemleri.push(data)}
+      } else {
+        await sb.from('siparis_kalemleri').update({miktar:ex.miktar+1}).eq('id',ex.id);
+        ex.miktar++;
+      }
+    } else {
+      const{data,error}=await sb.from('siparis_kalemleri').insert({siparis_id:curOrdId,urun_adi:p.isim,fiyat:p.fiyat,miktar:1,mutfak_hazir:false,mutfak_gonderildi:false}).select().single();
+      if(!error&&data){if(!ord.siparis_kalemleri)ord.siparis_kalemleri=[];ord.siparis_kalemleri.push(data)}
+    }
+    // İlk ürün giriliyorsa masayı dolu yap
+    const tbl2=tables.find(t=>t.id===curTblId);
+    if(tbl2&&!tbl2.dolu){
+      await sb.from('masalar').update({dolu:true}).eq('id',curTblId);
+      tbl2.dolu=true;
+    }
+    renderOrderItems(ord.siparis_kalemleri);syncTotal();toast('✓ '+p.isim);
+  }finally{addingItem=false}
+}
+
+// ==============================
+// MUTFAGA GONDER
+// ==============================
+async function gonderMutfaga(){
+  const ord=openOrders[curTblId];if(!ord||!curOrdId)return;
+  const tbl=tables.find(t=>t.id===curTblId);
+  const unsent=(ord.siparis_kalemleri||[]).filter(i=>isMutfakUrun(i.urun_adi)&&!i.mutfak_gonderildi&&!i.mutfak_hazir);
+  if(!unsent.length){toast('Gönderilecek mutfak ürünü yok.');return}
+  const ids=unsent.map(i=>i.id);
+  await sb.from('siparis_kalemleri').update({mutfak_gonderildi:true}).in('id',ids);
+  unsent.forEach(i=>{i.mutfak_gonderildi=true});
+  const urunOzet=unsent.map(i=>i.urun_adi+' x'+i.miktar+(i.not_metni?' ['+i.not_metni+']':'')).join(', ');
+  await sb.from('mutfak_bildirimleri').insert({masa_adi:tbl?.isim||'?',urun_listesi:urunOzet,okundu:false});
+  renderOrderItems(ord.siparis_kalemleri);
+  toast('🍳 Mutfağa gönderildi!');
+}
+
+// ==============================
+// PAYMENT
+// ==============================
+function initCashPayment(){
+  const ord=openOrders[curTblId],total=calcTotal(ord?.siparis_kalemleri||[]);
+  document.getElementById('m-cash-desc').textContent=`Toplam: ${fmt(total)} — Nakit ödeme alındı mı?`;
+  openModal('m-cash');
+}
+async function confirmCash(){closeModal('m-cash');await finalizeOrder('nakit','alindi')}
+
+async function openIbanModal(){
+  await loadSettings();
+  const iban=settings['iban_no']||'',qr=settings['iban_qr']||'';
+  const ord=openOrders[curTblId],rawTotal=calcTotal(ord?.siparis_kalemleri||[]),total=rawTotal+60;
+  let html;
+  if(!iban&&!qr){html=`<div class="iban-not-set">🏦<br><br>IBAN henüz ayarlanmamış.<br><span style="font-size:11px">Yönetim → Ayarlar bölümünden ekleyin.</span></div>`}
+  else{html=`<div class="iban-box">${iban?`<div class="iban-lbl">IBAN</div><div class="iban-num">${esc(iban)}</div>`:''}${qr?`<img src="${esc(qr)}" class="iban-qr" alt="QR">`:''}
+  </div><div class="iban-total">Toplam: ${fmt(total)}</div><div class="iban-surcharge">+ 60 MKD havale ücreti dahil</div>`}
+  document.getElementById('m-iban-body').innerHTML=html;
+  openModal('m-iban');
+}
+async function confirmIban(){closeModal('m-iban');await finalizeOrder('iban','alinacak')}
+
+async function finalizeOrder(method,status){
+  const ord=openOrders[curTblId];if(!ord||!curOrdId)return;
+  let total=calcTotal(ord.siparis_kalemleri||[]);
+  if(method==='iban')total+=60;
+  const tbl=tables.find(t=>t.id===curTblId);
+  await sb.from('siparisler').update({durum:'kapali',toplam:total,odeme_yontemi:method,odeme_durumu:status,kapandi_at:new Date().toISOString()}).eq('id',curOrdId);
+  await sb.from('masalar').update({dolu:false}).eq('id',curTblId);
+  // Excel export available from settings
+  toast(method==='nakit'?'✓ Nakit ödeme alındı!':'✓ IBAN ile alınacak!');
+  delete openOrders[curTblId];const tr=tables.find(t=>t.id===curTblId);if(tr)tr.dolu=false;
+  curTblId=null;curOrdId=null;showScreen('tables');renderTables();updateCiro();
+}
+
+// ==============================
+// KITCHEN
+// ==============================
+async function getPendingKitchenItems(){
+  const mutfakNames=mutfakUrunler.map(m=>m.urun_adi);
+  if(!mutfakNames.length)return[];
+  const{data}=await sb.from('siparisler').select('masa_adi, siparis_kalemleri(id,urun_adi,miktar,not_metni,mutfak_hazir,mutfak_gonderildi)').eq('durum','acik');
+  const rows=[];
+  (data||[]).forEach(s=>{(s.siparis_kalemleri||[]).filter(k=>mutfakNames.includes(k.urun_adi)&&k.mutfak_gonderildi&&!k.mutfak_hazir).forEach(k=>rows.push({...k,masa_adi:s.masa_adi||'?'}))});
+  return rows;
+}
+
+async function renderChefOrders(){
+  const el=document.getElementById('chef-orders');if(!el)return;
+  const pending=await getPendingKitchenItems();
+  const badge=document.getElementById('chef-pending-badge');
+  if(badge)badge.textContent=pending.length?pending.length+' Sipariş':'';
+  if(!pending.length){el.innerHTML=`<div class="kitchen-empty"><div class="kitchen-empty-icon">✅</div><p style="color:var(--cream-3);font-size:14px">Bekleyen sipariş yok. Harika!</p></div>`;return}
+  pendingByTable={};
+  pending.forEach(row=>{if(!pendingByTable[row.masa_adi])pendingByTable[row.masa_adi]=[];pendingByTable[row.masa_adi].push(row)});
+  el.innerHTML=Object.entries(pendingByTable).map(([masa,items])=>{
+    const masaKey=masa.replace(/'/g,"\'");
+    return`<div class="k-order-card">
+      <div class="k-order-hdr"><span class="k-order-tname">🍽 ${esc(masa)}</span><span class="k-order-time">${items.length} kalem</span></div>
+      ${items.map(i=>`<div class="k-item">
+        <div class="k-item-main"><span class="k-item-qty">x${i.miktar}</span><span class="k-item-name">${esc(i.urun_adi)}</span></div>
+        ${i.not_metni?`<span class="k-item-note">📝 ${esc(i.not_metni)}</span>`:''}
+      </div>`).join('')}
+      <button class="btn-hazir" onclick="initChefReady('${masaKey}')">✅ Hazırlandı — Bildir</button>
+    </div>`;}).join('');
+}
+
+// pendingByTable is populated in renderChefOrders
+let pendingByTable = {};
+
+function initChefReady(masaAdi){
+  chefReadyTableId={masa:masaAdi};
+  document.getElementById('m-chef-desc').textContent=masaAdi+' için siparişler hazırlandı mı?';
+  openModal('m-chef-confirm');
+}
+
+async function confirmChefReady(){
+  closeModal('m-chef-confirm');
+  if(!chefReadyTableId)return;
+  const masa=chefReadyTableId.masa;
+  const items=pendingByTable[masa]||[];
+  const ids=items.map(i=>i.id);
+  if(!ids.length){toast('Kalem bulunamadı.');chefReadyTableId=null;return;}
+  const{error}=await sb.from('siparis_kalemleri').update({mutfak_hazir:true}).in('id',ids);
+  if(error){toast('Hata: '+error.message);return;}
+  await sb.from('mutfak_bildirimleri').insert({masa_adi:masa,urun_listesi:ids.length+' kalem',okundu:false});
+  toast('✅ Garson bildirildi!');
+  chefReadyTableId=null;
+  await renderChefOrders();
+}
+
+// ==============================
+// EXCEL EXPORT (SheetJS)
+// ==============================
+async function exportExcel(){
+  toast('Excel hazırlanıyor…');
+  try{
+    const{data:orders}=await sb.from('siparisler')
+      .select('id,masa_adi,toplam,odeme_yontemi,kapandi_at')
+      .eq('durum','kapali')
+      .order('kapandi_at',{ascending:true});
+    if(!orders||!orders.length){toast('Henüz kapanmış sipariş yok.');return}
+    // Group by table
+    const byTable={};
+    orders.forEach(o=>{
+      const k=o.masa_adi||'Bilinmeyen';
+      if(!byTable[k])byTable[k]=[];
+      byTable[k].push(o);
+    });
+    const wb=XLSX.utils.book_new();
+    // Summary sheet first
+    const summaryRows=[['Masa','Tarih','Saat','Tutar (MKD)','Ödeme Şekli']];
+    orders.forEach(o=>{
+      const dt=o.kapandi_at?new Date(o.kapandi_at):null;
+      summaryRows.push([
+        o.masa_adi||'?',
+        dt?dt.toLocaleDateString('tr-TR'):'—',
+        dt?dt.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}):'—',
+        parseFloat(o.toplam)||0,
+        o.odeme_yontemi==='nakit'?'Nakit':'IBAN'
+      ]);
+    });
+    const totalNakit=orders.filter(o=>o.odeme_yontemi==='nakit').reduce((s,o)=>s+(parseFloat(o.toplam)||0),0);
+    const totalIban=orders.filter(o=>o.odeme_yontemi==='iban').reduce((s,o)=>s+(parseFloat(o.toplam)||0),0);
+    summaryRows.push([]);
+    summaryRows.push(['','','Nakit Toplam:',Math.round(totalNakit),'']);
+    summaryRows.push(['','','IBAN Toplam:',Math.round(totalIban),'']);
+    summaryRows.push(['','','GENEL TOPLAM:',Math.round(totalNakit+totalIban),'']);
+    const summaryWs=XLSX.utils.aoa_to_sheet(summaryRows);
+    summaryWs['!cols']=[{wch:12},{wch:14},{wch:10},{wch:14},{wch:12}];
+    XLSX.utils.book_append_sheet(wb,summaryWs,'Tüm Siparişler');
+    // Per-table sheets
+    Object.entries(byTable).sort().forEach(([masa,rows])=>{
+      const sheetRows=[['Masa','Tarih','Saat','Tutar (MKD)','Ödeme Şekli']];
+      let masaTotal=0;
+      rows.forEach(o=>{
+        const dt=o.kapandi_at?new Date(o.kapandi_at):null;
+        const tutar=parseFloat(o.toplam)||0;
+        masaTotal+=tutar;
+        sheetRows.push([
+          o.masa_adi||'?',
+          dt?dt.toLocaleDateString('tr-TR'):'—',
+          dt?dt.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}):'—',
+          Math.round(tutar),
+          o.odeme_yontemi==='nakit'?'Nakit':'IBAN'
+        ]);
+      });
+      sheetRows.push([]);
+      sheetRows.push(['','','Toplam:',Math.round(masaTotal),'']);
+      const ws=XLSX.utils.aoa_to_sheet(sheetRows);
+      ws['!cols']=[{wch:10},{wch:14},{wch:10},{wch:14},{wch:12}];
+      // Safe sheet name max 31 chars
+      const sheetName=String(masa).substring(0,31);
+      XLSX.utils.book_append_sheet(wb,ws,sheetName);
+    });
+    const fname='RuyaLounge_'+new Date().toISOString().split('T')[0]+'.xlsx';
+    XLSX.writeFile(wb,fname);
+    toast('✓ Excel indirildi!');
+  }catch(e){toast('Excel hatası: '+e.message);console.error(e)}
+}
+
+// ==============================
+// ADMIN — PRODUCTS
+// ==============================
+async function loadAdminProds(){
+  const{data}=await sb.from('urunler').select('*').order('kategori').order('isim');
+  const el=document.getElementById('admin-prods');
+  if(!data?.length){el.innerHTML=`<div style="text-align:center;color:var(--cream-3);font-size:13px;padding:1rem">Henüz ürün yok.</div>`;return}
+  el.innerHTML=data.map(p=>`<div class="pa-item">
+    <div class="pa-info"><div class="pa-name">${esc(p.isim)}</div>
+    <div class="pa-meta"><span class="cat-badge">${esc(p.kategori||'Genel')}</span>${fmt(p.fiyat)}${p.aciklama?` · ${esc(p.aciklama)}`:''}</div></div>
+    <div style="display:flex;gap:5px;flex-shrink:0">
+      <button class="btn-edit" onclick="startEdit('${p.id}')">Düzenle</button>
+      <button class="btn-del" onclick="delProd('${p.id}')">Sil</button>
+    </div></div>`).join('');
+  products=data;
+}
+
+async function addProduct(){
+  const name=document.getElementById('np-name').value.trim(),price=parseFloat(document.getElementById('np-price').value),cat=document.getElementById('np-cat').value.trim()||'Genel',desc=document.getElementById('np-desc').value.trim();
+  if(!name||isNaN(price)){toast('Ad ve fiyat zorunludur.');return}
+  const{error}=await sb.from('urunler').insert({isim:name,fiyat:price,kategori:cat,aciklama:desc,aktif:true});
+  if(!error){['np-name','np-price','np-cat','np-desc'].forEach(id=>document.getElementById(id).value='');toast('✓ Ürün eklendi!');loadAdminProds()}
+  else toast('Hata: '+error.message);
+}
+
+function startEdit(id){const p=products.find(x=>x.id===id);if(!p)return;document.getElementById('ep-id').value=p.id;document.getElementById('ep-name').value=p.isim;document.getElementById('ep-price').value=p.fiyat;document.getElementById('ep-cat').value=p.kategori||'';document.getElementById('ep-desc').value=p.aciklama||'';openModal('m-edit-prod')}
+
+async function updateProduct(){
+  const id=document.getElementById('ep-id').value,name=document.getElementById('ep-name').value.trim(),price=parseFloat(document.getElementById('ep-price').value),cat=document.getElementById('ep-cat').value.trim()||'Genel',desc=document.getElementById('ep-desc').value.trim();
+  if(!name||isNaN(price)){toast('Ad ve fiyat zorunludur.');return}
+  const{error}=await sb.from('urunler').update({isim:name,fiyat:price,kategori:cat,aciklama:desc}).eq('id',id);
+  if(!error){closeModal('m-edit-prod');toast('✓ Ürün güncellendi!');loadAdminProds()}
+}
+
+async function delProd(id){if(!confirm('Bu ürünü silmek istiyor musunuz?'))return;await sb.from('urunler').delete().eq('id',id);toast('Ürün silindi.');loadAdminProds()}
+
+// ==============================
+// ADMIN — TABLES
+// ==============================
+async function loadAdminTables(){
+  const renderChips=(alanKey,elId)=>{const el=document.getElementById(elId),list=tables.filter(t=>t.alan===alanKey);el.innerHTML=list.length?list.map(t=>`<div class="t-chip">${esc(t.isim)}<button class="btn-chip-del" onclick="delTable('${t.id}','${esc(t.isim)}')">✕</button></div>`).join(''):`<span style="font-size:12px;color:var(--cream-3)">Masa yok</span>`};
+  renderChips('bahce','adm-b');renderChips('kapali','adm-k');
+}
+
+async function addTable(alan){
+  const prefix=alan==='bahce'?'B':'K',n=tables.filter(t=>t.alan===alan).length+1,name=prefix+n;
+  const{error}=await sb.from('masalar').insert({isim:name,alan,dolu:false});
+  if(!error){await loadTables();renderTables();loadAdminTables();toast('✓ '+name+' eklendi!')}
+  else toast('Hata: '+error.message);
+}
+
+async function delTable(id,name){
+  const t=tables.find(x=>x.id===id);if(t?.dolu){toast('Dolu masa silinemez!');return}
+  if(!confirm(`"${name}" silinsin mi?`))return;
+  await sb.from('masalar').delete().eq('id',id);await loadTables();renderTables();loadAdminTables();toast(name+' silindi.');
+}
+
+// ==============================
+// ADMIN — MUTFAK
+// ==============================
+async function loadAdminMutfak(){
+  await loadMutfakUrunler();await loadProducts();
+  // populate select
+  const sel=document.getElementById('np-mutfak-urun');
+  sel.innerHTML='<option value="">— Ürün seç —</option>'+products.filter(p=>!mutfakUrunler.some(m=>m.urun_adi===p.isim)).map(p=>`<option value="${esc(p.isim)}">${esc(p.isim)}</option>`).join('');
+  // populate list
+  const el=document.getElementById('mutfak-urun-list');
+  if(!mutfakUrunler.length){el.innerHTML=`<div style="text-align:center;padding:1rem;color:var(--cream-3);font-size:13px">Henüz mutfak ürünü yok.</div>`;return}
+  el.innerHTML=mutfakUrunler.map(m=>`<div class="mutfak-prod-item"><span class="mutfak-prod-name">🔥 ${esc(m.urun_adi)}</span><button class="btn-mutfak-del" onclick="delMutfakUrun('${m.id}','${esc(m.urun_adi)}')">Kaldır</button></div>`).join('');
+  // chef pw
+  await loadSettings();
+  document.getElementById('s-asci-sifre').value=settings['asci_sifre']||'mutfak123';
+}
+
+async function addMutfakUrun(){
+  const name=document.getElementById('np-mutfak-urun').value;if(!name){toast('Ürün seçin.');return}
+  const{error}=await sb.from('mutfak_urunler').insert({urun_adi:name});
+  if(!error){toast('✓ Mutfağa eklendi!');loadAdminMutfak()}else toast('Hata: '+error.message);
+}
+
+async function delMutfakUrun(id,name){
+  if(!confirm(`"${name}" mutfak listesinden kaldırılsın mı?`))return;
+  await sb.from('mutfak_urunler').delete().eq('id',id);toast(name+' kaldırıldı.');loadAdminMutfak();
+}
+
+// ==============================
+// ADMIN — İSTATİSTİK
+// ==============================
+async function loadIstatistik(){
+  await loadSettings();
+  const today=new Date().toISOString().split('T')[0];
+  const now=new Date();
+  const monthStart=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split('T')[0];
+  const{data:allOrders}=await sb.from('siparisler').select('id,kapandi_at').eq('durum','kapali');
+  const todayIds=(allOrders||[]).filter(o=>o.kapandi_at?.startsWith(today)).map(o=>o.id);
+  const monthIds=(allOrders||[]).filter(o=>o.kapandi_at&&o.kapandi_at>=monthStart+'T00:00:00').map(o=>o.id);
+  const allIds=[...new Set([...todayIds,...monthIds])];
+  const renderEmpty=(el)=>{el.innerHTML=`<div class="stat-loading" style="padding:1rem">Veri yok.</div>`};
+  if(!allIds.length){
+    renderEmpty(document.getElementById('stats-today'));
+    renderEmpty(document.getElementById('stats-month'));
+    loadMasaGecmisi();return;
+  }
+  const{data:kalemleri}=await sb.from('siparis_kalemleri').select('siparis_id,urun_adi,miktar').in('siparis_id',allIds);
+  const todayStats={},monthStats={};
+  (kalemleri||[]).forEach(k=>{
+    if(todayIds.includes(k.siparis_id)){if(!todayStats[k.urun_adi])todayStats[k.urun_adi]=0;todayStats[k.urun_adi]+=k.miktar}
+    if(monthIds.includes(k.siparis_id)){if(!monthStats[k.urun_adi])monthStats[k.urun_adi]=0;monthStats[k.urun_adi]+=k.miktar}
+  });
+  const renderStats=(el,stats)=>{
+    const sorted=Object.entries(stats).sort((a,b)=>b[1]-a[1]);
+    if(!sorted.length){el.innerHTML=`<div class="stat-loading" style="padding:1rem">Veri yok.</div>`;return}
+    el.innerHTML=sorted.map(([name,qty])=>`<div class="stat-item"><span class="stat-name">${esc(name)}</span><span class="stat-val">${qty} adet</span></div>`).join('');
+  };
+  renderStats(document.getElementById('stats-today'),todayStats);
+  renderStats(document.getElementById('stats-month'),monthStats);
+  loadMasaGecmisi();
+}
+
+
+
+async function loadMasaGecmisi(){
+  const{data}=await sb.from('siparisler').select('masa_adi,toplam,odeme_yontemi,kapandi_at').eq('durum','kapali').order('kapandi_at',{ascending:false}).limit(50);
+  const el=document.getElementById('hist-list');
+  if(!data?.length){el.innerHTML=`<div style="text-align:center;padding:1rem;color:var(--cream-3)">Geçmiş yok.</div>`;return}
+  el.innerHTML=data.map(r=>{
+    const dt=r.kapandi_at?new Date(r.kapandi_at).toLocaleString('tr-TR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'?';
+    const payBadge=r.odeme_yontemi==='nakit'?'<span class="hist-pay-cash">💵 Nakit</span>':'<span class="hist-pay-iban"><i class="fa-solid fa-building-columns"></i> IBAN</span>';
+    return`<div class="hist-item"><div class="hist-info"><div class="hist-masa">${esc(r.masa_adi||'?')}</div><div class="hist-meta">${dt} ${payBadge}</div></div><div class="hist-total">${fmt(r.toplam)}</div></div>`;
+  }).join('');
+}
+
+// ==============================
+// ADMIN — SETTINGS
+// ==============================
+async function loadAdminSettings(){
+  await loadSettings();
+  document.getElementById('s-iban').value=settings['iban_no']||'';
+  document.getElementById('s-qr').value=settings['iban_qr']||'';
+  loadCatSortPanel();
+  // Ciro is password-protected, reset fields
+  const errEl=document.getElementById('ciro-pwd-err');if(errEl)errEl.textContent='';
+  ['ct-nakit','ct-iban','ct-total'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—'});
+}
+
+async function loadCiroTotal(){
+  const{data}=await sb.from('siparisler').select('toplam,odeme_yontemi').eq('durum','kapali');
+  const nakit=(data||[]).filter(o=>o.odeme_yontemi==='nakit').reduce((s,o)=>s+(parseFloat(o.toplam)||0),0);
+  const iban=(data||[]).filter(o=>o.odeme_yontemi==='iban').reduce((s,o)=>s+(parseFloat(o.toplam)||0),0);
+  document.getElementById('ct-nakit').textContent=fmt(nakit);
+  document.getElementById('ct-iban').textContent=fmt(iban);
+  document.getElementById('ct-total').textContent=fmt(nakit+iban);
+}
+
+async function loadCiroTotalWithPwd(){
+  const pwd=document.getElementById('ciro-pwd').value;
+  const errEl=document.getElementById('ciro-pwd-err');
+  if(!pwd){errEl.textContent='Şifre gerekli.';return}
+  const OWNER_PWD='adanakebap';
+  if(pwd!==OWNER_PWD){errEl.textContent='Yanlış şifre.';return}
+  errEl.textContent='';
+  document.getElementById('ciro-pwd').value='';
+  await loadCiroTotal();
+  toast('✓ Ciro yüklendi.');
+}
+
+async function loadCatSortPanel(){
+  const{data}=await sb.from('urunler').select('kategori').eq('aktif',true);
+  const allCats=[...new Set((data||[]).map(p=>p.kategori).filter(Boolean))];
+  let saved=[];try{saved=settings['cat_order']?JSON.parse(settings['cat_order']):[]}catch(e){}
+  catSortOrder=[...saved.filter(k=>allCats.includes(k)),...allCats.filter(k=>!saved.includes(k))];
+  renderCatSortList();
+}
+
+function renderCatSortList(){
+  const el=document.getElementById('cat-sort-list');
+  if(!catSortOrder.length){el.innerHTML='<p style="font-size:12px;color:var(--cream-3);padding:8px 0">Henüz kategori yok.</p>';return}
+  el.innerHTML=catSortOrder.map((cat,idx)=>`<div class="cat-sort-row">
+    <div class="cat-sort-icon">${catIcon(cat)}</div>
+    <div class="cat-sort-name">${esc(cat)}</div>
+    <div class="cat-sort-btns">
+      <button class="btn-cat-mv" onclick="moveCat(${idx},-1)" ${idx===0?'disabled':''}>▲</button>
+      <button class="btn-cat-mv" onclick="moveCat(${idx},1)" ${idx===catSortOrder.length-1?'disabled':''}>▼</button>
+    </div></div>`).join('');
+}
+
+function moveCat(idx,dir){const ni=idx+dir;if(ni<0||ni>=catSortOrder.length)return;[catSortOrder[idx],catSortOrder[ni]]=[catSortOrder[ni],catSortOrder[idx]];renderCatSortList()}
+
+async function saveCatOrder(){
+  const val=JSON.stringify(catSortOrder);
+  const{error}=await sb.from('ayarlar').upsert({anahtar:'cat_order',deger:val,updated_at:new Date().toISOString()},{onConflict:'anahtar'});
+  if(!error){settings['cat_order']=val;toast('✓ Sıralama kaydedildi!')}
+}
+
+async function saveSetting(key,inputId){
+  const val=document.getElementById(inputId).value.trim();
+  const{error}=await sb.from('ayarlar').upsert({anahtar:key,deger:val,updated_at:new Date().toISOString()},{onConflict:'anahtar'});
+  if(!error){settings[key]=val;toast('✓ Kaydedildi!')}else toast('Hata: '+error.message);
+}
+
+// ==============================
+// ADMIN TAB SWITCH
+// ==============================
+function goAdmin(){showScreen('admin');switchAdminTab('menu')}
+
+async function goMutfakView(){
+  showScreen('mutfak');
+  await loadMutfakUrunler();
+  await renderMutfakTab();
+}
+
+function switchAdminTab(tab){
+  ['menu','masalar','mutfak','istatistik','ayarlar'].forEach(t=>{
+    document.getElementById('at-'+t).className='admin-tab'+(t===tab?' active':'');
+    document.getElementById('ap-'+t).className='admin-panel'+(t===tab?' active':'');
+  });
+  if(tab==='menu')loadAdminProds();
+  if(tab==='masalar')loadAdminTables();
+  if(tab==='mutfak')loadAdminMutfak();
+  if(tab==='istatistik')loadIstatistik();
+  if(tab==='ayarlar')loadAdminSettings();
+}
+
+// ==============================
+// SOUNDS
+// ==============================
+function playKitchenAlert(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [[0,880],[0.35,880],[0.7,880]].forEach(([t,f])=>{
+      const osc=ctx.createOscillator(),gain=ctx.createGain();
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.frequency.value=f;osc.type='sine';
+      gain.gain.setValueAtTime(0.5,ctx.currentTime+t);
+      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+0.3);
+      osc.start(ctx.currentTime+t);osc.stop(ctx.currentTime+t+0.35);
+    });
+  }catch(e){}
+}
+
+function playReadyAlert(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [[0,660],[0.2,880],[0.4,1100]].forEach(([t,f])=>{
+      const osc=ctx.createOscillator(),gain=ctx.createGain();
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.frequency.value=f;osc.type='sine';
+      gain.gain.setValueAtTime(0.4,ctx.currentTime+t);
+      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+0.4);
+      osc.start(ctx.currentTime+t);osc.stop(ctx.currentTime+t+0.45);
+    });
+  }catch(e){}
+}
+
+// ==============================
+// HELPERS
+// ==============================
+function showScreen(name){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+name).classList.add('active')}
+function isScreenActive(name){return document.getElementById('screen-'+name)?.classList.contains('active')}
+function openModal(id){document.getElementById(id).classList.remove('hidden')}
+function closeModal(id){document.getElementById(id).classList.add('hidden')}
+document.querySelectorAll('.modal-overlay').forEach(el=>{el.addEventListener('click',e=>{if(e.target===el)el.classList.add('hidden')})});
+function show(id){document.getElementById(id)?.classList.remove('hidden')}
+function hide(id){document.getElementById(id)?.classList.add('hidden')}
+let toastTmr;
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTmr);toastTmr=setTimeout(()=>el.classList.remove('show'),2800)}
+function fmt(n){return Math.round(parseFloat(n)||0).toLocaleString('mk-MK')+' MKD'}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+</script>
+</body>
+</html>
