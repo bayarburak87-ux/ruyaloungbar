@@ -85,7 +85,7 @@ input,textarea,select{font-family:inherit;outline:none}
 .hdr-btn.toffee{background:var(--toffee-deep);color:var(--toffee-l)}
 
 /* CIRO INLINE */
-.ciro-bar-row{display:flex;align-items:center;background:var(--s1);border-bottom:1px solid var(--border);padding:7px 14px;gap:0;flex-shrink:0}
+.ciro-bar-row{display:none;align-items:center;background:var(--s1);border-bottom:1px solid var(--border);padding:7px 14px;gap:0;flex-shrink:0}
 .ciro-cell{display:flex;align-items:center;gap:9px;flex:1}
 .ciro-cell.ciro-main{flex:2}
 .ciro-cell-icon{font-size:18px;color:var(--toffee-l);flex-shrink:0}
@@ -821,6 +821,9 @@ function doLogout(){
 async function initApp(){
   showScreen('tables');
   if(me.role==='owner'){show('btn-admin');show('btn-mutfak')}else{hide('btn-admin');show('btn-mutfak')}
+  // Ciro bar her zaman gizli — yönetim panelinde şifreyle görülür
+  const ciroBar=document.getElementById('ciro-bar-row');
+  if(ciroBar)ciroBar.style.display='none';
   document.getElementById('tbl-sub').textContent=me.display+' · '+new Date().toLocaleDateString('tr-TR');
   area='kapali';
   await Promise.all([loadTables(),loadOpenOrders(),loadSettings(),loadMutfakUrunler()]);
@@ -994,19 +997,30 @@ async function backToTables(){
   await loadOpenOrders();renderTables();updateCiro();
 }
 function resetMasa(){
-  if(!curTblId||!curOrdId){toast('Aktif siparis yok.');return;}
+  if(!curTblId){toast('Once bir masa sec.');return;}
   document.getElementById('m-reset-masa-title').textContent='Masayi Sifirla';
-  document.getElementById('m-reset-masa-desc').textContent='Odemeyi aldiniza emin misiniz? Tum siparisler silinecek.';
+  document.getElementById('m-reset-masa-desc').textContent='Odemeyi aldiniza emin misiniz? Masa bosaltilacak.';
   openModal('m-reset-masa');
 }
 async function doResetMasa(){
   closeModal('m-reset-masa');
-  if(!curTblId||!curOrdId)return;
-  await sb.from('siparis_kalemleri').delete().eq('siparis_id',curOrdId);
-  await sb.from('siparisler').delete().eq('id',curOrdId);
+  if(!curTblId)return;
+  // Açık sipariş varsa tüm kalemleri ve siparişi sil
+  if(curOrdId){
+    await sb.from('siparis_kalemleri').delete().eq('siparis_id',curOrdId);
+    await sb.from('siparisler').delete().eq('id',curOrdId);
+  } else {
+    // curOrdId yoksa DB'den kontrol et
+    const{data:acik}=await sb.from('siparisler').select('id').eq('masa_id',curTblId).eq('durum','acik');
+    for(const s of (acik||[])){
+      await sb.from('siparis_kalemleri').delete().eq('siparis_id',s.id);
+      await sb.from('siparisler').delete().eq('id',s.id);
+    }
+  }
   await sb.from('masalar').update({dolu:false}).eq('id',curTblId);
   const t=tables.find(x=>x.id===curTblId);if(t)t.dolu=false;
   delete openOrders[curTblId];
+  const tid=curTblId;
   curTblId=null;curOrdId=null;
   toast('Masa sifirlandi.');
   showScreen('tables');
