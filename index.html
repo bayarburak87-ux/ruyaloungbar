@@ -11,6 +11,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"
   onerror="document.getElementById('loading').innerHTML='<p style=color:#e88>Supabase yüklenemedi. İnternet bağlantınızı kontrol edin.</p>'"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 :root{
   --bg:#0d1520; --s1:#131e2e; --s2:#192538; --s3:#1f2e44;
@@ -401,6 +402,20 @@ body.kitchen-monitor .btn-hazir{font-size:18px;padding:14px 24px}
 </style>
 </head>
 <body>
+<script>
+(function(){
+  if(location.protocol==='file:'){
+    document.body.innerHTML='<div style="padding:24px;text-align:center;color:#e88;font-family:sans-serif;background:#0d1520;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center"><p style="font-size:16px;margin-bottom:12px">Dosya olarak açılamaz!</p><p style="font-size:13px;color:#8aa;max-width:300px;margin-bottom:20px">PowerShell aç, proje klasörüne git, <code>python -m http.server 8080</code> yaz. Tarayıcıda <b>http://localhost:8080</b> adresine git.</p><button onclick="location.reload()" style="background:#c87c2a;color:#fff;border:none;padding:12px 24px;border-radius:8px;cursor:pointer">Yeniden Dene</button></div>';
+    return;
+  }
+  setTimeout(function(){
+    var ld=document.getElementById('loading');
+    if(ld&&ld.textContent.indexOf('Bağlanıyor')>=0){
+      ld.innerHTML='<p style="color:#e88;text-align:center;padding:1rem">Bağlantı zaman aşımı</p><p style="font-size:12px;color:#8aa;text-align:center;padding:0 1rem">1) http://localhost ile mi açtın? (Dosyaya çift tıklama çalışmaz)<br>2) Supabase tabloları oluşturuldu mu?<br>3) İnternet bağlantısı var mı?</p><button onclick="location.reload()" style="margin-top:12px;background:#c87c2a;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px">Yeniden Dene</button>';
+    }
+  },12000);
+})();
+</script>
 <div id="loading"><div class="spinner"></div><p>Bağlanıyor…</p></div>
 <div id="toast"></div>
 <div id="kitchen-badge"></div>
@@ -419,15 +434,15 @@ body.kitchen-monitor .btn-hazir{font-size:18px;padding:14px 24px}
   <div class="login-wrap">
     <div class="login-logo">☕</div>
     <h1 class="login-title">Rüya Lounge Bar</h1>
-    <p class="login-sub">Adisyon sistemi</p>
+    <p class="login-sub" data-i18n="adisyon_sistemi">Adisyon sistemi</p>
     <div class="login-form">
-      <div class="fgroup"><label>Kullanıcı Adı</label><input type="text" id="l-user" autocomplete="username" autocorrect="off" autocapitalize="off"></div>
-      <div class="fgroup"><label>Şifre</label><input type="password" id="l-pass" autocomplete="current-password"></div>
+      <div class="fgroup"><label data-i18n="kullanici">Kullanıcı Adı</label><input type="text" id="l-user" autocomplete="username" autocorrect="off" autocapitalize="off"></div>
+      <div class="fgroup"><label data-i18n="sifre">Şifre</label><input type="password" id="l-pass" autocomplete="current-password"></div>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
         <input type="checkbox" id="l-remember" style="width:16px;height:16px;accent-color:var(--toffee);flex-shrink:0">
         <label for="l-remember" style="font-size:13px;color:var(--cream-2);cursor:pointer">Beni hatırla</label>
       </div>
-      <button class="btn-login" onclick="doLogin()"><i class="fa-solid fa-right-to-bracket"></i> Giriş Yap</button>
+      <button class="btn-login" onclick="doLogin()"><i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="giris">Giriş Yap</span></button>
       <div id="l-err" class="login-err"></div>
       <div id="l-mesai-err" style="font-size:12px;color:var(--toffee-l);text-align:center;margin-top:8px;padding:10px 12px;background:rgba(200,124,42,.08);border:1px solid rgba(200,124,42,.2);border-radius:8px;display:none;line-height:1.6"><i class="fa-solid fa-moon" style="margin-right:5px"></i>Oturumlar şu an kapalı.<br>Lütfen mesai başlayana kadar bekleyin.</div>
     </div>
@@ -455,8 +470,8 @@ body.kitchen-monitor .btn-hazir{font-size:18px;padding:14px 24px}
     </button>
   </div>
   <div class="area-tabs">
-    <button class="area-tab active" id="tab-k" onclick="switchArea('kapali')"><i class="fa-solid fa-house"></i> Kapalı Alan</button>
-    <button class="area-tab" id="tab-b" onclick="switchArea('bahce')"><i class="fa-solid fa-leaf"></i> Bahçe</button>
+    <button class="area-tab active" id="tab-k" onclick="switchArea('kapali')"><i class="fa-solid fa-house"></i> <span data-i18n="kapali_alan">Kapalı Alan</span></button>
+    <button class="area-tab" id="tab-b" onclick="switchArea('bahce')"><i class="fa-solid fa-leaf"></i> <span data-i18n="bahce">Bahçe</span></button>
   </div>
   <div class="tables-content" id="main-content">
     <div id="area-status-bar"></div>
@@ -472,19 +487,19 @@ body.kitchen-monitor .btn-hazir{font-size:18px;padding:14px 24px}
       <div class="order-hdr-title" id="ord-tname">—</div>
       <div class="order-hdr-sub" id="ord-tarea">—</div>
     </div>
-    <button class="btn-close-tbl hidden" id="btn-transfer" onclick="openTransferModal()" style="background:var(--s3);border-color:var(--border-2);color:var(--cream-2)"><i class="fa-solid fa-right-left"></i> Transfer</button>
-    <button class="btn-close-tbl hidden" id="btn-merge" onclick="openMergeModal()" style="background:var(--s3);border-color:var(--border-2);color:var(--cream-2)"><i class="fa-solid fa-object-group"></i> Birleştir</button>
-    <button class="btn-close-tbl" onclick="scrollToPayment()"><i class="fa-solid fa-receipt"></i> Ödeme</button>
+    <button class="btn-close-tbl hidden" id="btn-transfer" onclick="openTransferModal()" style="background:var(--s3);border-color:var(--border-2);color:var(--cream-2)"><i class="fa-solid fa-right-left"></i> <span data-i18n="transfer">Transfer</span></button>
+    <button class="btn-close-tbl hidden" id="btn-merge" onclick="openMergeModal()" style="background:var(--s3);border-color:var(--border-2);color:var(--cream-2)"><i class="fa-solid fa-object-group"></i> <span data-i18n="birlestir">Birleştir</span></button>
+    <button class="btn-close-tbl" onclick="scrollToPayment()"><i class="fa-solid fa-receipt"></i> <span data-i18n="odeme">Ödeme</span></button>
   </div>
   <div class="order-body">
     <div id="ord-items"></div>
-    <button class="btn-add-item" onclick="openProdModal()"><i class="fa-solid fa-plus"></i> Sipariş Ekle</button>
-    <button class="btn-mutfak-gonder" id="btn-mutfak-gonder" onclick="gonderMutfaga()"><i class="fa-solid fa-fire-burner"></i> Mutfağa Bildir</button>
-    <div class="discount-row" style="display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
-      <input type="number" id="ord-disc-pct" placeholder="% indirim" min="0" max="100" step="1" style="width:70px;padding:8px;background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--cream);font-size:13px" onchange="applyDiscount()">
-      <input type="number" id="ord-disc-fix" placeholder="Sabit MKD" min="0" step="5" style="width:85px;padding:8px;background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--cream);font-size:13px" onchange="applyDiscount()">
+    <button class="btn-add-item" onclick="openProdModal()"><i class="fa-solid fa-plus"></i> <span data-i18n="siparis_ekle">Sipariş Ekle</span></button>
+    <button class="btn-mutfak-gonder" id="btn-mutfak-gonder" onclick="gonderMutfaga()"><i class="fa-solid fa-fire-burner"></i> <span data-i18n="mutfak_bildir">Mutfağa Bildir</span></button>
+    <div class="total-card"><div><div class="total-label" data-i18n="toplam_tutar">Toplam Tutar</div></div><div class="total-amount" id="ord-total">0 MKD</div></div>
+    <div class="discount-row" style="display:flex;gap:10px;align-items:center;margin-top:8px;flex-wrap:wrap">
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--cream-3)"><span data-i18n="indirim_pct">% İndirim</span><input type="number" id="ord-disc-pct" placeholder="0" min="0" max="100" step="1" style="width:72px;padding:10px 12px;background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--cream);font-size:14px;-webkit-appearance:none" onchange="applyDiscount()"></label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--cream-3)"><span data-i18n="indirim_sabit">Sabit MKD</span><input type="number" id="ord-disc-fix" placeholder="0" min="0" step="5" style="width:88px;padding:10px 12px;background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--cream);font-size:14px;-webkit-appearance:none" onchange="applyDiscount()"></label>
     </div>
-    <div class="total-card"><div><div class="total-label">Toplam Tutar</div></div><div class="total-amount" id="ord-total">0 MKD</div></div>
     <div class="pay-btns" id="pay-btns">
       <button class="btn-pay btn-pay-cash" onclick="initCashPayment()">
         <span><i class="fa-solid fa-money-bill-wave"></i> CASH</span><span class="pay-sub">Alındı</span>
@@ -493,7 +508,7 @@ body.kitchen-monitor .btn-hazir{font-size:18px;padding:14px 24px}
         <span><i class="fa-solid fa-building-columns"></i> IBAN</span><span class="pay-sub">Alınacak</span>
       </button>
     </div>
-    <button class="btn-reset-masa" id="btn-reset-masa" onclick="resetMasa()"><i class="fa-solid fa-rotate-left"></i> Masayı Sıfırla</button>
+    <button class="btn-reset-masa" id="btn-reset-masa" onclick="resetMasa()"><i class="fa-solid fa-rotate-left"></i> <span data-i18n="masayi_sifirla">Masayı Sıfırla</span></button>
   </div>
 </div>
 
@@ -530,13 +545,13 @@ body.kitchen-monitor .btn-hazir{font-size:18px;padding:14px 24px}
     <div class="hdr-right"><button class="hdr-btn" onclick="showScreen('tables')"><i class="fa-solid fa-arrow-left"></i> Masalar</button></div>
   </div>
   <div class="admin-tabs">
-    <button class="admin-tab active" id="at-menu" onclick="switchAdminTab('menu')"><i class="fa-solid fa-utensils"></i> Menü</button>
-    <button class="admin-tab" id="at-masalar" onclick="switchAdminTab('masalar')"><i class="fa-solid fa-table-cells"></i> Masalar</button>
-    <button class="admin-tab" id="at-mutfak" onclick="switchAdminTab('mutfak')"><i class="fa-solid fa-kitchen-set"></i> Mutfak</button>
-    <button class="admin-tab" id="at-istatistik" onclick="switchAdminTab('istatistik')"><i class="fa-solid fa-chart-bar"></i> İstatistik</button>
-    <button class="admin-tab" id="at-stok" onclick="switchAdminTab('stok')"><i class="fa-solid fa-boxes-stacked"></i> Stok</button>
-    <button class="admin-tab" id="at-bildirim" onclick="switchAdminTab('bildirim')"><i class="fa-solid fa-bell"></i> Bildirimler</button>
-    <button class="admin-tab" id="at-ayarlar" onclick="switchAdminTab('ayarlar')"><i class="fa-solid fa-sliders"></i> Ayarlar</button>
+    <button class="admin-tab active" id="at-menu" onclick="switchAdminTab('menu')"><i class="fa-solid fa-utensils"></i> <span data-i18n="menu">Menü</span></button>
+    <button class="admin-tab" id="at-masalar" onclick="switchAdminTab('masalar')"><i class="fa-solid fa-table-cells"></i> <span data-i18n="masalar">Masalar</span></button>
+    <button class="admin-tab" id="at-mutfak" onclick="switchAdminTab('mutfak')"><i class="fa-solid fa-kitchen-set"></i> <span data-i18n="mutfak">Mutfak</span></button>
+    <button class="admin-tab" id="at-istatistik" onclick="switchAdminTab('istatistik')"><i class="fa-solid fa-chart-bar"></i> <span data-i18n="istatistik">İstatistik</span></button>
+    <button class="admin-tab" id="at-stok" onclick="switchAdminTab('stok')"><i class="fa-solid fa-boxes-stacked"></i> <span data-i18n="stok">Stok</span></button>
+    <button class="admin-tab" id="at-bildirim" onclick="switchAdminTab('bildirim')"><i class="fa-solid fa-bell"></i> <span data-i18n="bildirimler">Bildirimler</span></button>
+    <button class="admin-tab" id="at-ayarlar" onclick="switchAdminTab('ayarlar')"><i class="fa-solid fa-sliders"></i> <span data-i18n="ayarlar">Ayarlar</span></button>
   </div>
   <div class="admin-content">
     <!-- MENU -->
@@ -556,6 +571,11 @@ body.kitchen-monitor .btn-hazir{font-size:18px;padding:14px 24px}
           <p class="sec-title" style="margin:0"><i class="fa-solid fa-list"></i> Mevcut Ürünler</p>
         </div>
         <div id="admin-prods" style="padding:0"></div>
+        <div style="padding:13px;border-top:1px solid var(--border);background:var(--s1)">
+          <p class="s-label"><i class="fa-solid fa-list-ol"></i> Kategori Sıralaması</p>
+          <div class="cat-sort-list" id="cat-sort-list"></div>
+          <button class="btn-save" style="margin-top:10px;width:100%" onclick="saveCatOrder()"><i class="fa-solid fa-floppy-disk"></i> Sıralamayı Kaydet</button>
+        </div>
       </div>
     </div>
     <!-- MASALAR -->
@@ -595,6 +615,18 @@ body.kitchen-monitor .btn-hazir{font-size:18px;padding:14px 24px}
     </div>
     <!-- İSTATİSTİK -->
     <div id="ap-istatistik" class="admin-panel">
+      <div class="stat-period-block" style="margin-bottom:10px">
+        <div class="stat-period-hdr"><i class="fa-solid fa-chart-line"></i> Günlük Ciro Grafiği (Son 7 Gün)</div>
+        <div style="padding:10px;height:200px"><canvas id="chart-gunluk-ciro"></canvas></div>
+      </div>
+      <div class="stat-period-block" style="margin-bottom:10px">
+        <div class="stat-period-hdr"><i class="fa-solid fa-chart-pie"></i> Ödeme Dağılımı (Bu Ay)</div>
+        <div style="padding:10px;height:200px"><canvas id="chart-odeme-dagilim"></canvas></div>
+      </div>
+      <div class="stat-period-block" style="margin-bottom:10px">
+        <div class="stat-period-hdr"><i class="fa-solid fa-chart-column"></i> En Çok Satan Ürünler (Bu Ay)</div>
+        <div style="padding:10px;height:220px"><canvas id="chart-top-urunler"></canvas></div>
+      </div>
       <div class="stat-period-block">
         <div class="stat-period-hdr"><i class="fa-solid fa-sun"></i> Günlük Tüketim</div>
         <div id="stats-today"><div class="stat-loading"><i class="fa-solid fa-spinner fa-spin"></i> Yükleniyor…</div></div>
@@ -649,6 +681,10 @@ body.kitchen-monitor .btn-hazir{font-size:18px;padding:14px 24px}
 
       <div class="settings-card">
         <p class="s-label"><i class="fa-solid fa-clock"></i> Mesai Oturumu</p>
+        <p class="s-label" style="margin-top:8px;font-size:12px;color:var(--cream-2)">Oturumu Açık Olan Kullanıcılar</p>
+        <div id="mesai-acik-list" style="font-size:13px;margin-bottom:12px;min-height:24px"></div>
+        <p class="s-label" style="margin-top:8px;font-size:12px;color:var(--cream-2)">Oturumu Kapalı Kullanıcılar</p>
+        <div id="mesai-kapali-list" style="font-size:13px;margin-bottom:12px;min-height:24px"></div>
         <div id="mesai-durum-badge" style="font-size:13px;font-weight:600;margin-bottom:12px">Mesai Durumu: <span id="mesai-durum-txt" style="color:var(--green-ok)">Aktif</span></div>
         <div style="display:flex;gap:8px">
           <button class="btn-save" id="mesai-ac-btn" onclick="toggleMesai(true)" style="flex:1;background:var(--green-ok);display:none"><i class="fa-solid fa-play"></i> Mesayi Başlat</button>
@@ -668,50 +704,47 @@ body.kitchen-monitor .btn-hazir{font-size:18px;padding:14px 24px}
         <button class="btn-save" style="width:100%" onclick="saveIbanSettings()"><i class="fa-solid fa-floppy-disk"></i> IBAN Ayarlarını Kaydet</button>
       </div>
       <div class="settings-card">
-        <p class="s-label"><i class="fa-solid fa-lock"></i> Aşçı Hesabı Şifresini Değiştir</p>
+        <p class="s-label"><i class="fa-solid fa-lock"></i> Şifre Değiştir</p>
+        <p style="font-size:11px;color:var(--cream-3);margin-bottom:8px">Şifresi değiştirilecek hesabın kullanıcı adını ve mevcut şifresini girin.</p>
+        <input type="text" class="s-input" id="pwd-change-user" placeholder="Kullanıcı adı (örn: garson, asci)" style="margin-bottom:8px" autocomplete="off">
         <div class="s-pwd-group">
           <div style="position:relative;margin-bottom:8px">
-            <input type="password" class="s-input" id="asci-eski" placeholder="Mevcut aşçı şifresini giriniz." style="margin-bottom:0;padding-right:36px">
-            <button type="button" class="btn-show-pwd" onclick="togglePwd('asci-eski')"><i class="fa-regular fa-eye"></i></button>
+            <input type="password" class="s-input" id="pwd-change-eski" placeholder="Mevcut şifre" style="margin-bottom:0;padding-right:36px">
+            <button type="button" class="btn-show-pwd" onclick="togglePwd('pwd-change-eski')"><i class="fa-regular fa-eye"></i></button>
           </div>
           <div style="position:relative;margin-bottom:8px">
-            <input type="password" class="s-input" id="asci-yeni1" placeholder="Yeni şifre" style="margin-bottom:0;padding-right:36px">
-            <button type="button" class="btn-show-pwd" onclick="togglePwd('asci-yeni1')"><i class="fa-regular fa-eye"></i></button>
+            <input type="password" class="s-input" id="pwd-change-yeni1" placeholder="Yeni şifre" style="margin-bottom:0;padding-right:36px">
+            <button type="button" class="btn-show-pwd" onclick="togglePwd('pwd-change-yeni1')"><i class="fa-regular fa-eye"></i></button>
           </div>
           <div style="position:relative;margin-bottom:10px">
-            <input type="password" class="s-input" id="asci-yeni2" placeholder="Yeni şifre (tekrar)" style="margin-bottom:0;padding-right:36px">
-            <button type="button" class="btn-show-pwd" onclick="togglePwd('asci-yeni2')"><i class="fa-regular fa-eye"></i></button>
+            <input type="password" class="s-input" id="pwd-change-yeni2" placeholder="Yeni şifre (tekrar)" style="margin-bottom:0;padding-right:36px">
+            <button type="button" class="btn-show-pwd" onclick="togglePwd('pwd-change-yeni2')"><i class="fa-regular fa-eye"></i></button>
           </div>
         </div>
-        <button class="btn-save" style="width:100%" onclick="changeAsciSifre()"><i class="fa-solid fa-key"></i> Şifreyi Değiştir</button>
-        <div id="asci-sifre-err" style="font-size:11px;color:var(--red);margin-top:6px;min-height:14px"></div>
+        <button class="btn-save" style="width:100%" onclick="changeUserSifre()"><i class="fa-solid fa-key"></i> Şifreyi Değiştir</button>
+        <div id="pwd-change-err" style="font-size:11px;color:var(--red);margin-top:6px;min-height:14px"></div>
       </div>
       <div class="settings-card">
-        <p class="s-label"><i class="fa-solid fa-lock"></i> Garson Hesabı Şifresini Değiştir</p>
-        <div class="s-pwd-group">
-          <div style="position:relative;margin-bottom:8px">
-            <input type="password" class="s-input" id="garson-eski" placeholder="Mevcut garson şifresini giriniz." style="margin-bottom:0;padding-right:36px">
-            <button type="button" class="btn-show-pwd" onclick="togglePwd('garson-eski')"><i class="fa-regular fa-eye"></i></button>
-          </div>
-          <div style="position:relative;margin-bottom:8px">
-            <input type="password" class="s-input" id="garson-yeni1" placeholder="Yeni şifre" style="margin-bottom:0;padding-right:36px">
-            <button type="button" class="btn-show-pwd" onclick="togglePwd('garson-yeni1')"><i class="fa-regular fa-eye"></i></button>
-          </div>
-          <div style="position:relative;margin-bottom:10px">
-            <input type="password" class="s-input" id="garson-yeni2" placeholder="Yeni şifre (tekrar)" style="margin-bottom:0;padding-right:36px">
-            <button type="button" class="btn-show-pwd" onclick="togglePwd('garson-yeni2')"><i class="fa-regular fa-eye"></i></button>
-          </div>
-        </div>
-        <button class="btn-save" style="width:100%" onclick="changeGarsonSifre()"><i class="fa-solid fa-key"></i> Garson Şifresini Değiştir</button>
-        <div id="garson-sifre-err" style="font-size:11px;color:var(--red);margin-top:6px;min-height:14px"></div>
+        <p class="s-label"><i class="fa-solid fa-user-plus"></i> Yeni Hesap Oluştur</p>
+        <p style="font-size:11px;color:var(--cream-3);margin-bottom:8px">Sadece garson veya aşçı yetkisi verilebilir. Yönetici hesabı siteden oluşturulamaz.</p>
+        <input type="text" class="s-input" id="new-user-name" placeholder="Kullanıcı adı" style="margin-bottom:8px" autocomplete="off">
+        <input type="text" class="s-input" id="new-user-display" placeholder="Görünen ad (örn: Garson Ali)" style="margin-bottom:8px" autocomplete="off">
+        <input type="password" class="s-input" id="new-user-pass" placeholder="Şifre" style="margin-bottom:8px">
+        <select class="s-select" id="new-user-role" style="margin-bottom:10px">
+          <option value="waiter">Garson</option>
+          <option value="chef">Aşçı</option>
+        </select>
+        <button class="btn-save" style="width:100%" onclick="createKullanici()"><i class="fa-solid fa-plus"></i> Hesap Oluştur</button>
+        <div id="new-user-err" style="font-size:11px;color:var(--red);margin-top:6px;min-height:14px"></div>
       </div>
       <div class="settings-card">
         <p class="s-label"><i class="fa-solid fa-language"></i> Uygulama Dili</p>
-        <select class="s-select" id="s-dil" onchange="saveDil(this.value)">
+        <select class="s-select" id="s-dil">
           <option value="tr">Türkçe</option>
           <option value="mk">Македонски</option>
           <option value="sq">Shqip</option>
         </select>
+        <button class="btn-save" style="width:100%;margin-top:10px" onclick="saveDilAndReload()"><i class="fa-solid fa-floppy-disk"></i> Kaydet</button>
       </div>
       <div class="settings-card">
         <p class="s-label"><i class="fa-solid fa-lock"></i> Pin Kodu (Ekran Kilidi)</p>
@@ -728,12 +761,6 @@ body.kitchen-monitor .btn-hazir{font-size:18px;padding:14px 24px}
           <input type="file" id="restore-input" accept=".json" style="display:none" onchange="importBackup(event)">
         </div>
       </div>
-      <div class="settings-card">
-        <p class="s-label"><i class="fa-solid fa-list-ol"></i> Kategori Sıralaması</p>
-        <div class="cat-sort-list" id="cat-sort-list"></div>
-        <button class="btn-save" style="margin-top:10px;width:100%" onclick="saveCatOrder()"><i class="fa-solid fa-floppy-disk"></i> Sıralamayı Kaydet</button>
-      </div>
-
     </div>
 
     <!-- BİLDİRİMLER -->
@@ -809,8 +836,8 @@ body.kitchen-monitor .btn-hazir{font-size:18px;padding:14px 24px}
 <!-- MODAL: PRODUCTS -->
 <div id="m-prods" class="modal-overlay hidden">
   <div class="modal-sheet">
-    <div class="modal-header"><span class="modal-title">Ürün Seç</span><button class="btn-modal-close" onclick="closeModal('m-prods')">✕</button></div>
-    <div style="padding:0 12px 8px"><input type="text" id="prod-search" placeholder="🔍 Ürün veya kategori ara…" style="width:100%;padding:10px 14px;background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--cream);font-size:14px" oninput="filterProdSearch(this.value)"></div>
+    <div class="modal-header"><span class="modal-title" data-i18n="urun_sec">Ürün Seç</span><button class="btn-modal-close" onclick="closeModal('m-prods')">✕</button></div>
+    <div style="padding:0 12px 8px"><input type="text" id="prod-search" data-i18n-placeholder="prod_ara" placeholder="🔍 Ürün veya kategori ara…" style="width:100%;padding:10px 14px;background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--cream);font-size:14px" oninput="filterProdSearch(this.value)"></div>
     <div class="modal-body" id="m-prods-body"></div>
   </div>
 </div>
@@ -885,8 +912,8 @@ body.kitchen-monitor .btn-hazir{font-size:18px;padding:14px 24px}
 // ==============================
 // SUPABASE CONFIG
 // ==============================
-const SUPABASE_URL = 'https://apxtlwzbwqseauafjewb.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_b_X7X2KQ86uS_b8ScKIorQ_adFvQmvg';
+const SUPABASE_URL = 'https://lzakzynapysfpxsjxzgz.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_gCHs9MxYELXvhuyjuDVWzA_uMgEWjF1';
 
 // ==============================
 // SQL SCHEMA (basit kurulum; tam şema için schema.sql kullanın)
@@ -990,6 +1017,30 @@ alter publication supabase_realtime add table stok;`;
 
 
 // ==============================
+// i18n — Çoklu Dil (TR / MK / SQ)
+// ==============================
+const LANG={
+  tr:{ara_toplam:'Ara Toplam',indirim:'İndirim',toplam:'Toplam',adisyon:'Adisyon',kalem_bulunamadi:'Kalem bilgisi bulunamadı.',toplam_tutar:'Toplam Tutar',indirim_pct:'% İndirim',indirim_sabit:'Sabit MKD',prod_ara:'🔍 Ürün veya kategori ara…',
+    giris:'Giriş Yap',kullanici:'Kullanıcı Adı',sifre:'Şifre',adisyon_sistemi:'Adisyon sistemi',masalar:'Masalar',odeme:'Ödeme',transfer:'Transfer',birlestir:'Birleştir',siparis_ekle:'Sipariş Ekle',
+    mutfak_bildir:'Mutfağa Bildir',nakit:'Nakit',iban:'IBAN',masayi_sifirla:'Masayı Sıfırla',kapali_alan:'Kapalı Alan',bahce:'Bahçe',dolu:'Dolu',bos:'Boş',yonetim:'Yönetim',mutfak:'Mutfak',cikis:'Çıkış',
+    menu:'Menü',istatistik:'İstatistik',ayarlar:'Ayarlar',stok:'Stok',bildirimler:'Bildirimler',urun_sec:'Ürün Seç',ara:'Ara…',kaydet:'Kaydet',iptal:'İptal',tamam:'Tamam'},
+  mk:{ara_toplam:'Меѓувкупно',indirim:'Попуст',toplam:'Вкупно',adisyon:'Сметка',kalem_bulunamadi:'Нема податоци за ставки.',toplam_tutar:'Вкупна сума',indirim_pct:'% Попуст',indirim_sabit:'Фиксна MKD',prod_ara:'🔍 Пребарај производ или категорија…',
+    giris:'Најава',kullanici:'Корисничко име',sifre:'Лозинка',adisyon_sistemi:'Систем за сметки',masalar:'Маси',odeme:'Плаќање',transfer:'Трансфер',birlestir:'Спојување',siparis_ekle:'Додај нарачка',
+    mutfak_bildir:'Испрати до кујна',nakit:'Готовина',iban:'IBAN',masayi_sifirla:'Ресетирај маса',kapali_alan:'Затворен простор',bahce:'Градина',dolu:'Зафатено',bos:'Слободно',yonetim:'Администрација',mutfak:'Кујна',cikis:'Одјава',
+    menu:'Мени',istatistik:'Статистика',ayarlar:'Поставки',stok:'Залиха',bildirimler:'Известувања',urun_sec:'Избери производ',ara:'Пребарај…',kaydet:'Зачувај',iptal:'Откажи',tamam:'Во ред'},
+  sq:{ara_toplam:'Nëntotali',indirim:'Zbritje',toplam:'Totali',adisyon:'Faturë',kalem_bulunamadi:'Nuk u gjet informacion për artikujt.',toplam_tutar:'Shuma totale',indirim_pct:'% Zbritje',indirim_sabit:'MKD Fikse',prod_ara:'🔍 Kërko produkt ose kategori…',
+    giris:'Hyrje',kullanici:'Emri i përdoruesit',sifre:'Fjalëkalimi',adisyon_sistemi:'Sistemi i faturave',masalar:'Tavolina',odeme:'Pagesa',transfer:'Transfer',birlestir:'Bashkimi',siparis_ekle:'Shto porosi',
+    mutfak_bildir:'Dërgo tek kuzhina',nakit:'Cash',iban:'IBAN',masayi_sifirla:'Rivendos tavolinën',kapali_alan:'Hapësirë e mbyllur',bahce:'Kopsht',dolu:'E zënë',bos:'E lirë',yonetim:'Administrim',mutfak:'Kuzhinë',cikis:'Dil',
+    menu:'Meny',istatistik:'Statistikë',ayarlar:'Cilësimet',stok:'Inventar',bildirimler:'Njoftime',urun_sec:'Zgjidh produkt',ara:'Kërko…',kaydet:'Ruaj',iptal:'Anulo',tamam:'Ok'}
+};
+function _t(k){const lang=settings['dil']||'tr';return (LANG[lang]&&LANG[lang][k])||LANG.tr[k]||k;}
+function applyLang(){
+  document.documentElement.lang=settings['dil']==='mk'?'mk':settings['dil']==='sq'?'sq':'tr';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=_t(el.dataset.i18n);});
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{el.placeholder=_t(el.dataset.i18nPlaceholder);});
+}
+
+// ==============================
 // CONFIG
 // ==============================
 function resetSetup(){
@@ -1002,17 +1053,34 @@ function resetSetup(){
 // ==============================
 // STATE
 // ==============================
-let sb=null,me=null,area='kapali',tables=[],products=[],openOrders={},settings={},curTblId=null,curOrdId=null,rtCh=null,chefCh=null,mutfakUrunler=[],catSortOrder=[],chefReadyTableId=null,addingItem=false,stoklar={};
+let sb=null,me=null,area='kapali',tables=[],products=[],openOrders={},settings={},curTblId=null,curOrdId=null,rtCh=null,chefCh=null,mutfakUrunler=[],catSortOrder=[],chefReadyTableId=null,addingItem=false,stoklar={},_sonErisimTimer=null;
+function startSonErisimHeartbeat(){
+  if(_sonErisimTimer)clearInterval(_sonErisimTimer);
+  if(!me||me.username==='asli')return;
+  _sonErisimTimer=setInterval(async()=>{
+    if(!me||me.username==='asli'){clearInterval(_sonErisimTimer);_sonErisimTimer=null;return}
+    try{await sb.from('kullanicilar').update({son_erisim:new Date().toISOString()}).eq('username',me.username)}catch(e){}
+  },120000);
+}
 
 // ==============================
 // INIT
 // ==============================
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+function withTimeout(p,ms){return Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error('Sunucuya ulaşılamadı ('+ms/1000+' sn). İnternet bağlantısı ve Supabase ayarlarını kontrol edin.')),ms))]);}
+function showLoadErr(msg,detail){
+  const ld=document.getElementById('loading');
+  ld.innerHTML='<p style="color:#e88;text-align:center;padding:1rem">'+msg+'</p>'+
+    (detail?'<p style="font-size:12px;color:var(--cream-3);margin-top:8px;max-width:320px">'+detail+'</p>':'')+
+    '<button onclick="location.reload()" style="margin-top:16px;background:var(--toffee);color:#fff;border:none;padding:10px 24px;border-radius:8px;cursor:pointer;font-size:14px">Yeniden Dene</button>';
+}
 window.addEventListener('load',async()=>{
-  // Guard: supabase script failed to load
+  if(location.protocol==='file:'){
+    showLoadErr('Dosya olarak açılamaz!','Bu uygulama doğrudan dosya açılamaz. PowerShell\'de proje klasörüne gidip: python -m http.server 8080 yazın. Sonra tarayıcıda http://localhost:8080 adresine gidin.');
+    return;
+  }
   if(typeof supabase==='undefined'){
-    document.getElementById('loading').innerHTML=
-      '<p style="color:#e88;text-align:center;padding:1rem">Supabase kütüphanesi yüklenemedi.<br>İnternet bağlantınızı kontrol edin ve sayfayı yenileyin.</p>';
+    showLoadErr('Supabase kütüphanesi yüklenemedi.','İnternet bağlantınızı kontrol edin ve sayfayı yenileyin.');
     return;
   }
   try{
@@ -1022,22 +1090,26 @@ window.addEventListener('load',async()=>{
       try{
         const s=JSON.parse(saved);
         if(s.username&&s.role&&s.display){
-          // Mesai kapalıysa asli dışındaki oturumları engelle
           if(s.username!=='asli'){
-            const{data:mR}=await sb.from('ayarlar').select('deger').eq('anahtar','mesai_acik').maybeSingle();
-            if(mR&&mR.deger==='0'){localStorage.removeItem('rk_session');hide('loading');return;}
+            const r=await withTimeout(sb.from('ayarlar').select('deger').eq('anahtar','mesai_acik').maybeSingle(),10000);
+            if(r.error)throw new Error(r.error.message||'API hatası');
+            const mR=r.data;
+            if(mR&&mR.deger==='0'){localStorage.removeItem('rk_session');hide('loading');showScreen('login');const _me=document.getElementById('l-mesai-err');if(_me)_me.style.display='block';return;}
           }
           me={...s};hide('loading');
           if(me.role==='chef'){await initChef()}else{await initApp()}
           return;
         }
-      }catch(e){localStorage.removeItem('rk_session')}
+      }catch(e){localStorage.removeItem('rk_session');if(e.message&&e.message.includes('Sunucuya'))throw e}
     }
-    hide('loading');showScreen('login');
+    const r=await withTimeout(sb.from('ayarlar').select('*'),10000);
+    if(r.error)throw new Error(r.error.message||'Supabase API hatası: '+JSON.stringify(r.error));
+    settings={};(r.data||[]).forEach(s=>{settings[s.anahtar]=s.deger});
+    hide('loading');showScreen('login');setTimeout(applyLang,50);
   }
   catch(e){
-    document.getElementById('loading').innerHTML=
-      '<p style="color:#e88;text-align:center;padding:1rem">Bağlantı hatası:<br>'+e.message+'</p>';
+    console.error('Init hatası:',e);
+    showLoadErr('Bağlantı hatası: '+e.message,'Supabase Dashboard > Settings > API: URL ve anon key doğru mu? Tablolar oluşturuldu mu? F12 > Console\'da detay görebilirsiniz.');
   }
 });
 
@@ -1061,25 +1133,26 @@ async function doLogin(){
       return;
     }
   }
-  if(u==='asci'){
-    const{data}=await sb.from('ayarlar').select('deger').eq('anahtar','asci_sifre').maybeSingle();
-    const pwd=(data?.deger)||'mutfak123';
-    if(p!==pwd){document.getElementById('l-err').textContent='Şifre hatalı.';return}
-    me={username:'asci',role:'chef',display:'Aşçı'};
+  if(u==='asli'){
+    if(p!=='adanakebap'){document.getElementById('l-err').textContent='Kullanıcı adı veya şifre hatalı.';return}
+    me={username:'asli',role:'owner',display:'Asli'};
     if(remember)localStorage.setItem('rk_session',JSON.stringify(me));
-    initChef();return;
+    initApp();return;
   }
-  const{data:garsonPwdRow}=await sb.from('ayarlar').select('deger').eq('anahtar','garson_sifre').maybeSingle();
-  const garsonPwd=(garsonPwdRow?.deger)||'fındıklahmacun';
-  const CREDS={asli:{password:'adanakebap',role:'owner',display:'Asli'},garson:{password:garsonPwd,role:'waiter',display:'Garson'}};
-  const cred=CREDS[u];
-  if(!cred||cred.password!==p){document.getElementById('l-err').textContent='Kullanıcı adı veya şifre hatalı.';return}
-  me={username:u,...cred};
+  const{data:usr}=await sb.from('kullanicilar').select('*').eq('username',u).maybeSingle();
+  if(!usr){document.getElementById('l-err').textContent='Bu isimde bir hesap yok.';return}
+  if(usr.sifre!==p){document.getElementById('l-err').textContent='Şifre hatalı.';return}
+  const roleMap={waiter:'waiter',chef:'chef'};
+  const displayMap={waiter:'Garson',chef:'Aşçı'};
+  me={username:usr.username,role:roleMap[usr.role]||usr.role,display:usr.gorunen_ad||displayMap[usr.role]||usr.role};
+  await sb.from('kullanicilar').update({son_erisim:new Date().toISOString()}).eq('username',u);
   if(remember)localStorage.setItem('rk_session',JSON.stringify(me));
-  initApp();
+  startSonErisimHeartbeat();
+  if(me.role==='chef'){initChef()}else{initApp()}
 }
 
 function doLogout(showForceAlert){
+  if(_sonErisimTimer){clearInterval(_sonErisimTimer);_sonErisimTimer=null}
   me=null;
   localStorage.removeItem('rk_session');
   if(rtCh){sb.removeChannel(rtCh);rtCh=null}
@@ -1097,6 +1170,7 @@ function doLogout(showForceAlert){
 // APP INIT (garson/sahip)
 // ==============================
 async function initApp(){
+  if(me&&me.username!=='asli'){try{await sb.from('kullanicilar').update({son_erisim:new Date().toISOString()}).eq('username',me.username)}catch(e){}}
   showScreen('tables');
   if(me.role==='owner'){show('btn-admin');show('btn-mutfak')}
   else{hide('btn-admin');show('btn-mutfak')}
@@ -1104,7 +1178,7 @@ async function initApp(){
   // ciro-bar kaldırıldı
   document.getElementById('tbl-sub').textContent=me.display+' · '+new Date().toLocaleDateString('tr-TR');
   area='kapali';
-  await Promise.all([loadTables(),loadOpenOrders(),loadSettings(),loadMutfakUrunler(),loadStok()]);
+  await Promise.all([loadTables(),loadOpenOrders(),loadSettings(),loadMutfakUrunler(),loadStok()]);applyLang();
   // Mesai banner — settings yüklendikten SONRA kontrol et, sadece owner'a göster
   const _mesaiBanner=document.getElementById('mesai-banner');
   if(_mesaiBanner&&me.role==='owner'){
@@ -1114,16 +1188,19 @@ async function initApp(){
     _mesaiBanner.style.display='none';
   }
   renderTables();updateCiro();setupRealtime();
+  if(me.username!=='asli')startSonErisimHeartbeat();
 }
 
 // ==============================
 // CHEF INIT
 // ==============================
 async function initChef(){
+  if(me&&me.username!=='asli'){try{await sb.from('kullanicilar').update({son_erisim:new Date().toISOString()}).eq('username',me.username)}catch(e){}}
   showScreen('chef');
   await loadSettings();await loadMutfakUrunler();
   await renderChefOrders();
   setupChefRealtime();
+  startSonErisimHeartbeat();
 }
 
 // ==============================
@@ -1177,12 +1254,12 @@ function setupRealtime(){
       const row=payload.new;
       if(!row)return;
       if(me){
-        if(row.anahtar==='asci_sifre'&&me.role==='chef') setTimeout(()=>doLogout(true),0);
-        if(row.anahtar==='garson_sifre'&&me.role==='waiter') setTimeout(()=>doLogout(true),0);
         // Mesai kapatılınca asli dışındakileri çıkar
-        if(row.anahtar==='mesai_acik'&&row.deger==='0'&&me.role!=='owner'){
+        if(row.anahtar==='mesai_acik'&&row.deger==='0'&&me.username!=='asli'){
           toast('Mesai durumu kapatıldığı için oturumunuz sonlandı.');
-          setTimeout(()=>doLogout(false),1500);
+          const mesaiErr=document.getElementById('l-mesai-err');
+          if(mesaiErr)mesaiErr.style.display='block';
+          setTimeout(()=>doLogout(false),1200);
         }
       }
       // Login ekranında mesai durumu mesajını güncelle
@@ -1190,7 +1267,7 @@ function setupRealtime(){
         const el=document.getElementById('l-mesai-err');
         if(el)el.style.display=row.deger==='0'?'block':'none';
         const _b=document.getElementById('mesai-banner');
-        if(_b&&me?.role==='owner') _b.style.display=row.deger==='0'?'flex':'none';
+        if(_b&&me?.username==='asli') _b.style.display=row.deger==='0'?'flex':'none';
       }
     })
     .on('postgres_changes',{event:'*',schema:'public',table:'stok'},async(payload)=>{
@@ -1211,6 +1288,9 @@ function setupRealtime(){
       const stokPanel=document.getElementById('ap-stok');
       if(stokPanel&&stokPanel.classList.contains('active'))renderStokList();
     })
+    .on('postgres_changes',{event:'*',schema:'public',table:'kullanicilar'},()=>{
+      if(document.getElementById('ap-ayarlar')?.classList.contains('active'))loadMesaiKullaniciListesi();
+    })
     .subscribe();
 }
 
@@ -1229,10 +1309,11 @@ function setupChefRealtime(){
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'ayarlar'},async(payload)=>{
       const row=payload.new;
       if(!row||!me)return;
-      if(row.anahtar==='asci_sifre'&&me.role==='chef') setTimeout(()=>doLogout(true),0);
-      if(row.anahtar==='mesai_acik'&&row.deger==='0'&&me.role==='chef'){
+      if(row.anahtar==='mesai_acik'&&row.deger==='0'){
         toast('Mesai durumu kapatıldığı için oturumunuz sonlandı.');
-        setTimeout(()=>doLogout(false),1500);
+        const mesaiErr=document.getElementById('l-mesai-err');
+        if(mesaiErr)mesaiErr.style.display='block';
+        setTimeout(()=>doLogout(false),1200);
       }
     })
     .on('postgres_changes',{event:'*',schema:'public',table:'stok'},async(payload)=>{
@@ -1269,8 +1350,8 @@ function renderTables(){
     bar.innerHTML=`<div class="area-status-header">
       <span class="ash-title">${areaLabel}</span>
       <span class="ash-chips">
-        <span class="ash-chip occupied"><i class="fa-solid fa-circle-dot"></i> ${doluCount} Dolu</span>
-        <span class="ash-chip empty"><i class="fa-regular fa-circle"></i> ${bosCount} Boş</span>
+        <span class="ash-chip occupied"><i class="fa-solid fa-circle-dot"></i> ${doluCount} ${_t('dolu')}</span>
+        <span class="ash-chip empty"><i class="fa-regular fa-circle"></i> ${bosCount} ${_t('bos')}</span>
         <span class="ash-chip total"><i class="fa-solid fa-table-cells"></i> ${areaT.length} Masa</span>
       </span>
     </div>`;
@@ -1280,7 +1361,7 @@ function renderTables(){
     const total=ord?calcTotal(ord.siparis_kalemleri||[]):0;
     return`<div class="table-card ${t.dolu?'occupied':'empty'}" onclick="openTable('${t.id}')">
       <div class="t-num">${esc(t.isim)}</div>
-      <div class="t-badge">${t.dolu?'<i class="fa-solid fa-circle-dot"></i> Dolu':'<i class="fa-regular fa-circle"></i> Boş'}</div>
+      <div class="t-badge">${t.dolu?'<i class="fa-solid fa-circle-dot"></i> '+_t('dolu'):'<i class="fa-regular fa-circle"></i> '+_t('bos')}</div>
       ${t.dolu&&total>0?`<div class="t-price">${fmt(total)}</div>`:''}
     </div>`;
   }).join('');
@@ -2428,6 +2509,9 @@ function delMutfakUrunById(btn){
 // ==============================
 // ADMIN — İSTATİSTİK
 // ==============================
+let _chartGunluk=null,_chartOdeme=null,_chartTopUrun=null;
+const CHART_COLORS={bg:'#0d1520',grid:'#22334a',text:'#a8c4d8',toffee:'#e8973a',green:'#3aac78',blue:'#4a8ec8'};
+
 async function loadIstatistik(){
   await loadSettings();
   const today=new Date().toISOString().split('T')[0];
@@ -2436,10 +2520,46 @@ async function loadIstatistik(){
   const monthStart=(dd21>=21
     ?new Date(now.getFullYear(),now.getMonth(),21)
     :new Date(now.getFullYear(),now.getMonth()-1,21)).toISOString().split('T')[0];
-  const{data:allOrders}=await sb.from('siparisler').select('id,kapandi_at').eq('durum','kapali');
+  const sevenDaysAgo=new Date(now);sevenDaysAgo.setDate(sevenDaysAgo.getDate()-6);sevenDaysAgo.setHours(0,0,0,0);
+  const sevenStart=sevenDaysAgo.toISOString().split('T')[0];
+  const{data:allOrders}=await sb.from('siparisler').select('id,kapandi_at,toplam,odeme_yontemi').eq('durum','kapali');
+  const monthOrders=(allOrders||[]).filter(o=>o.kapandi_at&&o.kapandi_at>=monthStart);
   const todayIds=(allOrders||[]).filter(o=>o.kapandi_at?.startsWith(today)).map(o=>o.id);
-  const monthIds=(allOrders||[]).filter(o=>o.kapandi_at&&o.kapandi_at>=monthStart+'T00:00:00').map(o=>o.id);
+  const monthIds=monthOrders.map(o=>o.id);
   const allIds=[...new Set([...todayIds,...monthIds])];
+
+  // Grafikler — Son 7 gün günlük ciro
+  const gunlukCiro={};
+  for(let i=6;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i);const k=d.toISOString().split('T')[0];gunlukCiro[k]=0;}
+  monthOrders.filter(o=>o.kapandi_at>=sevenStart).forEach(o=>{
+    const k=o.kapandi_at?.split('T')[0];if(k&&gunlukCiro[k]!==undefined)gunlukCiro[k]+=parseFloat(o.toplam)||0;
+  });
+  if(typeof Chart!=='undefined'){
+    if(_chartGunluk)_chartGunluk.destroy();
+    const ctx1=document.getElementById('chart-gunluk-ciro');
+    if(ctx1){
+      _chartGunluk=new Chart(ctx1,{type:'bar',data:{
+        labels:Object.keys(gunlukCiro).map(k=>{const d=new Date(k);return d.toLocaleDateString('tr-TR',{weekday:'short',day:'2-digit',month:'2-digit'})}),
+        datasets:[{label:'Ciro (MKD)',data:Object.values(gunlukCiro),backgroundColor:CHART_COLORS.toffee+'99',borderColor:CHART_COLORS.toffee,borderWidth:1}]
+      },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{y:{beginAtZero:true,grid:{color:CHART_COLORS.grid},ticks:{color:CHART_COLORS.text}},
+          x:{grid:{color:CHART_COLORS.grid},ticks:{color:CHART_COLORS.text,maxRotation:45}}}}});
+    }
+  }
+
+  // Ödeme dağılımı (Nakit vs IBAN — Bu ay)
+  const nakitToplam=monthOrders.filter(o=>o.odeme_yontemi==='nakit').reduce((s,o)=>s+(parseFloat(o.toplam)||0),0);
+  const ibanToplam=monthOrders.filter(o=>o.odeme_yontemi==='iban').reduce((s,o)=>s+(parseFloat(o.toplam)||0),0);
+  if(typeof Chart!=='undefined'){
+    if(_chartOdeme)_chartOdeme.destroy();
+    const ctx2=document.getElementById('chart-odeme-dagilim');
+    if(ctx2){
+      _chartOdeme=new Chart(ctx2,{type:'doughnut',data:{
+        labels:['Nakit','IBAN'],datasets:[{data:[nakitToplam,ibanToplam],backgroundColor:[CHART_COLORS.green,CHART_COLORS.blue],borderColor:CHART_COLORS.bg,borderWidth:2}]
+      },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:CHART_COLORS.text}}}}});
+    }
+  }
+
   const renderEmpty=(el)=>{el.innerHTML=`<div class="stat-loading" style="padding:1rem">Veri yok.</div>`};
   if(!allIds.length){
     renderEmpty(document.getElementById('stats-today'));
@@ -2454,6 +2574,22 @@ async function loadIstatistik(){
     if(todayIds.includes(k.siparis_id)){if(!todayStats[k.urun_adi])todayStats[k.urun_adi]=0;todayStats[k.urun_adi]+=k.miktar}
     if(monthIds.includes(k.siparis_id)){if(!monthStats[k.urun_adi])monthStats[k.urun_adi]=0;monthStats[k.urun_adi]+=k.miktar}
   });
+
+  // En çok satan ürünler grafiği (Top 8)
+  const topUrunler=Object.entries(monthStats).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  if(typeof Chart!=='undefined'&&topUrunler.length){
+    if(_chartTopUrun)_chartTopUrun.destroy();
+    const ctx3=document.getElementById('chart-top-urunler');
+    if(ctx3){
+      _chartTopUrun=new Chart(ctx3,{type:'bar',data:{
+        labels:topUrunler.map(([n])=>n.length>12?n.slice(0,11)+'…':n),
+        datasets:[{label:'Adet',data:topUrunler.map(([,q])=>q),backgroundColor:CHART_COLORS.toffee+'aa',borderColor:CHART_COLORS.toffee,borderWidth:1}]
+      },options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{x:{beginAtZero:true,grid:{color:CHART_COLORS.grid},ticks:{color:CHART_COLORS.text}},
+          y:{grid:{color:CHART_COLORS.grid},ticks:{color:CHART_COLORS.text,font:{size:11}}}}});
+    }
+  }
+
   const renderStats=(el,stats)=>{
     const sorted=Object.entries(stats).sort((a,b)=>b[1]-a[1]);
     if(!sorted.length){el.innerHTML=`<div class="stat-loading" style="padding:1rem">Veri yok.</div>`;return}
@@ -2641,14 +2777,17 @@ async function openHistDetail(row){
   const payEl=row.querySelector('.hist-pay-cash,.hist-pay-iban');
   const payTxt=payEl?payEl.textContent.trim():'';
   const metaTxt=(row.querySelector('.hist-meta').textContent||'').replace(payTxt,'').trim();
-  const{data:kalemleri}=await sb.from('siparis_kalemleri').select('urun_adi,miktar,fiyat,not_metni').eq('siparis_id',sid);
+  const[{data:siparis},{data:kalemleri}]=await Promise.all([
+    sb.from('siparisler').select('indirim_yuzde,indirim_sabit,toplam').eq('id',sid).maybeSingle(),
+    sb.from('siparis_kalemleri').select('urun_adi,miktar,fiyat,not_metni').eq('siparis_id',sid)
+  ]);
   let html='<div class="hd-header">'
     +'<div class="hd-masa">'+esc(masaAdi)+'</div>'
     +'<div class="hd-meta">'+metaTxt+' '+payTxt+'</div>'
     +'</div>'
     +'<div class="hd-list">';
   if(!kalemleri||!kalemleri.length){
-    html+='<div style="text-align:center;padding:1rem;color:var(--cream-3);font-size:13px">Kalem bilgisi bulunamadı.</div>';
+    html+='<div style="text-align:center;padding:1rem;color:var(--cream-3);font-size:13px">'+_t('kalem_bulunamadi')+'</div>';
   } else {
     kalemleri.forEach(k=>{
       html+='<div class="hd-item">'
@@ -2662,13 +2801,21 @@ async function openHistDetail(row){
         +'</div></div>';
     });
   }
-  html+='</div>'
-    +'<div class="hd-total-row">'
-    +'<span class="hd-total-label">Toplam</span>'
-    +'<span class="hd-total-val">'+totalTxt+'</span>'
-    +'</div>';
+  const araToplam=kalemleri?kalemleri.reduce((s,k)=>s+(parseFloat(k.fiyat)||0)*k.miktar,0):0;
+  const pct=parseFloat(siparis?.indirim_yuzde)||0,fix=parseFloat(siparis?.indirim_sabit)||0;
+  const indirimTutar=Math.min(araToplam,araToplam*(pct/100)+fix);
+  html+='</div>';
+  html+='<div class="hd-total-row"><span class="hd-total-label">'+_t('ara_toplam')+'</span><span class="hd-total-val">'+fmt(araToplam)+'</span></div>';
+  if(indirimTutar>0){
+    let indirimLabel=_t('indirim');
+    if(pct>0&&fix>0)indirimLabel+=' ('+pct+'% + '+fmt(fix)+')';
+    else if(pct>0)indirimLabel+=' ('+pct+'%)';
+    else indirimLabel+=' ('+fmt(fix)+')';
+    html+='<div class="hd-total-row" style="color:var(--green-ok)"><span class="hd-total-label">'+indirimLabel+'</span><span class="hd-total-val">- '+fmt(indirimTutar)+'</span></div>';
+  }
+  html+='<div class="hd-total-row"><span class="hd-total-label">'+_t('toplam')+'</span><span class="hd-total-val">'+totalTxt+'</span></div>';
   document.getElementById('m-hist-detail-body').innerHTML=html;
-  document.getElementById('m-hist-detail-title').textContent=masaAdi+' — Adisyon';
+  document.getElementById('m-hist-detail-title').textContent=masaAdi+' — '+_t('adisyon');
   openModal('m-hist-detail');
 }
 
@@ -2680,11 +2827,11 @@ async function loadAdminSettings(){
   document.getElementById('s-iban').value=settings['iban_no']||'';
   document.getElementById('s-qr').value=settings['iban_qr']||'';
   const isimEl=document.getElementById('s-iban-isim');if(isimEl)isimEl.value=settings['iban_isim']||'';
-  const asciErrEl=document.getElementById('asci-sifre-err');if(asciErrEl){asciErrEl.textContent='';asciErrEl.style.color='var(--red)';}
-  const garsonErrEl=document.getElementById('garson-sifre-err');if(garsonErrEl){garsonErrEl.textContent='';garsonErrEl.style.color='var(--red)';}
-  loadCatSortPanel();
+  const pwdErrEl=document.getElementById('pwd-change-err');if(pwdErrEl){pwdErrEl.textContent='';pwdErrEl.style.color='var(--red)';}
+  loadMesaiKullaniciListesi();
   const dilEl=document.getElementById('s-dil');if(dilEl)dilEl.value=settings['dil']||'tr';
   const pinEl=document.getElementById('s-pin');if(pinEl)pinEl.value='';
+  applyLang();
   // Mesai durumu
   const mesaiVal=settings['mesai_acik'];
   const mesaiAcik=mesaiVal===undefined||mesaiVal==='1'||mesaiVal===true;
@@ -2796,7 +2943,13 @@ async function saveIbanSettings(){
   if(!e1&&!e2){settings['iban_no']=iban;settings['iban_qr']=qr;toast('IBAN ayarları kaydedildi!');}
   else toast('Kayıt hatası.');
 }
-async function saveDil(v){await sb.from('ayarlar').upsert({anahtar:'dil',deger:v,updated_at:new Date().toISOString()},{onConflict:'anahtar'});settings['dil']=v;toast('Dil kaydedildi.');}
+async function saveDilAndReload(){
+  const v=document.getElementById('s-dil').value;
+  await sb.from('ayarlar').upsert({anahtar:'dil',deger:v,updated_at:new Date().toISOString()},{onConflict:'anahtar'});
+  settings['dil']=v;
+  toast(_t('kaydet')+'!');
+  location.reload();
+}
 async function savePin(){
   const v=document.getElementById('s-pin').value.replace(/\D/g,'').slice(0,6);
   await sb.from('ayarlar').upsert({anahtar:'pin_kodu',deger:v,updated_at:new Date().toISOString()},{onConflict:'anahtar'});
@@ -2840,74 +2993,88 @@ function togglePwd(inputId){
   if(btn)btn.innerHTML=inp.type==='password'?'<i class="fa-regular fa-eye"></i>':'<i class="fa-regular fa-eye-slash"></i>';
 }
 
-async function changeAsciSifre(){
-  const errEl=document.getElementById('asci-sifre-err');
-  const eski=document.getElementById('asci-eski').value;
-  const yeni1=document.getElementById('asci-yeni1').value;
-  const yeni2=document.getElementById('asci-yeni2').value;
-  if(!eski||!yeni1||!yeni2){errEl.textContent='Tüm alanları doldurun.';return;}
-  await loadSettings();
-  const mevcutSifre=settings['asci_sifre']||'mutfak123';
-  if(eski!==mevcutSifre){errEl.textContent='Mevcut şifre yanlış.';return;}
+async function changeUserSifre(){
+  const errEl=document.getElementById('pwd-change-err');
+  const username=document.getElementById('pwd-change-user').value.trim().toLowerCase();
+  const eski=document.getElementById('pwd-change-eski').value;
+  const yeni1=document.getElementById('pwd-change-yeni1').value;
+  const yeni2=document.getElementById('pwd-change-yeni2').value;
+  errEl.textContent='';
+  if(!username||!eski||!yeni1||!yeni2){errEl.textContent='Tüm alanları doldurun.';return;}
+  if(username==='asli'){errEl.textContent='Asli hesabı şifresi buradan değiştirilemez.';return;}
+  const{data:usr}=await sb.from('kullanicilar').select('*').eq('username',username).maybeSingle();
+  if(!usr){errEl.textContent='Bu isimde bir hesap yok.';return;}
+  if(usr.sifre!==eski){errEl.textContent='Mevcut şifre yanlış.';return;}
   if(yeni1!==yeni2){errEl.textContent='Yeni şifreler eşleşmiyor.';return;}
   if(yeni1.length<4){errEl.textContent='Şifre en az 4 karakter olmalı.';return;}
-  if(yeni1===mevcutSifre){errEl.textContent='Bu şifreyi zaten kullanıyorsunuz, lütfen farklı bir şifre belirleyin.';return;}
-  const{error}=await sb.from('ayarlar').upsert({anahtar:'asci_sifre',deger:yeni1,updated_at:new Date().toISOString()},{onConflict:'anahtar'});
+  if(yeni1===eski){errEl.textContent='Yeni şifre mevcut şifreden farklı olmalı.';return;}
+  const{error}=await sb.from('kullanicilar').update({sifre:yeni1}).eq('username',username);
   if(error){errEl.textContent='Hata: '+error.message;return;}
-  settings['asci_sifre']=yeni1;
   errEl.style.color='var(--green-ok)';errEl.textContent='Şifre değiştirildi.';
-  ['asci-eski','asci-yeni1','asci-yeni2'].forEach(id=>{document.getElementById(id).value='';});
+  ['pwd-change-user','pwd-change-eski','pwd-change-yeni1','pwd-change-yeni2'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   setTimeout(()=>{errEl.textContent='';errEl.style.color='var(--red)';},3000);
-  // Aşçı oturumu açıksa zorla çıkış
-  if(me&&me.role==='chef'){
-    toast('Yönetici tarafından şifre değiştirildi, oturumunuz sonlandırıldı.');
+  if(me&&me.username===username){
+    toast('Şifreniz değiştirildi, oturumunuz sonlandırıldı.');
     setTimeout(()=>doLogout(true),1800);
   }
-
 }
-
-async function changeGarsonSifre(){
-  const errEl=document.getElementById('garson-sifre-err');
-  const eski=document.getElementById('garson-eski').value;
-  const yeni1=document.getElementById('garson-yeni1').value;
-  const yeni2=document.getElementById('garson-yeni2').value;
-  if(!eski||!yeni1||!yeni2){errEl.textContent='Tüm alanları doldurun.';return;}
-  // Garson şifresi JS'te hardcoded — Supabase'de saklayacağız
-  await loadSettings();
-  const mevcutGarson=settings['garson_sifre']||'fındıklahmacun';
-  if(eski!==mevcutGarson){errEl.textContent='Mevcut şifre yanlış.';return;}
-  if(yeni1!==yeni2){errEl.textContent='Yeni şifreler eşleşmiyor.';return;}
-  if(yeni1.length<4){errEl.textContent='Şifre en az 4 karakter olmalı.';return;}
-  if(yeni1===mevcutGarson){errEl.textContent='Bu şifreyi zaten kullanıyorsunuz, lütfen farklı bir şifre belirleyin.';return;}
-  const{error}=await sb.from('ayarlar').upsert({anahtar:'garson_sifre',deger:yeni1,updated_at:new Date().toISOString()},{onConflict:'anahtar'});
+async function createKullanici(){
+  const errEl=document.getElementById('new-user-err');
+  const username=document.getElementById('new-user-name').value.trim().toLowerCase();
+  const display=document.getElementById('new-user-display').value.trim();
+  const pass=document.getElementById('new-user-pass').value;
+  const role=document.getElementById('new-user-role').value;
+  errEl.textContent='';
+  if(!username){errEl.textContent='Kullanıcı adı gerekli.';return;}
+  if(username==='asli'){errEl.textContent='Bu kullanıcı adı kullanılamaz.';return;}
+  if(!pass||pass.length<4){errEl.textContent='Şifre en az 4 karakter olmalı.';return;}
+  const{data:exist}=await sb.from('kullanicilar').select('id').eq('username',username).maybeSingle();
+  if(exist){errEl.textContent='Bu kullanıcı adı zaten kullanılıyor.';return;}
+  const gorunen_ad=display||(role==='waiter'?'Garson':'Aşçı');
+  const{error}=await sb.from('kullanicilar').insert({username,sifre:pass,role,gorunen_ad});
   if(error){errEl.textContent='Hata: '+error.message;return;}
-  settings['garson_sifre']=yeni1;
-  errEl.style.color='var(--green-ok)';errEl.textContent='Garson şifresi değiştirildi.';
-  ['garson-eski','garson-yeni1','garson-yeni2'].forEach(id=>{document.getElementById(id).value='';});
+  errEl.style.color='var(--green-ok)';errEl.textContent='Hesap oluşturuldu.';
+  ['new-user-name','new-user-display','new-user-pass'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   setTimeout(()=>{errEl.textContent='';errEl.style.color='var(--red)';},3000);
-  // Garson oturumu açıksa zorla çıkış
-  if(me&&me.role==='waiter'){
-    toast('Yönetici tarafından şifre değiştirildi, oturumunuz sonlandırıldı.');
-    setTimeout(()=>doLogout(true),1800);
-  }
-
+  loadMesaiKullaniciListesi();
 }
 
 async function toggleMesai(acik){
+  if(me?.username!=='asli'){toast('Sadece Asli hesabı mesai açıp kapatabilir.');return;}
   const mesajAc='Mesayi başlatmak istediğinizden emin misiniz? Garson ve aşçı hesapları giriş yapabilecek.';
-  const mesajKapat='Mesayi kapatmak istediğinizden emin misiniz? Asli hesabı dışında kimse giriş yapamayacak.';
+  const mesajKapat='Mesayi kapatmak istediğinizden emin misiniz? Asli hesabı dışında tüm hesaplardan çıkış yapılacak ve tekrar mesai açılana kadar giriş yapılamayacak.';
   if(!confirm(acik?mesajAc:mesajKapat))return;
   const deger=acik?'1':'0';
   const{error}=await sb.from('ayarlar').upsert({anahtar:'mesai_acik',deger,updated_at:new Date().toISOString()},{onConflict:'anahtar'});
   if(error){toast('Hata: '+error.message);return;}
   settings['mesai_acik']=deger;
   updateMesaiUI(acik);
-  toast(acik?'Mesai başlatıldı.':'Mesai kapatıldı.');
-  // Banner güncelle
+  toast(acik?'Mesai başlatıldı.':'Mesai kapatıldı. Garson ve aşçı hesapları çıkış yapacak.');
   const _b=document.getElementById('mesai-banner');
-  if(_b&&me?.role==='owner') _b.style.display=acik?'none':'flex';
+  if(_b&&me?.username==='asli') _b.style.display=acik?'none':'flex';
 }
 
+async function loadMesaiKullaniciListesi(){
+  const acikEl=document.getElementById('mesai-acik-list');
+  const kapaliEl=document.getElementById('mesai-kapali-list');
+  if(!acikEl||!kapaliEl)return;
+  const{data:users}=await sb.from('kullanicilar').select('username,gorunen_ad,son_erisim,role');
+  const now=new Date();
+  const limitMs=3*60*1000;
+  const acik=[],kapali=[];
+  if(me&&me.username==='asli')acik.push({username:'asli',gorunen_ad:'Asli (Yönetici)',son_erisim:now.toISOString()});
+  (users||[]).forEach(u=>{
+    const ad=u.gorunen_ad||u.username;
+    const sr=u.son_erisim?new Date(u.son_erisim):null;
+    const isOnline=sr&&(now-sr)<limitMs;
+    if(isOnline)acik.push({...u,gorunen_ad:ad});else kapali.push({...u,gorunen_ad:ad,son_erisim:u.son_erisim});
+  });
+  acikEl.innerHTML=acik.length?acik.map(u=>`<div style="color:var(--green-ok);margin-bottom:4px"><i class="fa-solid fa-circle" style="font-size:6px;vertical-align:middle;margin-right:6px"></i>${esc(u.gorunen_ad)} — çevrimiçi</div>`).join(''):'<span style="color:var(--cream-3);font-size:12px">Çevrimiçi kullanıcı yok</span>';
+  kapaliEl.innerHTML=kapali.length?kapali.map(u=>{
+    const sonStr=u.son_erisim?new Date(u.son_erisim).toLocaleString('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+    return `<div style="color:var(--cream-3);margin-bottom:4px;font-size:12px"><i class="fa-solid fa-circle" style="font-size:6px;vertical-align:middle;margin-right:6px;opacity:0.5"></i>${esc(u.gorunen_ad)} — Son: ${sonStr}</div>`;
+  }).join(''):'<span style="color:var(--cream-3);font-size:12px">Kullanıcı yok</span>';
+}
 function updateMesaiUI(acik){
   const txt=document.getElementById('mesai-durum-txt');
   const acBtn=document.getElementById('mesai-ac-btn');
@@ -2939,7 +3106,7 @@ function switchAdminTab(tab){
     document.getElementById('at-'+t).className='admin-tab'+(t===tab?' active':'');
     document.getElementById('ap-'+t).className='admin-panel'+(t===tab?' active':'');
   });
-  if(tab==='menu')loadAdminProds();
+  if(tab==='menu'){loadAdminProds();loadCatSortPanel();}
   if(tab==='masalar'){loadAdminTables();}
   if(tab==='mutfak')loadAdminMutfak();
   if(tab==='istatistik')loadIstatistik();
