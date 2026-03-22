@@ -418,8 +418,8 @@ input,textarea,select{font-family:inherit;outline:none}
         <label for="l-remember" style="font-size:13px;color:var(--cream-2);cursor:pointer">Beni hatırla</label>
       </div>
       <button class="btn-login" onclick="doLogin()"><i class="fa-solid fa-right-to-bracket"></i> Giriş Yap</button>
-      <div id="l-mesai-err" style="font-size:12px;color:var(--toffee-l);text-align:center;margin-bottom:10px;display:none;line-height:1.5"><i class="fa-solid fa-moon"></i> Oturumlar şu an kapalı.<br>Lütfen mesai başlayana kadar bekleyin.</div>
       <div id="l-err" class="login-err"></div>
+      <div id="l-mesai-err" style="font-size:12px;color:var(--toffee-l);text-align:center;margin-top:8px;padding:10px 12px;background:rgba(200,124,42,.08);border:1px solid rgba(200,124,42,.2);border-radius:8px;display:none;line-height:1.6"><i class="fa-solid fa-moon" style="margin-right:5px"></i>Oturumlar şu an kapalı.<br>Lütfen mesai başlayana kadar bekleyin.</div>
     </div>
   </div>
 </div>
@@ -470,7 +470,7 @@ input,textarea,select{font-family:inherit;outline:none}
     <button class="btn-add-item" onclick="openProdModal()"><i class="fa-solid fa-plus"></i> Sipariş Ekle</button>
     <button class="btn-mutfak-gonder" id="btn-mutfak-gonder" onclick="gonderMutfaga()"><i class="fa-solid fa-fire-burner"></i> Mutfağa Bildir</button>
     <div class="total-card"><div><div class="total-label">Toplam Tutar</div></div><div class="total-amount" id="ord-total">0 MKD</div></div>
-    <div class="pay-btns">
+    <div class="pay-btns" id="pay-btns">
       <button class="btn-pay btn-pay-cash" onclick="initCashPayment()">
         <span><i class="fa-solid fa-money-bill-wave"></i> CASH</span><span class="pay-sub">Alındı</span>
       </button>
@@ -1034,8 +1034,7 @@ async function initApp(){
   if(me.role==='owner'){show('btn-admin');show('btn-mutfak')}
   else{hide('btn-admin');show('btn-mutfak')}
   // Ciro barı ana menüden kaldırıldı, yönetim panelinden görüntülenir
-  const ciroEl=document.getElementById('ciro-bar-row');
-  if(ciroEl)ciroEl.style.display='none';
+  // ciro-bar kaldırıldı
   document.getElementById('tbl-sub').textContent=me.display+' · '+new Date().toLocaleDateString('tr-TR');
   area='kapali';
   await Promise.all([loadTables(),loadOpenOrders(),loadSettings(),loadMutfakUrunler(),loadStok()]);
@@ -1249,7 +1248,6 @@ async function renderMutfakTab(){
 function calcTotal(items){return items.reduce((s,i)=>s+(parseFloat(i.fiyat)*i.miktar),0)}
 
 async function updateCiro(){
-  // Sadece açık masa sayısını güncelle (ciro yönetim panelinde)
   const oEl=document.getElementById('cv-open');
   if(oEl)oEl.textContent=tables.filter(t=>t.dolu).length;
 }
@@ -1268,7 +1266,7 @@ async function openTable(tid){
   const resetBtn=document.getElementById('btn-reset-masa');
   if(resetBtn)resetBtn.className='btn-reset-masa'+(me?.role==='owner'?' owner-only':'');
   const transferBtn=document.getElementById('btn-transfer');
-  if(transferBtn){if(me&&me.role==='owner'&&tbl?.dolu)transferBtn.classList.remove('hidden');else transferBtn.classList.add('hidden');}
+  if(transferBtn){if(me&&(me.role==='owner'||me.role==='waiter')&&tbl?.dolu)transferBtn.classList.remove('hidden');else transferBtn.classList.add('hidden');}
   if(!tbl.dolu){
     // Açık ama boş bir sipariş zaten var mı kontrol et
     const{data:existing}=await sb.from('siparisler').select('*, siparis_kalemleri(*)').eq('masa_id',tid).eq('durum','acik').maybeSingle();
