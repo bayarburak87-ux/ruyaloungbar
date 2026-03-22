@@ -362,7 +362,7 @@ input,textarea,select{font-family:inherit;outline:none}
 .stok-item:last-child{border-bottom:none}
 .stok-item-info{flex:1;min-width:0;padding-top:1px}
 .stok-item-name{font-size:13px;font-weight:500;color:var(--cream);min-width:0;word-break:break-word;line-height:1.4}
-.stok-item-cat{font-size:11px;color:var(--cream-3);margin-top:1px}
+
 .stok-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:5px;flex-shrink:0;display:inline-flex;align-items:center;gap:4px}
 .stok-badge.ok{background:rgba(58,172,120,.15);color:var(--green-ok);border:1px solid rgba(58,172,120,.3)}
 .stok-badge.low{background:rgba(200,124,42,.15);color:var(--toffee-l);border:1px solid rgba(200,124,42,.3)}
@@ -684,9 +684,13 @@ input,textarea,select{font-family:inherit;outline:none}
 
     <!-- STOK -->
     <div id="ap-stok" class="admin-panel">
-      <p class="sec-title"><i class="fa-solid fa-list-check"></i> Stok Durumu</p>
-      <p style="font-size:11px;color:var(--cream-3);margin-bottom:10px;line-height:1.6">Tüm ürünler azdan çoğa sıralı. <strong style="color:var(--cream-2)">Stok Durumu Belirle</strong> ile takip başlatın.</p>
-      <div id="stok-list" style="background:var(--s1);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden"><div class="stat-loading" style="padding:1rem">Yükleniyor…</div></div>
+      <div class="stat-period-block">
+        <div class="stat-period-hdr"><i class="fa-solid fa-list-check"></i> Stok Durumu</div>
+        <div style="padding:8px 12px 6px;font-size:11px;color:var(--cream-3);line-height:1.6;border-bottom:1px solid var(--border)">
+          Kategori sıralamasına göre listelenir. <strong style="color:var(--cream-2)">Stok Durumu Belirle</strong> ile takip başlatın.
+        </div>
+        <div id="stok-list"></div>
+      </div>
     </div>
 
   </div>
@@ -1787,45 +1791,50 @@ function stokBadgeInfo(sk){
 function renderStokList(){
   const el=document.getElementById('stok-list');
   if(!products.length){el.innerHTML='<div style="text-align:center;padding:1rem;color:var(--cream-3);font-size:13px">Ürün yok.</div>';return;}
-  // Stoklu ürünleri azdan çoğa, stoksuzları alta alfabetik sırala
-  const stokluUrunler=[];
-  const stoksuzUrunler=[];
-  products.forEach(p=>{
-    if(stoklar[p.isim]) stokluUrunler.push(p);
-    else stoksuzUrunler.push(p);
-  });
-  stokluUrunler.sort((a,b)=>stoklar[a.isim].miktar-stoklar[b.isim].miktar);
-  stoksuzUrunler.sort((a,b)=>a.isim.localeCompare(b.isim,'tr'));
-  const allUrunler=[...stokluUrunler,...stoksuzUrunler];
-  let html='';
-  allUrunler.forEach(prod=>{
-    const urunAdi=prod.isim;
-    const s=stoklar[urunAdi];
-    const cat=prod.kategori||'';
-    if(s){
-      const{cls:badgeCls,txt:badgeTxt}=stokBadgeInfo(s);
-      html+='<div class="stok-item" data-urun="'+esc(urunAdi)+'">'
-        +'<div class="stok-item-info">'
-        +'<div class="stok-item-name">'+esc(urunAdi)+'</div>'
-        +(cat?'<div class="stok-item-cat">'+esc(cat)+'</div>':'')
-        +'</div>'
-        +'<span class="stok-badge '+badgeCls+'">'+badgeTxt+'</span>'
-        +'<button class="btn-stok-edit" onclick="openStokEdit(this)"><i class="fa-solid fa-plus" style="font-size:9px"></i> Stok Ekle</button>'
-        +'<button class="btn-chip-del" onclick="removeStokByBtn(this)" title="Stok takibinden kaldır" style="flex-shrink:0">✕</button>'
-        +'</div>';
-    } else {
-      html+='<div class="stok-item" data-urun="'+esc(urunAdi)+'">'
-        +'<div class="stok-item-info">'
-        +'<div class="stok-item-name" style="color:var(--cream-3)">'+esc(urunAdi)+'</div>'
-        +(cat?'<div class="stok-item-cat">'+esc(cat)+'</div>':'')
-        +'</div>'
-        +'<button class="btn-chip-edit" onclick="openStokBelirle(this)"><i class="fa-solid fa-boxes-stacked" style="font-size:9px"></i> Stok Durumu Belirle</button>'
-        +'</div>';
-    }
+  let so=[];try{so=settings['cat_order']?JSON.parse(settings['cat_order']):[]}catch(e){}
+  const cats={};
+  products.forEach(p=>{const k=p.kategori||'Genel';if(!cats[k])cats[k]=[];cats[k].push(p);});
+  const allCatKeys=Object.keys(cats);
+  const sortedCats=[...so.filter(k=>allCatKeys.includes(k)),...allCatKeys.filter(k=>!so.includes(k))];
+  let html='',stokUid=0;
+  sortedCats.forEach(cat=>{
+    const prods=cats[cat];
+    const stoklu=prods.filter(p=>stoklar[p.isim]).sort((a,b)=>stoklar[a.isim].miktar-stoklar[b.isim].miktar);
+    const stoksuz=prods.filter(p=>!stoklar[p.isim]).sort((a,b)=>a.isim.localeCompare(b.isim,'tr'));
+    const sorted=[...stoklu,...stoksuz];
+    const catId='stok-cat-'+stokUid;
+    const chvId='stok-chv-'+stokUid;
+    stokUid++;
+    html+='<div class="cat-section admin-cat-section">'
+      +'<div class="cat-header" data-target="'+catId+'" data-chv="'+chvId+'" onclick="toggleAdminCatByEl(this)">'
+      +'<div class="cat-header-left"><div class="cat-icon">'+catIcon(cat)+'</div>'
+      +'<div><div class="cat-hdr-name">'+esc(cat)+'</div>'
+      +'<div class="cat-hdr-count">'+prods.length+' ürün'+(stoklu.length?' · '+stoklu.length+' takipte':'')+' </div></div></div>'
+      +'<span class="cat-chevron" id="'+chvId+'">▼</span>'
+      +'</div>'
+      +'<div class="cat-items" id="'+catId+'">';
+    sorted.forEach(prod=>{
+      const urunAdi=prod.isim;
+      const s=stoklar[urunAdi];
+      if(s){
+        const{cls:badgeCls,txt:badgeTxt}=stokBadgeInfo(s);
+        html+='<div class="stok-item" data-urun="'+esc(urunAdi)+'">'
+          +'<div class="stok-item-info"><div class="stok-item-name">'+esc(urunAdi)+'</div></div>'
+          +'<span class="stok-badge '+badgeCls+'">'+badgeTxt+'</span>'
+          +'<button class="btn-stok-edit" onclick="openStokEdit(this)"><i class="fa-solid fa-plus" style="font-size:9px"></i> Stok Ekle</button>'
+          +'<button class="btn-chip-del" onclick="removeStokByBtn(this)" style="flex-shrink:0">✕</button>'
+          +'</div>';
+      } else {
+        html+='<div class="stok-item" data-urun="'+esc(urunAdi)+'">'
+          +'<div class="stok-item-info"><div class="stok-item-name" style="color:var(--cream-3)">'+esc(urunAdi)+'</div></div>'
+          +'<button class="btn-chip-edit" onclick="openStokBelirle(this)"><i class="fa-solid fa-boxes-stacked" style="font-size:9px"></i> Stok Durumu Belirle</button>'
+          +'</div>';
+      }
+    });
+    html+='</div></div>';
   });
   el.innerHTML=html;
 }
-
 function removeStokByBtn(btn){
   const urun=btn.closest('[data-urun]').dataset.urun;
   if(!urun||!stoklar[urun])return;
