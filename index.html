@@ -913,7 +913,7 @@ body.kitchen-monitor .btn-hazir{font-size:18px;padding:14px 24px}
 // SUPABASE CONFIG
 // ==============================
 const SUPABASE_URL = 'https://lzakzynapysfpxsjxzgz.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_gCHs9MxYELXvhuyjuDVWzA_uMgEWjF';
+const SUPABASE_KEY = 'sb_publishable_gCHs9MxYELXvhuyjuDVWzA_uMgEWjF1';
 const SUPABASE_DB_PASSWORD = 'EXqiInDRLjhwvKFe'; // Sadece sunucu/bağlantı dizesi için — client'ta kullanma
 
 // ==============================
@@ -2587,7 +2587,7 @@ async function loadIstatistik(){
         datasets:[{label:'Adet',data:topUrunler.map(([,q])=>q),backgroundColor:CHART_COLORS.toffee+'aa',borderColor:CHART_COLORS.toffee,borderWidth:1}]
       },options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
         scales:{x:{beginAtZero:true,grid:{color:CHART_COLORS.grid},ticks:{color:CHART_COLORS.text}},
-          y:{grid:{color:CHART_COLORS.grid},ticks:{color:CHART_COLORS.text,font:{size:11}}}}});
+          y:{grid:{color:CHART_COLORS.grid},ticks:{color:CHART_COLORS.text,font:{size:11}}}}}});
     }
   }
 
