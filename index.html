@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#c87c2a">
+<link rel="manifest" href="manifest.json">
 <title>Rüya Lounge Bar — Adisyon</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -186,11 +188,19 @@ input,textarea,select{font-family:inherit;outline:none}
 .k-item-main{display:flex;align-items:center;gap:8px}
 .k-item-qty{background:var(--toffee-d);color:#ffffff;border-radius:5px;padding:3px 9px;font-size:12px;font-weight:700;flex-shrink:0}
 .k-item-name{font-size:13px;font-weight:500;color:var(--cream);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.k-item-note{font-size:11px;color:var(--toffee-l);background:var(--toffee-deep);padding:3px 8px;border-radius:4px;margin-top:2px;display:inline-block}
+.k-item-note{font-size:15px;font-weight:600;color:var(--toffee-l);background:var(--toffee-deep);padding:6px 12px;border-radius:6px;margin-top:4px;display:inline-block;line-height:1.4;min-height:24px}
 .btn-hazir{background:var(--green-ok);color:#fff;border-radius:var(--radius-sm);padding:9px 16px;font-size:13px;font-weight:600;width:calc(100% - 28px);margin:10px 14px;border:none}
 .btn-hazir:hover{background:#4dc894}
 .kitchen-empty{text-align:center;padding:3rem 1rem;color:var(--cream-3)}
 .kitchen-empty-icon{font-size:40px;margin-bottom:.75rem}
+/* Mutfak monitör modu — TV/tablet için büyük font */
+body.kitchen-monitor .chef-header,body.kitchen-monitor .kitchen-view .k-order-card{font-size:1.4rem}
+body.kitchen-monitor .k-order-tname{font-size:22px}
+body.kitchen-monitor .k-order-time{font-size:16px}
+body.kitchen-monitor .k-item-name{font-size:18px}
+body.kitchen-monitor .k-item-note{font-size:18px;padding:8px 14px}
+body.kitchen-monitor .k-item-qty{font-size:16px;padding:5px 12px}
+body.kitchen-monitor .btn-hazir{font-size:18px;padding:14px 24px}
 
 /* CHEF SCREEN */
 .chef-header{background:var(--toffee-d);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
@@ -462,13 +472,18 @@ input,textarea,select{font-family:inherit;outline:none}
       <div class="order-hdr-title" id="ord-tname">—</div>
       <div class="order-hdr-sub" id="ord-tarea">—</div>
     </div>
-    <button class="btn-close-tbl hidden" id="btn-transfer" onclick="openTransferModal()" style="background:var(--s3);border-color:var(--border-2);color:var(--cream-2)"><i class="fa-solid fa-right-left"></i></button>
+    <button class="btn-close-tbl hidden" id="btn-transfer" onclick="openTransferModal()" style="background:var(--s3);border-color:var(--border-2);color:var(--cream-2)"><i class="fa-solid fa-right-left"></i> Transfer</button>
+    <button class="btn-close-tbl hidden" id="btn-merge" onclick="openMergeModal()" style="background:var(--s3);border-color:var(--border-2);color:var(--cream-2)"><i class="fa-solid fa-object-group"></i> Birleştir</button>
     <button class="btn-close-tbl" onclick="scrollToPayment()"><i class="fa-solid fa-receipt"></i> Ödeme</button>
   </div>
   <div class="order-body">
     <div id="ord-items"></div>
     <button class="btn-add-item" onclick="openProdModal()"><i class="fa-solid fa-plus"></i> Sipariş Ekle</button>
     <button class="btn-mutfak-gonder" id="btn-mutfak-gonder" onclick="gonderMutfaga()"><i class="fa-solid fa-fire-burner"></i> Mutfağa Bildir</button>
+    <div class="discount-row" style="display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
+      <input type="number" id="ord-disc-pct" placeholder="% indirim" min="0" max="100" step="1" style="width:70px;padding:8px;background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--cream);font-size:13px" onchange="applyDiscount()">
+      <input type="number" id="ord-disc-fix" placeholder="Sabit MKD" min="0" step="5" style="width:85px;padding:8px;background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--cream);font-size:13px" onchange="applyDiscount()">
+    </div>
     <div class="total-card"><div><div class="total-label">Toplam Tutar</div></div><div class="total-amount" id="ord-total">0 MKD</div></div>
     <div class="pay-btns" id="pay-btns">
       <button class="btn-pay btn-pay-cash" onclick="initCashPayment()">
@@ -488,6 +503,8 @@ input,textarea,select{font-family:inherit;outline:none}
     <div class="chef-title">🍳 Mutfak</div>
     <div style="display:flex;align-items:center;gap:8px">
       <span class="chef-badge" id="chef-pending-badge"></span>
+      <button class="hdr-btn" onclick="toggleKitchenMonitor()" title="Mutfak monitör modu (büyük font)"><i class="fa-solid fa-tv"></i></button>
+      <button class="hdr-btn" onclick="toggleChefFullscreen()" title="Tam ekran"><i class="fa-solid fa-expand"></i></button>
       <button class="hdr-btn" onclick="doLogout()">Çıkış</button>
     </div>
   </div>
@@ -498,7 +515,10 @@ input,textarea,select{font-family:inherit;outline:none}
 <div id="screen-mutfak" class="screen">
   <div class="app-header">
     <div class="hdr-left"><span class="hdr-title">🍳 Mutfak Durumu</span></div>
-    <div class="hdr-right"><button class="hdr-btn" onclick="showScreen('tables')"><i class="fa-solid fa-arrow-left"></i> Masalar</button></div>
+    <div class="hdr-right">
+      <button class="hdr-btn" onclick="toggleKitchenMonitor()" title="Mutfak monitör modu"><i class="fa-solid fa-tv"></i></button>
+      <button class="hdr-btn" onclick="showScreen('tables')"><i class="fa-solid fa-arrow-left"></i> Masalar</button>
+    </div>
   </div>
   <div class="kitchen-view" id="kitchen-view-inner"></div>
 </div>
@@ -515,6 +535,7 @@ input,textarea,select{font-family:inherit;outline:none}
     <button class="admin-tab" id="at-mutfak" onclick="switchAdminTab('mutfak')"><i class="fa-solid fa-kitchen-set"></i> Mutfak</button>
     <button class="admin-tab" id="at-istatistik" onclick="switchAdminTab('istatistik')"><i class="fa-solid fa-chart-bar"></i> İstatistik</button>
     <button class="admin-tab" id="at-stok" onclick="switchAdminTab('stok')"><i class="fa-solid fa-boxes-stacked"></i> Stok</button>
+    <button class="admin-tab" id="at-bildirim" onclick="switchAdminTab('bildirim')"><i class="fa-solid fa-bell"></i> Bildirimler</button>
     <button class="admin-tab" id="at-ayarlar" onclick="switchAdminTab('ayarlar')"><i class="fa-solid fa-sliders"></i> Ayarlar</button>
   </div>
   <div class="admin-content">
@@ -599,7 +620,10 @@ input,textarea,select{font-family:inherit;outline:none}
         <div class="stat-period-hdr"><i class="fa-solid fa-calendar-days"></i> Aylık Tüketim</div>
         <div id="stats-month"><div class="stat-loading"><i class="fa-solid fa-spinner fa-spin"></i> Yükleniyor…</div></div>
       </div>
-
+      <div class="stat-period-block" style="margin-top:10px">
+        <div class="stat-period-hdr"><i class="fa-solid fa-user-tie"></i> Garson Performansı (Bu Ay)</div>
+        <div id="stats-garson"><div class="stat-loading">Yükleniyor…</div></div>
+      </div>
       <div class="stat-period-block" style="margin-top:10px">
         <div class="stat-period-hdr"><i class="fa-solid fa-coins"></i> Toplam Ciro</div>
         <div style="padding:10px 14px">
@@ -682,6 +706,29 @@ input,textarea,select{font-family:inherit;outline:none}
         <div id="garson-sifre-err" style="font-size:11px;color:var(--red);margin-top:6px;min-height:14px"></div>
       </div>
       <div class="settings-card">
+        <p class="s-label"><i class="fa-solid fa-language"></i> Uygulama Dili</p>
+        <select class="s-select" id="s-dil" onchange="saveDil(this.value)">
+          <option value="tr">Türkçe</option>
+          <option value="mk">Македонски</option>
+          <option value="sq">Shqip</option>
+        </select>
+      </div>
+      <div class="settings-card">
+        <p class="s-label"><i class="fa-solid fa-lock"></i> Pin Kodu (Ekran Kilidi)</p>
+        <p style="font-size:11px;color:var(--cream-3);margin-bottom:6px">Cihaz kilitlendiğinde açmak için. Boş bırakırsanız pin kilit devre dışı kalır.</p>
+        <input type="password" class="s-input" id="s-pin" placeholder="4-6 haneli pin" maxlength="6" inputmode="numeric" pattern="[0-9]*">
+        <button class="btn-save" onclick="savePin()">Pin Kaydet</button>
+      </div>
+      <div class="settings-card">
+        <p class="s-label"><i class="fa-solid fa-database"></i> Yedekleme & Geri Yükleme</p>
+        <p style="font-size:11px;color:var(--cream-3);margin-bottom:8px">Verileri JSON olarak indir veya önceki yedekten geri yükle (IndexedDB/localStorage). Supabase verileri doğrudan etkilenmez.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-save" onclick="exportBackup()"><i class="fa-solid fa-download"></i> Yedek Al</button>
+          <button class="btn-test" onclick="document.getElementById('restore-input').click()"><i class="fa-solid fa-upload"></i> Geri Yükle</button>
+          <input type="file" id="restore-input" accept=".json" style="display:none" onchange="importBackup(event)">
+        </div>
+      </div>
+      <div class="settings-card">
         <p class="s-label"><i class="fa-solid fa-list-ol"></i> Kategori Sıralaması</p>
         <div class="cat-sort-list" id="cat-sort-list"></div>
         <button class="btn-save" style="margin-top:10px;width:100%" onclick="saveCatOrder()"><i class="fa-solid fa-floppy-disk"></i> Sıralamayı Kaydet</button>
@@ -689,6 +736,14 @@ input,textarea,select{font-family:inherit;outline:none}
 
     </div>
 
+    <!-- BİLDİRİMLER -->
+    <div id="ap-bildirim" class="admin-panel">
+      <div class="stat-period-block">
+        <div class="stat-period-hdr"><i class="fa-solid fa-bell"></i> Stok Uyarıları & Bildirimler</div>
+        <div id="bildirim-list" style="padding:10px"></div>
+        <button class="btn-save" style="margin:0 10px 10px" onclick="checkStokUyari()"><i class="fa-solid fa-sync"></i> Stok Kontrolü</button>
+      </div>
+    </div>
     <!-- STOK -->
     <div id="ap-stok" class="admin-panel">
       <div class="stat-period-block">
@@ -701,6 +756,16 @@ input,textarea,select{font-family:inherit;outline:none}
   </div>
 </div>
 
+<!-- MODAL: MASA BİRLEŞTİR -->
+<div id="m-merge" class="modal-overlay hidden">
+  <div class="modal-sheet">
+    <div class="modal-header"><span class="modal-title">Masaları Birleştir</span><button class="btn-modal-close" onclick="closeModal('m-merge')">✕</button></div>
+    <div class="modal-body" style="padding:12px">
+      <p style="font-size:12px;color:var(--cream-3);margin-bottom:12px">Diğer masanın siparişleri bu masaya eklenecek:</p>
+      <div id="merge-masa-list"></div>
+    </div>
+  </div>
+</div>
 <!-- MODAL: MASA TRANSFER -->
 <div id="m-transfer" class="modal-overlay hidden">
   <div class="modal-sheet">
@@ -745,6 +810,7 @@ input,textarea,select{font-family:inherit;outline:none}
 <div id="m-prods" class="modal-overlay hidden">
   <div class="modal-sheet">
     <div class="modal-header"><span class="modal-title">Ürün Seç</span><button class="btn-modal-close" onclick="closeModal('m-prods')">✕</button></div>
+    <div style="padding:0 12px 8px"><input type="text" id="prod-search" placeholder="🔍 Ürün veya kategori ara…" style="width:100%;padding:10px 14px;background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--cream);font-size:14px" oninput="filterProdSearch(this.value)"></div>
     <div class="modal-body" id="m-prods-body"></div>
   </div>
 </div>
@@ -823,7 +889,7 @@ const SUPABASE_URL = 'https://apxtlwzbwqseauafjewb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_b_X7X2KQ86uS_b8ScKIorQ_adFvQmvg';
 
 // ==============================
-// SQL SCHEMA
+// SQL SCHEMA (basit kurulum; tam şema için schema.sql kullanın)
 // ==============================
 const SQL_SCHEMA = `-- TEMEL TABLOLAR
 create table masalar (
@@ -941,6 +1007,7 @@ let sb=null,me=null,area='kapali',tables=[],products=[],openOrders={},settings={
 // ==============================
 // INIT
 // ==============================
+if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
 window.addEventListener('load',async()=>{
   // Guard: supabase script failed to load
   if(typeof supabase==='undefined'){
@@ -1234,10 +1301,12 @@ async function renderMutfakTab(){
   pending.forEach(row=>{if(!byTable2[row.masa_adi])byTable2[row.masa_adi]=[];byTable2[row.masa_adi].push(row)});
   el.innerHTML=Object.entries(byTable2).map(([masa,items])=>{
     const merged2={};
-    items.forEach(i=>{const k=i.urun_adi;if(!merged2[k])merged2[k]={...i};else{merged2[k].miktar+=i.miktar;if(i.not_metni&&!merged2[k].not_metni)merged2[k].not_metni=i.not_metni;}});
+    items.forEach(i=>{const k=i.urun_adi;if(!merged2[k])merged2[k]={...i};else{merged2[k].miktar+=i.miktar;if(i.not_metni&&!merged2[k].not_metni)merged2[k].not_metni=i.not_metni;if(i.created_at&&(!merged2[k].created_at||new Date(i.created_at)<new Date(merged2[k].created_at)))merged2[k].created_at=i.created_at;}});
     const mi=Object.values(merged2);
+    const oldestItem=mi.reduce((a,b)=>(!a||!b.created_at)?a:(!a.created_at)?b:new Date(a.created_at)<new Date(b.created_at)?a:b,null);
+    const timeStr=oldestItem?.created_at?timeAgo(oldestItem.created_at):'';
     return`<div class="k-order-card">
-      <div class="k-order-hdr"><span class="k-order-tname">🍽 ${esc(masa)}</span></div>
+      <div class="k-order-hdr"><span class="k-order-tname">🍽 ${esc(masa)}</span><span class="k-order-time">${timeStr||''}</span></div>
       ${mi.map(i=>`<div class="k-item">
         <div class="k-item-main"><span class="k-item-qty">${i.miktar} Adet</span><span class="k-item-name">${esc(i.urun_adi)}</span></div>
         ${i.not_metni?`<span class="k-item-note">📝 ${esc(i.not_metni)}</span>`:''}
@@ -1267,6 +1336,8 @@ async function openTable(tid){
   if(resetBtn)resetBtn.className='btn-reset-masa'+(me?.role==='owner'?' owner-only':'');
   const transferBtn=document.getElementById('btn-transfer');
   if(transferBtn){if(me&&(me.role==='owner'||me.role==='waiter')&&tbl?.dolu)transferBtn.classList.remove('hidden');else transferBtn.classList.add('hidden');}
+  const mergeBtn=document.getElementById('btn-merge');
+  if(mergeBtn){if(me&&(me.role==='owner'||me.role==='waiter')&&tbl?.dolu)mergeBtn.classList.remove('hidden');else mergeBtn.classList.add('hidden');}
   if(!tbl.dolu){
     // Açık ama boş bir sipariş zaten var mı kontrol et
     const{data:existing}=await sb.from('siparisler').select('*, siparis_kalemleri(*)').eq('masa_id',tid).eq('durum','acik').maybeSingle();
@@ -1329,6 +1400,34 @@ async function openTransferModal(){
   }
   openModal('m-transfer');
 }
+async function openMergeModal(){
+  if(!curTblId||!curOrdId)return;
+  const doluOthers=tables.filter(t=>t.dolu&&t.id!==curTblId);
+  const listEl=document.getElementById('merge-masa-list');
+  const fromTbl=tables.find(t=>t.id===curTblId);
+  if(!doluOthers.length){listEl.innerHTML='<p style="text-align:center;padding:1rem;color:var(--cream-3)">Birleştirilecek dolu masa yok.</p>';openModal('m-merge');return}
+  listEl.innerHTML=doluOthers.map(t=>`<button data-id="${t.id}" data-isim="${esc(t.isim)}" onclick="doMergeByBtn(this)" style="width:100%;background:var(--s2);border:1px solid var(--border-2);border-radius:8px;padding:11px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;color:var(--cream);font-size:13px;cursor:pointer"><span>${esc(t.isim)}</span><span style="font-size:11px;color:var(--cream-3)">${t.alan==='bahce'?'Bahçe':'Kapalı'}</span></button>`).join('');
+  openModal('m-merge');
+}
+function doMergeByBtn(btn){doMerge(btn.dataset.id,btn.dataset.isim);}
+async function doMerge(hedefMasaId,hedefMasaIsim){
+  closeModal('m-merge');
+  if(!curTblId||!curOrdId)return;
+  const{data:otherOrd}=await sb.from('siparisler').select('id,siparis_kalemleri(*)').eq('masa_id',hedefMasaId).eq('durum','acik').maybeSingle();
+  if(!otherOrd||!otherOrd.siparis_kalemleri?.length){toast('O masada sipariş yok.');return}
+  if(!confirm(hedefMasaIsim+" masasındaki siparişler "+tables.find(t=>t.id===curTblId)?.isim+" masasına eklenecek. Emin misiniz?"))return;
+  for(const k of otherOrd.siparis_kalemleri){
+    await sb.from('siparis_kalemleri').update({siparis_id:curOrdId}).eq('id',k.id);
+  }
+  await sb.from('siparisler').delete().eq('id',otherOrd.id);
+  await sb.from('masalar').update({dolu:false}).eq('id',hedefMasaId);
+  const ord=openOrders[curTblId];
+  ord.siparis_kalemleri=[...(ord.siparis_kalemleri||[]),...otherOrd.siparis_kalemleri];
+  tables.find(t=>t.id===hedefMasaId).dolu=false;
+  delete openOrders[hedefMasaId];
+  toast('✓ Masalar birleştirildi!');
+  renderOrderItems(ord.siparis_kalemleri);
+}
 
 function doTransferByBtn(btn){doTransfer(btn.dataset.id,btn.dataset.isim);}
 
@@ -1374,13 +1473,24 @@ async function resetMasa(){
 }
 function refreshOrderView(){const o=openOrders[curTblId];if(o)renderOrderItems(o.siparis_kalemleri||[])}
 
+function calcOrderTotal(items,ord){
+  const raw=calcTotal(items);
+  const pct=parseFloat(ord?.indirim_yuzde)||0;
+  const fix=parseFloat(ord?.indirim_sabit)||0;
+  return Math.max(0,raw*(1-pct/100)-fix);
+}
 function renderOrderItems(items){
   const el=document.getElementById('ord-items');
-  const total=calcTotal(items);
+  const ord=openOrders[curTblId];
+  const rawTotal=calcTotal(items);
+  const total=calcOrderTotal(items,ord);
   // Show/hide Mutfağa Bildir button — only if there are unsent mutfak items
   const hasBekliyor=items.some(i=>isMutfakUrun(i.urun_adi)&&!i.mutfak_gonderildi&&!i.mutfak_hazir);
   const btn=document.getElementById('btn-mutfak-gonder');
   if(btn)btn.className='btn-mutfak-gonder'+(hasBekliyor?' visible':'');
+  const dp=document.getElementById('ord-disc-pct'),df=document.getElementById('ord-disc-fix');
+  if(dp)dp.value=ord?.indirim_yuzde||'';
+  if(df)df.value=ord?.indirim_sabit||'';
   if(!items.length){
     el.innerHTML=`<div class="items-list"><div class="order-empty"><div class="order-empty-icon">📋</div><p>Henüz sipariş yok</p></div></div>`;
   }else{
@@ -1412,6 +1522,15 @@ function renderOrderItems(items){
       </div>`;}).join('')}</div>`;
   }
   document.getElementById('ord-total').textContent=fmt(total);
+}
+async function applyDiscount(){
+  if(!curOrdId)return;
+  const pct=parseFloat(document.getElementById('ord-disc-pct')?.value)||0;
+  const fix=parseFloat(document.getElementById('ord-disc-fix')?.value)||0;
+  const ord=openOrders[curTblId];if(!ord)return;
+  ord.indirim_yuzde=pct;ord.indirim_sabit=fix;
+  await sb.from('siparisler').update({indirim_yuzde:pct,indirim_sabit:fix}).eq('id',curOrdId);
+  renderOrderItems(ord.siparis_kalemleri||[]);
 }
 
 let _noteActiveId=null;
@@ -1577,7 +1696,7 @@ async function openProdModal(){
   const allKeys=Object.keys(cats);
   let so=[];try{so=settings['cat_order']?JSON.parse(settings['cat_order']):[]}catch(e){}
   const keys=[...so.filter(k=>allKeys.includes(k)),...allKeys.filter(k=>!so.includes(k))];
-  body.innerHTML=keys.map((cat,idx)=>{const ps=cats[cat];return`<div class="cat-section">
+  body.innerHTML=keys.map((cat,idx)=>{const ps=cats[cat];return`<div class="cat-section" data-cat="${String(cat||'').toLowerCase()}">
     <div class="cat-header" onclick="toggleCat('cat-${idx}')">
       <div class="cat-header-left"><div class="cat-icon">${catIcon(cat)}</div><div><div class="cat-hdr-name">${esc(cat)}</div><div class="cat-hdr-count">${ps.length} ürün</div></div></div>
       <span class="cat-chevron" id="chv-${idx}">▼</span>
@@ -1589,14 +1708,31 @@ async function openProdModal(){
       const kalanStok=stk?Math.max(0,stk.miktar):0;
       const outOfStock=stk&&kalanStok===0;
       const stockBadge=stk?(()=>{const b=stokBadgeInfo({...stk,miktar:kalanStok});return '<span class="prod-stock-badge '+b.cls+'">'+b.txt+'</span>';})():'';
-      return`<div class="prod-item${outOfStock?' out-of-stock':''}">
+      return`<div class="prod-item${outOfStock?' out-of-stock':''}" data-prod="${String(p.isim||'').toLowerCase()}" data-cat="${String(cat||'').toLowerCase()}">
         <div class="prod-info"><div class="prod-name">${esc(p.isim)}${stockBadge}</div>${p.aciklama?`<div class="prod-desc">${esc(p.aciklama)}</div>`:''}</div>
         <div class="prod-price">${fmt(p.fiyat)}</div>
         <button class="btn-prod-add" onclick="addItemWithStokCheck('${p.id}',${outOfStock})">+</button>
       </div>`;}).join('')}</div></div>`}).join('');
   openModal('m-prods');
+  document.getElementById('prod-search').value='';
 }
-
+function filterProdSearch(q){
+  const q2=String(q||'').toLowerCase().trim();
+  document.querySelectorAll('#m-prods-body .cat-section').forEach(sec=>{
+    if(!q2){sec.style.display='';sec.querySelector('.cat-items').classList.remove('open');return}
+    const cat=sec.dataset.cat||'';
+    const items=sec.querySelectorAll('.prod-item');
+    let visible=0;
+    items.forEach(it=>{
+      const prod=it.dataset.prod||'';
+      const match=cat.includes(q2)||prod.includes(q2);
+      it.style.display=match?'':'none';
+      if(match)visible++;
+    });
+    sec.style.display=visible?'':'none';
+    if(visible)sec.querySelector('.cat-items').classList.add('open');
+  });
+}
 function toggleCat(id){const el=document.getElementById(id),idx=id.replace('cat-',''),chv=document.getElementById('chv-'+idx),open=el.classList.contains('open');el.classList.toggle('open',!open);chv.classList.toggle('open',!open)}
 
 function addItemWithStokCheck(pid,isOos){
@@ -1685,7 +1821,7 @@ function initCashPayment(){
   const ord=openOrders[curTblId];
   const items=ord?.siparis_kalemleri||[];
   if(!items.length){toast('⚠️ Şu an bir ürün eklemediniz.');return}
-  const total=calcTotal(items);
+  const total=calcOrderTotal(items,ord);
   document.getElementById('m-cash-desc').textContent=`Toplam: ${fmt(total)} — Nakit ödeme alındı mı?`;
   openModal('m-cash');
 }
@@ -1697,7 +1833,7 @@ async function openIbanModal(){
   if(!items.length){toast('⚠️ Şu an bir ürün eklemediniz.');return}
   await loadSettings();
   const iban=settings['iban_no']||'',qr=settings['iban_qr']||'';
-  const rawTotal=calcTotal(items),total=rawTotal+60;
+  const rawTotal=calcOrderTotal(items,ord),total=rawTotal+60;
   let html;
   if(!iban&&!qr){html=`<div class="iban-not-set">🏦<br><br>IBAN henüz ayarlanmamış.<br><span style="font-size:11px">Yönetim → Ayarlar bölümünden ekleyin.</span></div>`}
   else{
@@ -1716,10 +1852,10 @@ async function confirmIban(){closeModal('m-iban');await finalizeOrder('iban','al
 
 async function finalizeOrder(method,status){
   const ord=openOrders[curTblId];if(!ord||!curOrdId)return;
-  let total=calcTotal(ord.siparis_kalemleri||[]);
+  let total=calcOrderTotal(ord.siparis_kalemleri||[],ord);
   if(method==='iban')total+=60;
   const tbl=tables.find(t=>t.id===curTblId);
-  await sb.from('siparisler').update({durum:'kapali',toplam:total,odeme_yontemi:method,odeme_durumu:status,kapandi_at:new Date().toISOString()}).eq('id',curOrdId);
+  await sb.from('siparisler').update({durum:'kapali',toplam:total,odeme_yontemi:method,garson_username:me?.username||me?.display||null,kapandi_at:new Date().toISOString()}).eq('id',curOrdId);
   await sb.from('masalar').update({dolu:false}).eq('id',curTblId);
   // Excel export available from settings
   toast(method==='nakit'?'✓ Nakit ödeme alındı!':'✓ IBAN ile alınacak!');
@@ -1730,10 +1866,22 @@ async function finalizeOrder(method,status){
 // ==============================
 // KITCHEN
 // ==============================
+function timeAgo(d){
+  if(!d)return'';
+  const dt=new Date(d);
+  const now=new Date();
+  const sec=Math.floor((now-dt)/1000);
+  if(sec<60)return'az önce';
+  const min=Math.floor(sec/60);
+  if(min<60)return min+' dk önce';
+  const h=Math.floor(min/60);
+  if(h<24)return h+' saat önce';
+  return Math.floor(h/24)+' gün önce';
+}
 async function getPendingKitchenItems(){
   const mutfakNames=mutfakUrunler.map(m=>m.urun_adi);
   if(!mutfakNames.length)return[];
-  const{data}=await sb.from('siparisler').select('masa_adi, siparis_kalemleri(id,urun_adi,miktar,not_metni,mutfak_hazir,mutfak_gonderildi)').eq('durum','acik');
+  const{data}=await sb.from('siparisler').select('masa_adi, siparis_kalemleri(id,urun_adi,miktar,not_metni,mutfak_hazir,mutfak_gonderildi,created_at)').eq('durum','acik');
   const rows=[];
   (data||[]).forEach(s=>{(s.siparis_kalemleri||[]).filter(k=>mutfakNames.includes(k.urun_adi)&&k.mutfak_gonderildi&&!k.mutfak_hazir).forEach(k=>rows.push({...k,masa_adi:s.masa_adi||'?'}))});
   return rows;
@@ -1757,8 +1905,10 @@ async function renderChefOrders(){
       else{merged[k].miktar+=i.miktar;if(i.not_metni&&!merged[k].not_metni)merged[k].not_metni=i.not_metni;}
     });
     const mergedItems=Object.values(merged);
+    const oldestItem=mergedItems.reduce((a,b)=>(!a||!b.created_at)?a:(!a.created_at)?b:new Date(a.created_at)<new Date(b.created_at)?a:b,null);
+    const timeStr=oldestItem?.created_at?timeAgo(oldestItem.created_at):'';
     return`<div class="k-order-card">
-      <div class="k-order-hdr"><span class="k-order-tname">🍽 ${esc(masa)}</span><span class="k-order-time">${mergedItems.length} kalem</span></div>
+      <div class="k-order-hdr"><span class="k-order-tname">🍽 ${esc(masa)}</span><span class="k-order-time">${mergedItems.length} kalem${timeStr?' • '+timeStr:''}</span></div>
       ${mergedItems.map(i=>`<div class="k-item">
         <div class="k-item-main"><span class="k-item-qty">${i.miktar} Adet</span><span class="k-item-name">${esc(i.urun_adi)}</span></div>
         ${i.not_metni?`<span class="k-item-note">📝 ${esc(i.not_metni)}</span>`:''}
@@ -2294,6 +2444,8 @@ async function loadIstatistik(){
   if(!allIds.length){
     renderEmpty(document.getElementById('stats-today'));
     renderEmpty(document.getElementById('stats-month'));
+    const gEl=document.getElementById('stats-garson');
+    if(gEl)gEl.innerHTML='<div class="stat-loading" style="padding:1rem">Veri yok.</div>';
     loadMasaGecmisi();return;
   }
   const{data:kalemleri}=await sb.from('siparis_kalemleri').select('siparis_id,urun_adi,miktar').in('siparis_id',allIds);
@@ -2309,6 +2461,15 @@ async function loadIstatistik(){
   };
   renderStats(document.getElementById('stats-today'),todayStats);
   renderStats(document.getElementById('stats-month'),monthStats);
+  const{data:garsonOrders}=await sb.from('siparisler').select('garson_username,toplam').eq('durum','kapali').gte('kapandi_at',monthStart);
+  const garsonMap={};
+  (garsonOrders||[]).forEach(o=>{
+    const g=o.garson_username||'(Belirsiz)';
+    if(!garsonMap[g])garsonMap[g]={count:0,toplam:0};
+    garsonMap[g].count++;garsonMap[g].toplam+=parseFloat(o.toplam)||0;
+  });
+  const gEl=document.getElementById('stats-garson');
+  if(gEl)gEl.innerHTML=Object.entries(garsonMap).length?Object.entries(garsonMap).sort((a,b)=>b[1].toplam-a[1].toplam).map(([g,d])=>`<div class="stat-item"><span class="stat-name">${esc(g)}</span><span class="stat-val">${d.count} sipariş · ${fmt(d.toplam)}</span></div>`).join(''):'<div class="stat-loading" style="padding:1rem">Veri yok.</div>';
   loadMasaGecmisi();
 }
 
@@ -2522,6 +2683,8 @@ async function loadAdminSettings(){
   const asciErrEl=document.getElementById('asci-sifre-err');if(asciErrEl){asciErrEl.textContent='';asciErrEl.style.color='var(--red)';}
   const garsonErrEl=document.getElementById('garson-sifre-err');if(garsonErrEl){garsonErrEl.textContent='';garsonErrEl.style.color='var(--red)';}
   loadCatSortPanel();
+  const dilEl=document.getElementById('s-dil');if(dilEl)dilEl.value=settings['dil']||'tr';
+  const pinEl=document.getElementById('s-pin');if(pinEl)pinEl.value='';
   // Mesai durumu
   const mesaiVal=settings['mesai_acik'];
   const mesaiAcik=mesaiVal===undefined||mesaiVal==='1'||mesaiVal===true;
@@ -2633,6 +2796,42 @@ async function saveIbanSettings(){
   if(!e1&&!e2){settings['iban_no']=iban;settings['iban_qr']=qr;toast('IBAN ayarları kaydedildi!');}
   else toast('Kayıt hatası.');
 }
+async function saveDil(v){await sb.from('ayarlar').upsert({anahtar:'dil',deger:v,updated_at:new Date().toISOString()},{onConflict:'anahtar'});settings['dil']=v;toast('Dil kaydedildi.');}
+async function savePin(){
+  const v=document.getElementById('s-pin').value.replace(/\D/g,'').slice(0,6);
+  await sb.from('ayarlar').upsert({anahtar:'pin_kodu',deger:v,updated_at:new Date().toISOString()},{onConflict:'anahtar'});
+  settings['pin_kodu']=v;
+  document.getElementById('s-pin').value='';
+  toast(v?'Pin kaydedildi.':'Pin kaldırıldı.');
+}
+async function exportBackup(){
+  try{
+    const [masalar,urunler,ayarlar,mutfakUrun,stok]=await Promise.all([
+      sb.from('masalar').select('*'),
+      sb.from('urunler').select('*'),
+      sb.from('ayarlar').select('*'),
+      sb.from('mutfak_urunler').select('*'),
+      sb.from('stok').select('*')
+    ]);
+    const backup={ver:'1',tarih:new Date().toISOString(),masalar:masalar.data||[],urunler:urunler.data||[],ayarlar:ayarlar.data||[],mutfak_urunler:mutfakUrun.data||[],stok:stok.data||[]};
+    const blob=new Blob([JSON.stringify(backup)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ruya-yedek-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href);
+    toast('Yedek indirildi.');
+  }catch(e){toast('Hata: '+e.message);}
+}
+async function importBackup(ev){
+  const f=ev.target.files[0];if(!f)return;
+  try{
+    const j=JSON.parse(await f.text());
+    if(j.masalar?.length)await sb.from('masalar').upsert(j.masalar,{onConflict:'id'});
+    if(j.urunler?.length)await sb.from('urunler').upsert(j.urunler,{onConflict:'id'});
+    if(j.ayarlar?.length)await sb.from('ayarlar').upsert(j.ayarlar,{onConflict:'id'});
+    if(j.mutfak_urunler?.length)await sb.from('mutfak_urunler').upsert(j.mutfak_urunler,{onConflict:'id'});
+    if(j.stok?.length)await sb.from('stok').upsert(j.stok,{onConflict:'id'});
+    toast('Geri yükleme tamamlandı.');location.reload();
+  }catch(e){toast('Hata: '+e.message);}
+  ev.target.value='';
+}
 function togglePwd(inputId){
   const inp=document.getElementById(inputId);
   if(!inp)return;
@@ -2736,7 +2935,7 @@ async function goMutfakView(){
 }
 
 function switchAdminTab(tab){
-  ['menu','masalar','mutfak','istatistik','ayarlar','stok'].forEach(t=>{
+  ['menu','masalar','mutfak','istatistik','stok','bildirim','ayarlar'].forEach(t=>{
     document.getElementById('at-'+t).className='admin-tab'+(t===tab?' active':'');
     document.getElementById('ap-'+t).className='admin-panel'+(t===tab?' active':'');
   });
@@ -2746,7 +2945,41 @@ function switchAdminTab(tab){
   if(tab==='istatistik')loadIstatistik();
   if(tab==='ayarlar')loadAdminSettings();
   if(tab==='stok')loadAdminStok();
+  if(tab==='bildirim')loadBildirimler();
 }
+async function loadBildirimler(){
+  const el=document.getElementById('bildirim-list');if(!el)return;
+  let html='';
+  try{
+    const{data:bildirimler}=await sb.from('bildirimler').select('*').order('created_at',{ascending:false}).limit(50);
+    const lowStok=[];
+    const{data:stokData}=await sb.from('stok').select('urun_adi,miktar').eq('aktif',true);
+    (stokData||[]).forEach(s=>{
+      const esik=5;
+      if((s.miktar||0)<=esik)lowStok.push({urun:s.urun_adi,miktar:s.miktar,esik});
+    });
+    if(lowStok.length){
+      html+=`<div class="area-status-header" style="margin-bottom:10px;background:var(--red-dim);border-color:var(--red-border)"><span><i class="fa-solid fa-triangle-exclamation"></i> Düşük stok: ${lowStok.map(s=>s.urun+' ('+s.miktar+')').join(', ')}</span></div>`;
+    }
+    (bildirimler||[]).forEach(b=>{
+      const ok=b.okundu?' style="opacity:.6"':'';
+      html+=`<div class="pa-item"${ok}><div class="pa-info"><div class="pa-name">${esc(b.baslik||b.tip)}</div><div class="pa-meta">${esc(b.mesaj||'')} · ${new Date(b.created_at).toLocaleString('tr-TR')}</div></div><button class="btn-edit" onclick="markBildirimOk('${b.id}')">Okundu</button></div>`;
+    });
+    if(!html)html='<p style="color:var(--cream-3);padding:1rem;text-align:center">Henüz bildirim yok.</p>';
+  }catch(e){html='<p style="color:var(--red)">Bildirimler tablosu yok. schema.sql dosyasını çalıştırın.</p>'}
+  el.innerHTML=html;
+}
+async function checkStokUyari(){
+  const{data:stokData}=await sb.from('stok').select('urun_adi,miktar,uyari_esik').eq('aktif',true);
+  (stokData||[]).forEach(s=>{
+    const esik=parseInt(s.uyari_esik)||5;
+    if((s.miktar||0)<=esik){
+      sb.from('bildirimler').insert({tip:'stok_uyari',baslik:'Düşük Stok',mesaj:s.urun_adi+' stoğu '+s.miktar+' adet kaldı.',okundu:false});
+    }
+  });
+  toast('Stok kontrolü tamamlandı.');loadBildirimler();
+}
+async function markBildirimOk(id){await sb.from('bildirimler').update({okundu:true}).eq('id',id);loadBildirimler();}
 
 // ==============================
 // SOUNDS
@@ -2834,6 +3067,17 @@ function playReadyAlert(){
     [[0,330,'triangle',0.65],[0,440,'triangle',0.35],[0.28,440,'triangle',0.65],[0.28,550,'triangle',0.35],[0.56,550,'triangle',0.65],[0.56,660,'triangle',0.35]]
       .forEach(([t,f,type,vol])=>playTone(ctx,f,t,0.45,type,vol));
   });
+}
+
+// ==============================
+// MUTFAK MONİTÖR & TAM EKRAN
+// ==============================
+function toggleKitchenMonitor(){document.body.classList.toggle('kitchen-monitor');toast(document.body.classList.contains('kitchen-monitor')?'Mutfak monitör modu açıldı':'Kapatıldı')}
+function toggleChefFullscreen(){
+  const el=document.getElementById('screen-chef');
+  if(!el)return;
+  if(document.fullscreenElement||document.webkitFullscreenElement)(document.exitFullscreen||document.webkitExitFullscreen).call(document);
+  else (el.requestFullscreen||el.webkitRequestFullscreen).call(el);
 }
 
 // ==============================
