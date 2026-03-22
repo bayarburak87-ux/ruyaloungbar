@@ -261,7 +261,7 @@ input,textarea,select{font-family:inherit;outline:none}
 .pa-item{background:var(--s1);border-bottom:1px solid var(--border);padding:10px 13px;display:flex;align-items:center;gap:9px}
 .pa-item:last-child{border-bottom:none}
 .admin-cat-section{margin-bottom:8px}
-.admin-cat-section .cat-items{background:var(--bg);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-sm) var(--radius-sm);overflow:hidden}
+.admin-cat-section .cat-items{background:var(--bg);border:1px solid var(--border);border-top:1px solid var(--border);border-radius:0 0 var(--radius-sm) var(--radius-sm);overflow:hidden}
 .pa-info{flex:1}
 .pa-name{font-size:13px;font-weight:500;color:var(--cream);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pa-meta{font-size:11px;color:var(--cream-3);margin-top:2px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
@@ -437,6 +437,13 @@ input,textarea,select{font-family:inherit;outline:none}
       <button class="hdr-btn" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i></button>
     </div>
   </div>
+  <div id="mesai-banner" style="display:none;background:var(--red-dim);border-bottom:1px solid rgba(224,80,80,.4);flex-shrink:0">
+    <button onclick="goAdmin();setTimeout(()=>switchAdminTab('ayarlar'),100)" style="width:100%;background:none;border:none;padding:9px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;text-align:left">
+      <i class="fa-solid fa-triangle-exclamation" style="color:#ff8888;flex-shrink:0"></i>
+      <span style="font-size:12px;font-weight:500;color:#ff8888;line-height:1.5;flex:1">Mesai durumu kapalı. Garson ve aşçı giriş yapamaz. <u>Başlatmak için buraya basın.</u></span>
+      <i class="fa-solid fa-chevron-right" style="color:#ff8888;font-size:10px;flex-shrink:0"></i>
+    </button>
+  </div>
   <div class="area-tabs">
     <button class="area-tab active" id="tab-k" onclick="switchArea('kapali')"><i class="fa-solid fa-house"></i> Kapalı Alan</button>
     <button class="area-tab" id="tab-b" onclick="switchArea('bahce')"><i class="fa-solid fa-leaf"></i> Bahçe</button>
@@ -455,6 +462,7 @@ input,textarea,select{font-family:inherit;outline:none}
       <div class="order-hdr-title" id="ord-tname">—</div>
       <div class="order-hdr-sub" id="ord-tarea">—</div>
     </div>
+    <button class="btn-close-tbl hidden" id="btn-transfer" onclick="openTransferModal()" style="background:var(--s3);border-color:var(--border-2);color:var(--cream-2)"><i class="fa-solid fa-right-left"></i></button>
     <button class="btn-close-tbl" onclick="scrollToPayment()"><i class="fa-solid fa-receipt"></i> Ödeme</button>
   </div>
   <div class="order-body">
@@ -607,8 +615,7 @@ input,textarea,select{font-family:inherit;outline:none}
           </div>
           <div id="ciro-pwd-err" style="font-size:11px;color:var(--red);margin-top:4px;min-height:14px"></div>
           <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px">
-            <p style="font-size:11px;color:var(--cream-3);margin-bottom:8px">Her masa için ayrı sekme, tarih/saat/tutar/ödeme şekli.</p>
-            <button class="btn-test" style="width:100%" onclick="exportExcel()"><i class="fa-solid fa-download"></i> Excel İndir (.xlsx)</button>
+            <button class="btn-test" style="width:100%" onclick="exportAylikDokum()"><i class="fa-solid fa-download"></i> Aylık Döküm Tablosunu İndir</button>
           </div>
         </div>
       </div>
@@ -686,13 +693,25 @@ input,textarea,select{font-family:inherit;outline:none}
     <div id="ap-stok" class="admin-panel">
       <div class="stat-period-block">
         <div class="stat-period-hdr"><i class="fa-solid fa-list-check"></i> Stok Durumu</div>
-        <div style="padding:8px 12px 6px;font-size:11px;color:var(--cream-3);line-height:1.6;border-bottom:1px solid var(--border)">
-          Kategori sıralamasına göre listelenir. <strong style="color:var(--cream-2)">Stok Durumu Belirle</strong> ile takip başlatın.
-        </div>
+
         <div id="stok-list"></div>
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- MODAL: MASA TRANSFER -->
+<div id="m-transfer" class="modal-overlay hidden">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <span class="modal-title" id="m-transfer-title">Masa Transfer</span>
+      <button class="btn-modal-close" onclick="closeModal('m-transfer')">✕</button>
+    </div>
+    <div class="modal-body" style="padding:12px">
+      <p style="font-size:12px;color:var(--cream-3);margin-bottom:12px">Siparişi aktarmak istediğiniz boş masayı seçin:</p>
+      <div id="transfer-masa-list"></div>
+    </div>
   </div>
 </div>
 
@@ -1020,6 +1039,14 @@ async function initApp(){
   document.getElementById('tbl-sub').textContent=me.display+' · '+new Date().toLocaleDateString('tr-TR');
   area='kapali';
   await Promise.all([loadTables(),loadOpenOrders(),loadSettings(),loadMutfakUrunler(),loadStok()]);
+  // Mesai banner — settings yüklendikten SONRA kontrol et, sadece owner'a göster
+  const _mesaiBanner=document.getElementById('mesai-banner');
+  if(_mesaiBanner&&me.role==='owner'){
+    const _mesaiAcik=settings['mesai_acik']==='1';
+    _mesaiBanner.style.display=_mesaiAcik?'none':'flex';
+  } else if(_mesaiBanner){
+    _mesaiBanner.style.display='none';
+  }
   renderTables();updateCiro();setupRealtime();
 }
 
@@ -1091,6 +1118,8 @@ function setupRealtime(){
       if(row.anahtar==='mesai_acik'){
         const el=document.getElementById('l-mesai-err');
         if(el)el.style.display=row.deger==='0'?'block':'none';
+        const _b=document.getElementById('mesai-banner');
+        if(_b&&me?.role==='owner') _b.style.display=row.deger==='0'?'flex':'none';
       }
     })
     .on('postgres_changes',{event:'*',schema:'public',table:'stok'},async(payload)=>{
@@ -1232,9 +1261,11 @@ async function openTable(tid){
   document.getElementById('ord-tname').textContent=tbl.isim;
   document.getElementById('ord-tarea').textContent=tbl.alan==='bahce'?'🌿 Bahçe':'🏠 Kapalı Alan';
   showScreen('order');
-  // Masayı Sıfırla sadece owner'a görünür
+  // Masayı Sıfırla + Transfer — sadece owner'a görünür
   const resetBtn=document.getElementById('btn-reset-masa');
   if(resetBtn)resetBtn.className='btn-reset-masa'+(me?.role==='owner'?' owner-only':'');
+  const transferBtn=document.getElementById('btn-transfer');
+  if(transferBtn){if(me&&me.role==='owner'&&tbl?.dolu)transferBtn.classList.remove('hidden');else transferBtn.classList.add('hidden');}
   if(!tbl.dolu){
     // Açık ama boş bir sipariş zaten var mı kontrol et
     const{data:existing}=await sb.from('siparisler').select('*, siparis_kalemleri(*)').eq('masa_id',tid).eq('durum','acik').maybeSingle();
@@ -1280,6 +1311,48 @@ function toggleHistPanel(){
 }
 
 function scrollToPayment(){document.getElementById('pay-btns').scrollIntoView({behavior:'smooth'})}
+
+async function openTransferModal(){
+  if(!curTblId||!curOrdId){toast('Aktif sipariş bulunamadı.');return;}
+  const boslar=tables.filter(t=>!t.dolu&&t.id!==curTblId);
+  const listEl=document.getElementById('transfer-masa-list');
+  const fromTbl=tables.find(t=>t.id===curTblId);
+  document.getElementById('m-transfer-title').textContent=(fromTbl?.isim||'Masa')+' → Transfer';
+  if(!boslar.length){
+    listEl.innerHTML='<p style="text-align:center;padding:1rem;color:var(--cream-3);font-size:13px">Boş masa yok.</p>';
+  } else {
+    listEl.innerHTML=boslar.map(t=>'<button data-id="'+t.id+'" data-isim="'+esc(t.isim)+'" onclick="doTransferByBtn(this)" style="width:100%;background:var(--s2);border:1px solid var(--border-2);border-radius:8px;padding:11px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;color:var(--cream);font-size:13px;font-weight:500;cursor:pointer">'
+      +'<span>'+esc(t.isim)+'</span>'
+      +'<span style="font-size:11px;color:var(--cream-3)">'+esc(t.alan==='bahce'?'🌿 Bahçe':'🏠 Kapalı Alan')+'</span>'
+      +'</button>').join('');
+  }
+  openModal('m-transfer');
+}
+
+function doTransferByBtn(btn){doTransfer(btn.dataset.id,btn.dataset.isim);}
+
+async function doTransfer(hedefId,hedefIsim){
+  closeModal('m-transfer');
+  if(!curTblId||!curOrdId)return;
+  const kaynakTbl=tables.find(t=>t.id===curTblId);
+  if(!confirm((kaynakTbl?.isim||'Bu masa')+"'daki sipariş "+hedefIsim+"'e transfer edilsin mi?"))return;
+  // 1. Siparişi hedef masaya bağla
+  const{error:e1}=await sb.from('siparisler').update({masa_id:hedefId,masa_adi:hedefIsim}).eq('id',curOrdId);
+  if(e1){toast('Hata: '+e1.message);return;}
+  // 2. Kaynak masayı boşalt
+  const{error:e2}=await sb.from('masalar').update({dolu:false}).eq('id',curTblId);
+  if(e2){toast('Hata: '+e2.message);return;}
+  // 3. Hedef masayı dolu yap
+  const{error:e3}=await sb.from('masalar').update({dolu:true}).eq('id',hedefId);
+  if(e3){toast('Hata: '+e3.message);return;}
+  toast('✓ '+(kaynakTbl?.isim||'')+' → '+hedefIsim+' transfer edildi.');
+  // 4. State güncelle, hedef masaya geç
+  delete openOrders[curTblId];
+  curTblId=null;curOrdId=null;
+  await loadTables();await loadOpenOrders();
+  renderTables();updateCiro();
+  showScreen('tables');
+}
 
 async function resetMasa(){
   if(!curTblId||!curOrdId)return;
@@ -1698,6 +1771,101 @@ async function confirmChefReady(){
 // ==============================
 // EXCEL EXPORT (SheetJS)
 // ==============================
+async function exportAylikDokum(){
+  toast('Excel hazırlanıyor…');
+  try{
+    const{data:orders}=await sb.from('siparisler')
+      .select('id,masa_adi,toplam,odeme_yontemi,kapandi_at')
+      .eq('durum','kapali')
+      .order('kapandi_at',{ascending:true});
+    if(!orders||!orders.length){toast('Henüz kapanmış sipariş yok.');return}
+    const wb=XLSX.utils.book_new();
+    const today=new Date();today.setHours(0,0,0,0);
+    const todayStr=today.toISOString().split('T')[0];
+    const aylar=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+    // Gruplama: günlük (0-7), haftalık (7-28), aylık (28+)
+    const gunler={},haftalar={},aylarMap={};
+    orders.forEach(o=>{
+      if(!o.kapandi_at)return;
+      const dStr=o.kapandi_at.split('T')[0];
+      const d=new Date(dStr+'T00:00:00');d.setHours(0,0,0,0);
+      const diff=Math.round((today-d)/86400000);
+      if(diff<7){
+        if(!gunler[dStr])gunler[dStr]=[];gunler[dStr].push(o);
+      } else if(diff<28){
+        // Hafta başı (Pazartesi)
+        const dow=d.getDay();const mon=new Date(d);mon.setDate(d.getDate()-(dow===0?6:dow-1));
+        const wk=mon.toISOString().split('T')[0];
+        if(!haftalar[wk])haftalar[wk]=[];haftalar[wk].push(o);
+      } else {
+        const mKey=dStr.slice(0,7);
+        if(!aylarMap[mKey])aylarMap[mKey]=[];aylarMap[mKey].push(o);
+      }
+    });
+    function makeSheet(rows,label){
+      const header=[label,'Tarih','Nakit (MKD)','IBAN (MKD)','Toplam (MKD)'];
+      const sheetRows=[header];
+      let totN=0,totI=0;
+      rows.forEach(o=>{
+        const dt=o.kapandi_at?new Date(o.kapandi_at).toLocaleDateString('tr-TR'):'—';
+        const t=parseFloat(o.toplam)||0;
+        const n=o.odeme_yontemi==='nakit'?t:0;
+        const i=o.odeme_yontemi==='iban'?t:0;
+        totN+=n;totI+=i;
+        sheetRows.push([o.masa_adi||'?',dt,Math.round(n)||'',Math.round(i)||'',Math.round(t)]);
+      });
+      sheetRows.push([]);
+      sheetRows.push(['','Toplam Nakit:',Math.round(totN),'','']);
+      sheetRows.push(['','Toplam IBAN:','',Math.round(totI),'']);
+      sheetRows.push(['','GENEL TOPLAM:','','',Math.round(totN+totI)]);
+      const ws=XLSX.utils.aoa_to_sheet(sheetRows);
+      ws['!cols']=[{wch:14},{wch:14},{wch:12},{wch:12},{wch:14}];
+      return ws;
+    }
+    function makeSummarySheet(groups,labelFn){
+      const header=['Dönem','Nakit (MKD)','IBAN (MKD)','Toplam (MKD)'];
+      const rows=[header];
+      Object.entries(groups).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([key,ords])=>{
+        const n=ords.filter(o=>o.odeme_yontemi==='nakit').reduce((s,o)=>s+(parseFloat(o.toplam)||0),0);
+        const i=ords.filter(o=>o.odeme_yontemi==='iban').reduce((s,o)=>s+(parseFloat(o.toplam)||0),0);
+        rows.push([labelFn(key),Math.round(n),Math.round(i),Math.round(n+i)]);
+      });
+      const ws=XLSX.utils.aoa_to_sheet(rows);
+      ws['!cols']=[{wch:20},{wch:14},{wch:14},{wch:14}];
+      return ws;
+    }
+    // Günlük özet + detay
+    if(Object.keys(gunler).length){
+      XLSX.utils.book_append_sheet(wb,makeSummarySheet(gunler,k=>{
+        const d=new Date(k+'T00:00:00');const diff=Math.round((today-d)/86400000);
+        if(diff===0)return'Bugün ('+k+')';if(diff===1)return'Dün ('+k+')';return k;
+      }),'Son 7 Gün — Özet');
+      Object.entries(gunler).sort().forEach(([dStr,rows])=>{
+        const d=new Date(dStr+'T00:00:00');const diff=Math.round((today-d)/86400000);
+        const label=diff===0?'Bugün':diff===1?'Dün':dStr;
+        const safe=label.replace(/[\/\?*:|"<>]/g,'-').substring(0,31);
+        XLSX.utils.book_append_sheet(wb,makeSheet(rows,'Masa'),safe);
+      });
+    }
+    // Haftalık özet
+    if(Object.keys(haftalar).length){
+      XLSX.utils.book_append_sheet(wb,makeSummarySheet(haftalar,k=>{
+        const ms=new Date(k+'T00:00:00');const me2=new Date(ms);me2.setDate(ms.getDate()+6);
+        return ms.toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit'})+' – '+me2.toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit'});
+      }),'Son 4 Hafta — Özet');
+    }
+    // Aylık özet
+    if(Object.keys(aylarMap).length){
+      XLSX.utils.book_append_sheet(wb,makeSummarySheet(aylarMap,k=>{
+        const[y,m]=k.split('-');return aylar[parseInt(m)-1]+' '+y;
+      }),'Aylık — Özet');
+    }
+    const fname='RuyaLounge_AylikDokum_'+new Date().toISOString().split('T')[0]+'.xlsx';
+    XLSX.writeFile(wb,fname);
+    toast('✓ Excel indirildi!');
+  }catch(e){toast('Excel hatası: '+e.message);console.error(e)}
+}
+
 async function exportExcel(){
   toast('Excel hazırlanıyor…');
   try{
@@ -1809,7 +1977,13 @@ function renderStokList(){
       +'<div class="cat-header" data-target="'+catId+'" data-chv="'+chvId+'" onclick="toggleAdminCatByEl(this)">'
       +'<div class="cat-header-left"><div class="cat-icon">'+catIcon(cat)+'</div>'
       +'<div><div class="cat-hdr-name">'+esc(cat)+'</div>'
-      +'<div class="cat-hdr-count">'+prods.length+' ürün'+(stoklu.length?' · '+stoklu.length+' takipte':'')+' </div></div></div>'
+      +(()=>{
+      let countTxt=prods.length+' ürün';
+      if(stoklu.length===prods.length) countTxt+=' · Tümü stoklandı';
+      else if(stoklu.length>1) countTxt+=' · '+stoklu.length+' ürün de stoklandı';
+      else if(stoklu.length===1) countTxt+=' · Sadece 1 ürün stoklandı';
+      return '<div class="cat-hdr-count">'+countTxt+'</div></div></div>';
+    })()
       +'<span class="cat-chevron" id="'+chvId+'">▼</span>'
       +'</div>'
       +'<div class="cat-items" id="'+catId+'">';
@@ -2497,6 +2671,9 @@ async function toggleMesai(acik){
   settings['mesai_acik']=deger;
   updateMesaiUI(acik);
   toast(acik?'Mesai başlatıldı.':'Mesai kapatıldı.');
+  // Banner güncelle
+  const _b=document.getElementById('mesai-banner');
+  if(_b&&me?.role==='owner') _b.style.display=acik?'none':'flex';
 }
 
 function updateMesaiUI(acik){
