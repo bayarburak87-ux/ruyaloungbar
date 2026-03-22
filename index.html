@@ -1113,6 +1113,11 @@ function setupRealtime(){
       if(me){
         if(row.anahtar==='asci_sifre'&&me.role==='chef') setTimeout(()=>doLogout(true),0);
         if(row.anahtar==='garson_sifre'&&me.role==='waiter') setTimeout(()=>doLogout(true),0);
+        // Mesai kapatılınca asli dışındakileri çıkar
+        if(row.anahtar==='mesai_acik'&&row.deger==='0'&&me.role!=='owner'){
+          toast('Mesai durumu kapatıldığı için oturumunuz sonlandı.');
+          setTimeout(()=>doLogout(false),1500);
+        }
       }
       // Login ekranında mesai durumu mesajını güncelle
       if(row.anahtar==='mesai_acik'){
@@ -1123,7 +1128,6 @@ function setupRealtime(){
       }
     })
     .on('postgres_changes',{event:'*',schema:'public',table:'stok'},async(payload)=>{
-      // Stok değişince local state güncelle, ekranları yenile
       const row=payload.new||payload.old;
       if(row&&row.urun_adi){
         if(payload.eventType==='DELETE'){
@@ -1133,15 +1137,11 @@ function setupRealtime(){
             id:row.id,
             miktar:row.miktar,
             max:row.baslangic_miktar||row.miktar,
-            aktif:row.aktif!==false,
-            // sessionDelta'yı koru — bu cihazda yapılan değişiklikler korunmalı
             _sessionDelta:(stoklar[row.urun_adi]?._sessionDelta)||0
           };
         }
       }
-      // Adisyon açıksa güncelle
       if(curTblId&&isScreenActive('order'))refreshOrderView();
-      // Stok admin ekranı açıksa güncelle
       const stokPanel=document.getElementById('ap-stok');
       if(stokPanel&&stokPanel.classList.contains('active'))renderStokList();
     })
@@ -1162,8 +1162,11 @@ function setupChefRealtime(){
     .on('postgres_changes',{event:'*',schema:'public',table:'siparisler'},async()=>{await renderChefOrders()})
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'ayarlar'},async(payload)=>{
       const row=payload.new;
-      if(row?.anahtar==='asci_sifre'&&me?.role==='chef'){
-        setTimeout(()=>doLogout(true),0);
+      if(!row||!me)return;
+      if(row.anahtar==='asci_sifre'&&me.role==='chef') setTimeout(()=>doLogout(true),0);
+      if(row.anahtar==='mesai_acik'&&row.deger==='0'&&me.role==='chef'){
+        toast('Mesai durumu kapatıldığı için oturumunuz sonlandı.');
+        setTimeout(()=>doLogout(false),1500);
       }
     })
     .on('postgres_changes',{event:'*',schema:'public',table:'stok'},async(payload)=>{
@@ -1499,6 +1502,11 @@ async function changeQty(itemId,delta){
       await sb.from('siparisler').update({toplam:0}).eq('id',curOrdId);
     }
   } else {
+    // Stok kontrolü: +1 basarken stok yeterliliğini kontrol et
+    if(delta>0&&stoklar[item.urun_adi]&&stoklar[item.urun_adi].miktar<=0){
+      toast('⚠️ '+item.urun_adi+' için stokta yeterli ürün kalmadı.');
+      return;
+    }
     await sb.from('siparis_kalemleri').update({miktar:nq}).eq('id',itemId);
     item.miktar=nq;
     // Stok senkronizasyonu: +1 → stok -1, -1 (silinmeden) → stok +1
@@ -1515,7 +1523,7 @@ async function changeQty(itemId,delta){
         }
       } else {
         // Azaltma: sadece session'da gerçekten eklendiyse geri ver
-        if((item._sessionDelta||0)>=0){
+        if((item._sessionDelta||0)>0){
           stoklar[item.urun_adi].miktar=curStok+1;
         }
       }
@@ -1578,8 +1586,11 @@ async function openProdModal(){
     </div>
     <div class="cat-items" id="cat-${idx}">${ps.map(p=>{
       const stk=stoklar[p.isim]||null;
-      const outOfStock=stk&&stk.miktar===0;
-      const stockBadge=stk?(()=>{const b=stokBadgeInfo(stk);return '<span class="prod-stock-badge '+b.cls+'">'+b.txt+'</span>';})():'';
+      const ord2=openOrders[curTblId];
+      const adisyonAdet=stk?(ord2?.siparis_kalemleri||[]).filter(i=>i.urun_adi===p.isim&&!i.mutfak_hazir).reduce((s,i)=>s+i.miktar,0):0;
+      const kalanStok=stk?Math.max(0,stk.miktar):0;
+      const outOfStock=stk&&kalanStok===0;
+      const stockBadge=stk?(()=>{const b=stokBadgeInfo({...stk,miktar:kalanStok});return '<span class="prod-stock-badge '+b.cls+'">'+b.txt+'</span>';})():'';
       return`<div class="prod-item${outOfStock?' out-of-stock':''}">
         <div class="prod-info"><div class="prod-name">${esc(p.isim)}${stockBadge}</div>${p.aciklama?`<div class="prod-desc">${esc(p.aciklama)}</div>`:''}</div>
         <div class="prod-price">${fmt(p.fiyat)}</div>
@@ -1591,8 +1602,18 @@ async function openProdModal(){
 function toggleCat(id){const el=document.getElementById(id),idx=id.replace('cat-',''),chv=document.getElementById('chv-'+idx),open=el.classList.contains('open');el.classList.toggle('open',!open);chv.classList.toggle('open',!open)}
 
 function addItemWithStokCheck(pid,isOos){
-  if(isOos){
-    if(!confirm('Bu ürünün şu an stoğu kalmadı. Yine de sipariş etmek istediğinize emin misiniz?'))return;
+  const p=products.find(x=>x.id===pid);
+  if(p&&stoklar[p.isim]){
+    // Adisyonda zaten kaç tane var?
+    const ord=openOrders[curTblId];
+    const mevcutAdet=(ord?.siparis_kalemleri||[]).filter(i=>i.urun_adi===p.isim&&!i.mutfak_hazir).reduce((s,i)=>s+i.miktar,0);
+    const stokMiktar=stoklar[p.isim].miktar;
+    if(stokMiktar===0&&mevcutAdet===0){
+      if(!confirm('Bu ürünün şu an stoğu kalmadı. Yine de sipariş etmek istediğinize emin misiniz?'))return;
+    } else if(mevcutAdet>=stokMiktar&&stokMiktar>0){
+      toast('⚠️ '+p.isim+' için stokta yeterli ürün kalmadı. Stokta '+stokMiktar+' adet var.');
+      return;
+    }
   }
   addItem(pid);
 }
@@ -1608,6 +1629,11 @@ async function addItem(pid){
       await sb.from('siparis_kalemleri').update({miktar:ex.miktar+1}).eq('id',ex.id);
       ex.miktar++;
       ex._sessionDelta=(ex._sessionDelta||0)+1;
+      // ex-path stok azalt
+      if(stoklar[p.isim]&&stoklar[p.isim].miktar>0){
+        stoklar[p.isim].miktar--;
+        sb.from('stok').update({miktar:stoklar[p.isim].miktar}).eq('id',stoklar[p.isim].id).then(()=>{});
+      }
       // Zaten gönderilmişse mutfağa güncelleme bildirimi gönder
       if(ex.mutfak_gonderildi&&isMutfakUrun(p.isim)){
         const tblM=tables.find(t=>t.id===curTblId);
@@ -2156,7 +2182,16 @@ async function updateProduct(){
   if(!error){closeModal('m-edit-prod');toast('✓ Ürün güncellendi!');loadAdminProds()}
 }
 
-async function delProd(id){if(!confirm('Bu ürünü silmek istiyor musunuz?'))return;await sb.from('urunler').delete().eq('id',id);toast('Ürün silindi.');loadAdminProds()}
+async function delProd(id){
+  if(!confirm('Bu ürünü silmek istiyor musunuz?'))return;
+  const prod=products.find(p=>p.id===id);
+  if(prod&&stoklar[prod.isim]){
+    await sb.from('stok').delete().eq('id',stoklar[prod.isim].id);
+    delete stoklar[prod.isim];
+  }
+  await sb.from('urunler').delete().eq('id',id);
+  toast('Ürün silindi.');loadAdminProds();
+}
 
 // ==============================
 // ADMIN — TABLES
