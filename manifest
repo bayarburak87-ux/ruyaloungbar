@@ -1,0 +1,10 @@
+{
+  "name": "Rüya Lounge Bar Adisyon",
+  "short_name": "Rüya Adisyon",
+  "description": "Adisyon ve sipariş yönetim sistemi",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0d1520",
+  "theme_color": "#c87c2a",
+  "orientation": "portrait-primary"
+}
