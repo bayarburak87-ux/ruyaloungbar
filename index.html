@@ -1568,7 +1568,7 @@ async function renderChefOrders(){
   const pending=await getPendingKitchenItems();
   const badge=document.getElementById('chef-pending-badge');
   if(badge)badge.textContent=pending.length?pending.length+' Sipariş':'';
-  if(!pending.length){el.innerHTML=`<div class="kitchen-empty"><div class="kitchen-empty-icon">✅</div><p style="color:var(--cream-3);font-size:14px">Bekleyen sipariş yok. Harika!</p></div>`;return}
+  if(!pending.length){el.innerHTML=`<div class="kitchen-empty"><div class="kitchen-empty-icon">✅</div><p style="color:var(--cream-3);font-size:14px">Bekleyen sipariş yok. </p></div>`;return}
   pendingByTable={};
   pending.forEach(row=>{if(!pendingByTable[row.masa_adi])pendingByTable[row.masa_adi]=[];pendingByTable[row.masa_adi].push(row)});
   el.innerHTML=Object.entries(pendingByTable).map(([masa,items])=>{
