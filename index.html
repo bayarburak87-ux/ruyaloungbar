@@ -37,7 +37,7 @@ input,textarea,select{font-family:inherit;outline:none}
 #loading p{font-size:12px;color:var(--cream-3)}
 
 /* TOAST */
-#toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-90px);background:var(--s2);border:1px solid var(--toffee);color:var(--cream);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:500;transition:transform .3s;white-space:nowrap;max-width:300px;text-align:center}
+#toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-120px);background:var(--s2);border:1px solid var(--toffee);color:var(--cream);padding:10px 18px;border-radius:14px;font-size:13px;font-weight:500;z-index:500;transition:transform .3s;white-space:normal;max-width:calc(100vw - 32px);width:max-content;max-width:min(360px,calc(100vw - 32px));text-align:center;line-height:1.5;word-break:break-word}
 #toast.show{transform:translateX(-50%) translateY(0)}
 
 /* KITCHEN BADGE */
@@ -80,7 +80,7 @@ input,textarea,select{font-family:inherit;outline:none}
 .hdr-title{font-size:15px;font-weight:700;color:#ffffff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .hdr-sub{font-size:11px;color:var(--cream-2);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hdr-right{display:flex;align-items:center;gap:5px;flex-shrink:0;flex-wrap:nowrap}
-.hdr-btn{background:var(--s3);color:var(--cream);border-radius:8px;padding:6px 9px;font-size:11px;font-weight:500;border:none;white-space:nowrap}
+.hdr-btn{background:var(--s3);color:var(--cream);border-radius:8px;padding:6px 9px;font-size:11px;font-weight:500;border:none;white-space:nowrap;flex-shrink:0}
 .hdr-btn:hover{background:var(--border-2);color:#fff}
 .hdr-btn.toffee{background:var(--toffee-deep);color:var(--toffee-l)}
 
@@ -120,7 +120,7 @@ input,textarea,select{font-family:inherit;outline:none}
 .order-header{background:var(--s1);border-bottom:1px solid var(--border);color:var(--cream);padding:10px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;position:sticky;top:0;z-index:10}
 .btn-back{background:var(--s3);color:var(--cream-2);border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border:none}
 .order-hdr-info{flex:1}
-.order-hdr-title{font-size:16px;font-weight:700;color:var(--cream)}
+.order-hdr-title{font-size:16px;font-weight:700;color:var(--cream);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .order-hdr-sub{font-size:11px;color:var(--cream-3)}
 .btn-close-tbl{background:var(--red-dim);border:1px solid rgba(224,80,80,.4);color:#ff9090;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:500;flex-shrink:0}
 .order-body{flex:1;overflow-y:auto;padding:11px;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch}
@@ -170,22 +170,22 @@ input,textarea,select{font-family:inherit;outline:none}
 
 /* KITCHEN TAB VIEW */
 .kitchen-view{flex:1;overflow-y:auto;padding:11px;background:var(--bg)}
-.area-status-header{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:11px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
-.ash-title{font-size:13px;font-weight:700;color:var(--cream);display:flex;align-items:center;gap:6px}
-.ash-chips{display:flex;gap:6px;flex-wrap:wrap}
-.ash-chip{font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;display:flex;align-items:center;gap:4px}
+.area-status-header{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:11px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;gap:6px;overflow:hidden}
+.ash-title{font-size:12px;font-weight:700;color:var(--cream);display:flex;align-items:center;gap:5px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ash-chips{display:flex;gap:5px;flex-shrink:0;flex-wrap:nowrap}
+.ash-chip{font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;display:flex;align-items:center;gap:3px;white-space:nowrap;flex-shrink:0}
 .ash-chip.occupied{background:var(--red-dim);color:#ff8888;border:1px solid var(--red-border)}
 .ash-chip.empty{background:var(--green-dim);color:#5dcca0;border:1px solid rgba(58,172,120,.3)}
 .ash-chip.total{background:var(--s3);color:var(--cream-2);border:1px solid var(--border-2)}
 .k-order-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
 .k-order-hdr{background:var(--s2);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
-.k-order-tname{font-size:14px;font-weight:700;color:var(--cream)}
+.k-order-tname{font-size:14px;font-weight:700;color:var(--cream);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
 .k-order-time{font-size:11px;color:var(--cream-3)}
 .k-item{padding:9px 14px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:3px}
 .k-item:last-child{border-bottom:none}
 .k-item-main{display:flex;align-items:center;gap:8px}
 .k-item-qty{background:var(--toffee-d);color:#ffffff;border-radius:5px;padding:3px 9px;font-size:12px;font-weight:700;flex-shrink:0}
-.k-item-name{font-size:13px;font-weight:500;color:var(--cream);flex:1}
+.k-item-name{font-size:13px;font-weight:500;color:var(--cream);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .k-item-note{font-size:11px;color:var(--toffee-l);background:var(--toffee-deep);padding:3px 8px;border-radius:4px;margin-top:2px;display:inline-block}
 .btn-hazir{background:var(--green-ok);color:#fff;border-radius:var(--radius-sm);padding:9px 16px;font-size:13px;font-weight:600;width:calc(100% - 28px);margin:10px 14px;border:none}
 .btn-hazir:hover{background:#4dc894}
@@ -194,7 +194,7 @@ input,textarea,select{font-family:inherit;outline:none}
 
 /* CHEF SCREEN */
 .chef-header{background:var(--toffee-d);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.chef-title{font-size:18px;font-weight:700;color:#fff}
+.chef-title{font-size:18px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
 .chef-badge{background:rgba(255,255,255,.2);color:#fff;border-radius:6px;padding:3px 10px;font-size:12px}
 .chef-body{flex:1;overflow-y:auto;padding:11px}
 
@@ -208,9 +208,9 @@ input,textarea,select{font-family:inherit;outline:none}
 .prod-item{display:flex;align-items:center;padding:10px 12px;gap:10px;border-bottom:1px solid var(--border)}
 .prod-item:last-child{border-bottom:none}
 .prod-info{flex:1}
-.prod-name{font-size:14px;font-weight:500;color:var(--cream)}
-.prod-desc{font-size:11px;color:var(--cream-3);margin-top:2px}
-.prod-price{font-size:13px;font-weight:600;color:var(--toffee-l);min-width:72px;text-align:right}
+.prod-name{font-size:14px;font-weight:500;color:var(--cream);overflow:hidden;text-overflow:ellipsis;word-break:break-word}
+.prod-desc{font-size:11px;color:var(--cream-3);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prod-price{font-size:13px;font-weight:600;color:var(--toffee-l);min-width:60px;text-align:right;flex-shrink:0}
 .btn-prod-add{background:var(--toffee);color:#fff;width:30px;height:30px;border-radius:50%;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:none}
 .btn-prod-add:active{background:var(--toffee-d)}
 .cat-section{border-bottom:1px solid var(--border)}
@@ -219,7 +219,7 @@ input,textarea,select{font-family:inherit;outline:none}
 .cat-header:active{background:var(--s2)}
 .cat-header-left{display:flex;align-items:center;gap:9px}
 .cat-icon{width:32px;height:32px;border-radius:8px;background:var(--toffee-deep);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-.cat-hdr-name{font-size:14px;font-weight:600;color:var(--cream)}
+.cat-hdr-name{font-size:14px;font-weight:600;color:var(--cream);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}
 .cat-hdr-count{font-size:11px;color:var(--cream-3);margin-top:1px}
 .cat-chevron{font-size:12px;color:var(--cream-3);transition:transform .2s;flex-shrink:0}
 .cat-chevron.open{transform:rotate(180deg)}
@@ -232,7 +232,7 @@ input,textarea,select{font-family:inherit;outline:none}
 .iban-body{padding:12px}
 .iban-box{background:var(--s2);border:1.5px solid var(--border-2);border-radius:var(--radius-sm);padding:14px;text-align:center;margin-bottom:10px}
 .iban-lbl{font-size:11px;color:var(--cream-3);margin-bottom:5px}
-.iban-num{font-size:15px;font-weight:700;letter-spacing:.04em;color:var(--cream)}
+.iban-num{font-size:14px;font-weight:700;letter-spacing:.03em;color:var(--cream);word-break:break-all;overflow-wrap:anywhere}
 .iban-qr{width:240px;height:240px;margin:12px auto 0;border-radius:8px;border:1px solid var(--border);object-fit:contain;display:block;max-width:100%}
 .iban-total{text-align:center;font-size:15px;font-weight:600;padding:8px 0;color:var(--cream)}
 .iban-surcharge{text-align:center;font-size:12px;color:var(--toffee);margin-top:-4px;margin-bottom:4px}
@@ -243,7 +243,7 @@ input,textarea,select{font-family:inherit;outline:none}
 .confirm-body{padding:1.5rem;text-align:center}
 .confirm-icon{font-size:38px;margin-bottom:.75rem}
 .confirm-title{font-size:17px;font-weight:700;margin-bottom:.5rem;color:var(--cream)}
-.confirm-desc{font-size:13px;color:var(--cream-3);line-height:1.5;margin-bottom:1.5rem}
+.confirm-desc{font-size:13px;color:var(--cream-3);line-height:1.5;margin-bottom:1.5rem;word-break:break-word}
 .confirm-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .btn-cy{background:var(--toffee);color:#fff;padding:11px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;border:none}
 .btn-cn{background:var(--s3);color:var(--cream-2);border:1px solid var(--border);padding:11px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;border:none}
@@ -270,10 +270,10 @@ input,textarea,select{font-family:inherit;outline:none}
 .btn-del{background:var(--red-dim);color:#ff9090;border:1px solid rgba(224,80,80,.3);border-radius:6px;padding:5px 8px;font-size:11px;font-weight:500;flex-shrink:0}
 .area-sec{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:10px}
 .area-sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
-.area-sec-title{font-size:14px;font-weight:600;color:var(--cream)}
+.area-sec-title{font-size:14px;font-weight:600;color:var(--cream);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .btn-add-tbl{background:var(--toffee);color:#fff;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;border:none}
 .t-chips{display:flex;flex-wrap:wrap;gap:6px}
-.t-chip{background:var(--s2);border:1px solid var(--border-2);border-radius:6px;padding:4px 9px;font-size:12px;display:flex;align-items:center;gap:5px;color:var(--cream-2)}
+.t-chip{background:var(--s2);border:1px solid var(--border-2);border-radius:6px;padding:4px 9px;font-size:12px;display:flex;align-items:center;gap:5px;color:var(--cream-2);max-width:100%;min-width:0}
 .btn-chip-del{background:none;color:var(--red);font-size:13px;padding:0;line-height:1;border:none}
 .btn-chip-edit{background:var(--s3);color:var(--cream-2);font-size:10px;padding:3px 7px;border:1px solid var(--border);border-radius:5px;cursor:pointer;display:inline-flex;align-items:center;gap:3px}
 .settings-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:13px;margin-bottom:10px}
@@ -314,7 +314,24 @@ input,textarea,select{font-family:inherit;outline:none}
 .stat-loading{text-align:center;padding:1.5rem;color:var(--cream-3);font-size:13px}
 
 /* HISTORY */
-.hist-item{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;margin-bottom:6px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;min-width:0}
+.hist-item{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+.hist-item-clickable{cursor:pointer;transition:background .15s}
+.hist-item-clickable:active{background:var(--s2)}
+.hd-header{padding:4px 0 12px;border-bottom:1px solid var(--border);margin-bottom:10px}
+.hd-masa{font-size:15px;font-weight:700;color:var(--cream);margin-bottom:3px}
+.hd-meta{font-size:11px;color:var(--cream-3);display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.hd-list{background:var(--s2);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:12px}
+.hd-item{display:flex;align-items:center;padding:10px 13px;border-bottom:1px solid var(--border);gap:10px}
+.hd-item:last-child{border-bottom:none}
+.hd-item-info{flex:1;min-width:0}
+.hd-item-name{font-size:13px;font-weight:500;color:var(--cream);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hd-item-note{font-size:11px;color:var(--toffee-l);margin-top:2px}
+.hd-item-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.hd-item-qty{font-size:12px;color:var(--cream-3)}
+.hd-item-price{font-size:13px;font-weight:600;color:var(--toffee);min-width:54px;text-align:right}
+.hd-total-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0 4px;border-top:1px solid var(--border)}
+.hd-total-label{font-size:14px;font-weight:700;color:var(--cream)}
+.hd-total-val{font-size:18px;font-weight:700;color:var(--toffee-l)}
 .hist-info{flex:1;min-width:0;overflow:hidden}
 .hist-masa{font-size:14px;font-weight:600;color:var(--cream);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hist-meta{font-size:11px;color:var(--cream-3)}
@@ -334,12 +351,49 @@ input,textarea,select{font-family:inherit;outline:none}
 
 /* MUTFAK ADMIN */
 .mutfak-chips{display:flex;flex-wrap:wrap;gap:7px;padding:10px}
-.mutfak-chip{display:inline-flex;align-items:center;gap:6px;background:var(--toffee-deep);border:1px solid var(--toffee-d);border-radius:20px;padding:5px 12px 5px 10px;font-size:12px;font-weight:600;color:var(--toffee-l)}
+.mutfak-chip{display:inline-flex;align-items:center;gap:6px;background:var(--toffee-deep);border:1px solid var(--toffee-d);border-radius:20px;padding:5px 12px 5px 10px;font-size:12px;font-weight:600;color:var(--toffee-l);max-width:100%;overflow:hidden}
 .mutfak-chip i{font-size:11px;color:var(--toffee)}
 .btn-mutfak-chip-del{background:none;border:none;color:var(--toffee-l);cursor:pointer;font-size:13px;line-height:1;padding:0;margin-left:2px;opacity:.8}
 .btn-mutfak-chip-del:hover{opacity:1;color:#ff9090}
 .mutfak-prod-name{flex:1;font-size:13px;color:var(--cream)}
 .btn-mutfak-del{background:var(--red-dim);color:#ff9090;border:1px solid rgba(224,80,80,.3);border-radius:6px;padding:4px 9px;font-size:11px;border:none;cursor:pointer}
+
+.stok-item{background:var(--s1);border-bottom:1px solid var(--border);padding:10px 13px;display:flex;align-items:flex-start;gap:8px;min-width:0}
+.stok-item:last-child{border-bottom:none}
+.stok-item-info{flex:1;min-width:0;padding-top:1px}
+.stok-item-name{font-size:13px;font-weight:500;color:var(--cream);min-width:0;word-break:break-word;line-height:1.4}
+.stok-item-cat{font-size:11px;color:var(--cream-3);margin-top:1px}
+.stok-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:5px;flex-shrink:0;display:inline-flex;align-items:center;gap:4px}
+.stok-badge.ok{background:rgba(58,172,120,.15);color:var(--green-ok);border:1px solid rgba(58,172,120,.3)}
+.stok-badge.low{background:rgba(200,124,42,.15);color:var(--toffee-l);border:1px solid rgba(200,124,42,.3)}
+.stok-badge.out{background:var(--red-dim);color:#ff9090;border:1px solid rgba(224,80,80,.3)}
+.btn-stok-edit{background:var(--s3);color:var(--cream-2);font-size:10px;padding:3px 7px;border:1px solid var(--border);border-radius:5px;cursor:pointer;display:inline-flex;align-items:center;gap:3px;flex-shrink:0;white-space:nowrap}
+.ios-toggle{position:relative;display:inline-block;width:34px;height:20px;flex-shrink:0}
+.ios-toggle input{opacity:0;width:0;height:0;position:absolute}
+.ios-toggle-track{position:absolute;inset:0;border-radius:10px;background:var(--s3);border:1px solid var(--border-2);transition:background .25s,border-color .25s;cursor:pointer}
+.ios-toggle-track:before{content:'';position:absolute;width:14px;height:14px;left:2px;top:2px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .25s}
+.ios-toggle input:checked+.ios-toggle-track{background:var(--green-ok);border-color:var(--green-ok)}
+.ios-toggle input:checked+.ios-toggle-track:before{transform:translateX(14px)}
+.stok-item.pasif{opacity:.45}
+.stok-item.pasif .stok-badge{display:none}
+.prod-stock-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;margin-left:5px;display:inline-flex;align-items:center;gap:3px;vertical-align:middle}
+.prod-stock-badge.ok{background:rgba(58,172,120,.15);color:var(--green-ok);border:1px solid rgba(58,172,120,.3)}
+.prod-stock-badge.low{background:rgba(200,124,42,.15);color:var(--toffee-l);border:1px solid rgba(200,124,42,.3)}
+.prod-stock-badge.out{background:var(--red-dim);color:#ff9090;border:1px solid rgba(224,80,80,.3)}
+.prod-item.out-of-stock{opacity:.55}
+
+.hist-group{margin-bottom:6px}
+.hist-group-hdr{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;background:var(--s2);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;user-select:none;-webkit-user-select:none;gap:8px}
+.hist-group-hdr:has(+.hist-group-body.open){border-radius:var(--radius-sm) var(--radius-sm) 0 0}
+.hist-group-body{display:none;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-sm) var(--radius-sm);overflow:hidden}
+.hist-group-body.open{display:block}
+.hg-label{font-size:13px;font-weight:600;color:var(--cream);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3}
+.hg-label-sm{font-size:12px;color:var(--cream-2)}
+.hg-count{font-size:11px;color:var(--cream-3);flex-shrink:0;background:var(--s3);padding:2px 7px;border-radius:4px}
+.hist-group-body .hist-group-hdr{border-radius:0;border:none;border-bottom:1px solid var(--border);background:var(--s1)}
+.hist-group-body .hist-group-body{border:none;border-top:none;border-radius:0}
+.hist-group-body .hist-item{border-radius:0;margin-bottom:0;border-bottom:1px solid var(--border)}
+.hist-group-body .hist-item:last-child{border-bottom:none}
 </style>
 </head>
 <body>
@@ -348,7 +402,16 @@ input,textarea,select{font-family:inherit;outline:none}
 <div id="kitchen-badge"></div>
 
 <!-- LOGIN -->
-<div id="screen-login" class="screen">
+<div id="screen-login" class="screen" style="position:relative">
+  <!-- Zorla çıkış uyarısı -->
+  <div id="login-force-alert" style="display:none;position:absolute;inset:0;z-index:50;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);background:rgba(13,21,32,.75);align-items:center;justify-content:center;padding:24px">
+    <div style="background:var(--s1);border:1px solid var(--border-2);border-radius:16px;padding:28px 24px;max-width:320px;width:100%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.4)">
+      <div style="font-size:36px;margin-bottom:14px">🔒</div>
+      <div style="font-size:15px;font-weight:700;color:var(--cream);margin-bottom:10px">Oturumunuz Sonlandırıldı</div>
+      <div style="font-size:13px;color:var(--cream-3);line-height:1.6;margin-bottom:20px">Yönetici tarafından şifreniz değiştirildiği için oturumunuz sonlandırıldı. Lütfen yeni şifrenizle giriş yapın.</div>
+      <button onclick="document.getElementById('login-force-alert').style.display='none'" style="background:var(--toffee);color:#fff;border:none;border-radius:10px;padding:12px 32px;font-size:14px;font-weight:600;cursor:pointer;width:100%">Anladım</button>
+    </div>
+  </div>
   <div class="login-wrap">
     <div class="login-logo">☕</div>
     <h1 class="login-title">Rüya Lounge Bar</h1>
@@ -448,6 +511,7 @@ input,textarea,select{font-family:inherit;outline:none}
     <button class="admin-tab" id="at-masalar" onclick="switchAdminTab('masalar')"><i class="fa-solid fa-table-cells"></i> Masalar</button>
     <button class="admin-tab" id="at-mutfak" onclick="switchAdminTab('mutfak')"><i class="fa-solid fa-kitchen-set"></i> Mutfak</button>
     <button class="admin-tab" id="at-istatistik" onclick="switchAdminTab('istatistik')"><i class="fa-solid fa-chart-bar"></i> İstatistik</button>
+    <button class="admin-tab" id="at-stok" onclick="switchAdminTab('stok')"><i class="fa-solid fa-boxes-stacked"></i> Stok</button>
     <button class="admin-tab" id="at-ayarlar" onclick="switchAdminTab('ayarlar')"><i class="fa-solid fa-sliders"></i> Ayarlar</button>
   </div>
   <div class="admin-content">
@@ -480,13 +544,25 @@ input,textarea,select{font-family:inherit;outline:none}
         <div class="area-sec-hdr"><span class="area-sec-title">🌿 Bahçe</span><button class="btn-add-tbl" onclick="addTable('bahce')"><i class="fa-solid fa-plus"></i> Masa Ekle</button></div>
         <div class="t-chips" id="adm-b"></div>
       </div>
+      <div class="area-sec" style="margin-top:10px;padding:0;overflow:hidden">
+        <div class="area-sec-hdr" style="cursor:pointer;user-select:none;-webkit-user-select:none;padding:12px;margin-bottom:0" onclick="toggleHistPanel()">
+          <div>
+            <span class="area-sec-title"><i class="fa-solid fa-clock-rotate-left" style="margin-right:5px"></i>Masa Geçmişi</span>
+            <div style="font-size:11px;color:var(--cream-3);font-weight:400;margin-top:7px;line-height:1.5">Masa adisyon geçmişini görüntülemek için üzerine bir kez basın.</div>
+          </div>
+          <span class="cat-chevron" id="hist-panel-chv">▼</span>
+        </div>
+        <div id="hist-panel-body" style="display:none;padding:10px">
+          <div id="hist-list"></div>
+        </div>
+      </div>
     </div>
     <!-- MUTFAK -->
     <div id="ap-mutfak" class="admin-panel">
       <div class="add-form">
         <p class="sec-title">Mutfağı İlgilendiren Siparişler</p>
         <p style="font-size:11px;color:var(--cream-3);margin-bottom:10px;line-height:1.6">Bu listedeki ürünler sipariş edildiğinde mutfak ekranına ve aşçıya bildirim olarak düşer.</p>
-        <select id="np-mutfak-urun" style="width:100%;padding:9px 12px;background:var(--s2);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--cream);font-size:13px;margin-bottom:8px"><option value="">— Ürün seç —</option></select>
+        <select id="np-mutfak-urun" style="width:100%;padding:9px 12px;background:var(--s2);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--cream);font-size:16px;margin-bottom:8px;-webkit-appearance:none"><option value="">— Ürün seç —</option></select>
         <button class="btn-add-prod" onclick="addMutfakUrun()"><i class="fa-solid fa-plus"></i> Bu Ürünü Mutfağa Ekle</button>
       </div>
       <p class="sec-title"><i class="fa-solid fa-fire-burner"></i> Mutfak Listesi</p>
@@ -540,10 +616,6 @@ input,textarea,select{font-family:inherit;outline:none}
             <button class="btn-test" style="width:100%" onclick="exportExcel()"><i class="fa-solid fa-download"></i> Excel İndir (.xlsx)</button>
           </div>
         </div>
-      </div>
-      <div class="stat-period-block" style="margin-top:10px">
-        <div class="stat-period-hdr"><i class="fa-solid fa-clock-rotate-left"></i> Masa Geçmişi</div>
-        <div id="hist-list"><div class="stat-loading">Yükleniyor…</div></div>
       </div>
     </div>
     <!-- AYARLAR -->
@@ -604,6 +676,48 @@ input,textarea,select{font-family:inherit;outline:none}
         <button class="btn-save" style="margin-top:10px;width:100%" onclick="saveCatOrder()"><i class="fa-solid fa-floppy-disk"></i> Sıralamayı Kaydet</button>
       </div>
 
+    </div>
+
+    <!-- STOK -->
+    <div id="ap-stok" class="admin-panel">
+      <div class="add-form">
+        <p class="sec-title"><i class="fa-solid fa-boxes-stacked"></i> Stok Takibine Ekle</p>
+        <p style="font-size:11px;color:var(--cream-3);margin-bottom:10px;line-height:1.6">Seçtiğiniz ürünlerin stok miktarını takip edin. Stok girilen ürünler sipariş ekranında adet gösterir.</p>
+        <select id="stok-urun-sel" style="width:100%;padding:9px 12px;background:var(--s2);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--cream);font-size:16px;margin-bottom:8px;-webkit-appearance:none"><option value="">— Ürün seç —</option></select>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+          <input type="number" id="stok-miktar" class="s-input" placeholder="Mevcut stok miktarını giriniz." min="0" style="margin-bottom:0;flex:1">
+          <button class="btn-save" onclick="addStokUrun()"><i class="fa-solid fa-plus"></i> Ekle</button>
+        </div>
+      </div>
+      <p class="sec-title"><i class="fa-solid fa-list-check"></i> Stok Listesi</p>
+      <div id="stok-list" style="background:var(--s1);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden"><div class="stat-loading" style="padding:1rem">Yükleniyor…</div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL: HIST DETAIL -->
+<div id="m-hist-detail" class="modal-overlay hidden">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <span class="modal-title" id="m-hist-detail-title">Adisyon Detayı</span>
+      <button class="btn-modal-close" onclick="closeModal('m-hist-detail')">✕</button>
+    </div>
+    <div class="modal-body" id="m-hist-detail-body"></div>
+  </div>
+</div>
+
+<!-- MODAL: STOK EDIT -->
+<div id="m-stok-edit" class="modal-overlay hidden">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <span class="modal-title" id="m-stok-edit-title">Stok Güncelle</span>
+      <button class="btn-modal-close" onclick="closeModal('m-stok-edit')">✕</button>
+    </div>
+    <div class="modal-body" style="padding:16px">
+      <p style="font-size:13px;color:var(--cream-2);margin-bottom:12px" id="m-stok-edit-desc"></p>
+      <input type="number" id="m-stok-edit-val" class="s-input" placeholder="Yeni stok miktarı" min="0">
+      <button class="btn-save" style="width:100%" onclick="saveStokFromModal()"><i class="fa-solid fa-floppy-disk"></i> Kaydet</button>
     </div>
   </div>
 </div>
@@ -730,6 +844,17 @@ create table siparis_kalemleri (
   mutfak_gonderildi boolean default false,
   created_at timestamptz default now()
 );
+create table stok (
+  id uuid default gen_random_uuid() primary key,
+  urun_adi text not null unique,
+  miktar integer not null default 0,
+  baslangic_miktar integer,
+  aktif boolean default true,
+  updated_at timestamptz default now()
+);
+alter table stok enable row level security;
+create policy "anon_all" on stok for all to anon using (true) with check (true);
+
 create table mutfak_urunler (
   id uuid default gen_random_uuid() primary key,
   urun_adi text not null unique,
@@ -790,7 +915,7 @@ function resetSetup(){
 // ==============================
 // STATE
 // ==============================
-let sb=null,me=null,area='kapali',tables=[],products=[],openOrders={},settings={},curTblId=null,curOrdId=null,rtCh=null,chefCh=null,mutfakUrunler=[],catSortOrder=[],chefReadyTableId=null,addingItem=false;
+let sb=null,me=null,area='kapali',tables=[],products=[],openOrders={},settings={},curTblId=null,curOrdId=null,rtCh=null,chefCh=null,mutfakUrunler=[],catSortOrder=[],chefReadyTableId=null,addingItem=false,stoklar={};
 
 // ==============================
 // INIT
@@ -852,7 +977,7 @@ async function doLogin(){
   initApp();
 }
 
-function doLogout(){
+function doLogout(showForceAlert){
   me=null;
   localStorage.removeItem('rk_session');
   if(rtCh){sb.removeChannel(rtCh);rtCh=null}
@@ -860,6 +985,10 @@ function doLogout(){
   showScreen('login');
   document.getElementById('l-user').value='';
   document.getElementById('l-pass').value='';
+  if(showForceAlert){
+    const el=document.getElementById('login-force-alert');
+    if(el)el.style.display='flex';
+  }
 }
 
 // ==============================
@@ -874,7 +1003,7 @@ async function initApp(){
   if(ciroEl)ciroEl.style.display='none';
   document.getElementById('tbl-sub').textContent=me.display+' · '+new Date().toLocaleDateString('tr-TR');
   area='kapali';
-  await Promise.all([loadTables(),loadOpenOrders(),loadSettings(),loadMutfakUrunler()]);
+  await Promise.all([loadTables(),loadOpenOrders(),loadSettings(),loadMutfakUrunler(),loadStok()]);
   renderTables();updateCiro();setupRealtime();
 }
 
@@ -920,6 +1049,17 @@ function setupRealtime(){
       }
       // [GONDERILDI] gelince hiçbir şey yapma (garson zaten gönderdi)
     })
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'ayarlar'},async(payload)=>{
+      const row=payload.new;
+      if(!row||!me)return;
+      // Şifre değişince ilgili kullanıcıyı çıkar
+      if(row.anahtar==='asci_sifre'&&me.role==='chef'){
+        setTimeout(()=>doLogout(true),0);
+      }
+      if(row.anahtar==='garson_sifre'&&me.role==='waiter'){
+        setTimeout(()=>doLogout(true),0);
+      }
+    })
     .subscribe();
 }
 
@@ -935,6 +1075,12 @@ function setupChefRealtime(){
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'siparis_kalemleri'},async()=>{await renderChefOrders()})
     .on('postgres_changes',{event:'DELETE',schema:'public',table:'siparis_kalemleri'},async()=>{await renderChefOrders()})
     .on('postgres_changes',{event:'*',schema:'public',table:'siparisler'},async()=>{await renderChefOrders()})
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'ayarlar'},async(payload)=>{
+      const row=payload.new;
+      if(row?.anahtar==='asci_sifre'&&me?.role==='chef'){
+        setTimeout(()=>doLogout(true),0);
+      }
+    })
     .subscribe();
 }
 
@@ -1056,6 +1202,20 @@ async function backToTables(){
   showScreen('tables');
   await loadOpenOrders();renderTables();updateCiro();
 }
+function toggleHistPanel(){
+  const body=document.getElementById('hist-panel-body');
+  const chv=document.getElementById('hist-panel-chv');
+  if(!body||!chv)return;
+  const open=body.style.display!=='none';
+  body.style.display=open?'none':'block';
+  chv.classList.toggle('open',!open);
+  // İlk açılışta veriyi yükle
+  if(!open&&!body.dataset.loaded){
+    body.dataset.loaded='1';
+    loadMasaGecmisi();
+  }
+}
+
 function scrollToPayment(){document.getElementById('pay-btns').scrollIntoView({behavior:'smooth'})}
 
 async function resetMasa(){
@@ -1102,7 +1262,7 @@ function renderOrderItems(items){
       return`<div class="order-item" id="oi-${item.id}">
         <div class="oi-main">
           <div style="flex:1;min-width:0">
-            <div class="oi-name">${statusDot}${esc(item.urun_adi)}</div>
+            <div class="oi-name">${statusDot}${esc(item.urun_adi)}${(()=>{const sk=stoklar[item.urun_adi];if(!sk||sk.aktif===false)return '';const b=stokBadgeInfo(sk);return '<span class="prod-stock-badge '+b.cls+'" style="font-size:10px">'+b.txt+'</span>';})()}</div>
             <div class="oi-note-btn ${item.not_metni?'has-note':''}" id="note-btn-${item.id}" onclick="openNoteInput('${item.id}')">${noteBtnTxt}</div>
           </div>
           <div class="oi-qty">
@@ -1188,9 +1348,13 @@ async function changeQty(itemId,delta){
   const nq=item.miktar+delta;
   const tbl=tables.find(t=>t.id===curTblId);
   if(nq<=0){
+    // Stok geri yükle (silinen ürün adedi kadar)
+    if(stoklar[item.urun_adi]){
+      stoklar[item.urun_adi].miktar+=item.miktar;
+      sb.from('stok').update({miktar:stoklar[item.urun_adi].miktar}).eq('id',stoklar[item.urun_adi].id).then(()=>{});
+    }
     await sb.from('siparis_kalemleri').delete().eq('id',itemId);
     ord.siparis_kalemleri=ord.siparis_kalemleri.filter(i=>i.id!==itemId);
-    // Tüm kalemler silindiyse masayı boşa al ama sipariş kaydını koru
     if(ord.siparis_kalemleri.length===0){
       await sb.from('masalar').update({dolu:false}).eq('id',curTblId);
       const tblReset=tables.find(t=>t.id===curTblId);
@@ -1200,6 +1364,12 @@ async function changeQty(itemId,delta){
   } else {
     await sb.from('siparis_kalemleri').update({miktar:nq}).eq('id',itemId);
     item.miktar=nq;
+    // Stok senkronizasyonu: +1 → stok -1, -1 (silinmeden) → stok +1
+    if(stoklar[item.urun_adi]){
+      stoklar[item.urun_adi].miktar-=delta; // delta=+1 ise stok azalır, -1 ise artar
+      if(stoklar[item.urun_adi].miktar<0)stoklar[item.urun_adi].miktar=0;
+      sb.from('stok').update({miktar:stoklar[item.urun_adi].miktar}).eq('id',stoklar[item.urun_adi].id).then(()=>{});
+    }
     // Adet artışı + zaten mutfağa gönderilmişse aşçıya bildir
     if(delta>0&&item.mutfak_gonderildi&&isMutfakUrun(item.urun_adi)){
       await sb.from('mutfak_bildirimleri').insert({
@@ -1255,15 +1425,26 @@ async function openProdModal(){
       <div class="cat-header-left"><div class="cat-icon">${catIcon(cat)}</div><div><div class="cat-hdr-name">${esc(cat)}</div><div class="cat-hdr-count">${ps.length} ürün</div></div></div>
       <span class="cat-chevron" id="chv-${idx}">▼</span>
     </div>
-    <div class="cat-items" id="cat-${idx}">${ps.map(p=>`<div class="prod-item">
-      <div class="prod-info"><div class="prod-name">${esc(p.isim)}</div>${p.aciklama?`<div class="prod-desc">${esc(p.aciklama)}</div>`:''}</div>
-      <div class="prod-price">${fmt(p.fiyat)}</div>
-      <button class="btn-prod-add" onclick="addItem('${p.id}')">+</button>
-    </div>`).join('')}</div></div>`}).join('');
+    <div class="cat-items" id="cat-${idx}">${ps.map(p=>{
+      const stk=stoklar[p.isim]&&stoklar[p.isim].aktif!==false?stoklar[p.isim]:null;
+      const outOfStock=stk&&stk.miktar===0;
+      const stockBadge=stk?(()=>{const b=stokBadgeInfo(stk);return '<span class="prod-stock-badge '+b.cls+'">'+b.txt+'</span>';})():'';
+      return`<div class="prod-item${outOfStock?' out-of-stock':''}">
+        <div class="prod-info"><div class="prod-name">${esc(p.isim)}${stockBadge}</div>${p.aciklama?`<div class="prod-desc">${esc(p.aciklama)}</div>`:''}</div>
+        <div class="prod-price">${fmt(p.fiyat)}</div>
+        <button class="btn-prod-add" onclick="addItemWithStokCheck('${p.id}',${outOfStock})">+</button>
+      </div>`;}).join('')}</div></div>`}).join('');
   openModal('m-prods');
 }
 
 function toggleCat(id){const el=document.getElementById(id),idx=id.replace('cat-',''),chv=document.getElementById('chv-'+idx),open=el.classList.contains('open');el.classList.toggle('open',!open);chv.classList.toggle('open',!open)}
+
+function addItemWithStokCheck(pid,isOos){
+  if(isOos){
+    if(!confirm('Bu ürünün şu an stoğu kalmadı. Yine de sipariş etmek istediğinize emin misiniz?'))return;
+  }
+  addItem(pid);
+}
 
 async function addItem(pid){
   if(addingItem)return;addingItem=true;
@@ -1293,6 +1474,11 @@ async function addItem(pid){
     if(tbl2&&!tbl2.dolu){
       await sb.from('masalar').update({dolu:true}).eq('id',curTblId);
       tbl2.dolu=true;
+    }
+    // Stok takibindeyse 1 azalt
+    if(stoklar[p.isim]&&stoklar[p.isim].miktar>0){
+      stoklar[p.isim].miktar--;
+      sb.from('stok').update({miktar:stoklar[p.isim].miktar}).eq('id',stoklar[p.isim].id).then(()=>{});
     }
     renderOrderItems(ord.siparis_kalemleri);syncTotal();toast('✓ '+p.isim);closeModal('m-prods');
   }finally{addingItem=false}
@@ -1503,14 +1689,150 @@ async function exportExcel(){
 // ==============================
 // ADMIN — PRODUCTS
 // ==============================
+async function loadStok(){
+  const{data}=await sb.from('stok').select('*');
+  stoklar={};
+  (data||[]).forEach(s=>{stoklar[s.urun_adi]={id:s.id,miktar:s.miktar,max:s.baslangic_miktar||s.miktar,aktif:s.aktif!==false};});
+}
+
+async function loadAdminStok(){
+  await loadProducts();
+  await loadStok();
+  // Dropdown: stok'ta olmayan ürünler
+  const sel=document.getElementById('stok-urun-sel');
+  sel.innerHTML='<option value="">— Ürün seç —</option>'
+    +products.filter(p=>!stoklar[p.isim]).map(p=>'<option value="'+esc(p.isim)+'">'+esc(p.isim)+'</option>').join('');
+  renderStokList();
+}
+
+function stokBadgeInfo(sk){
+  // sk = {miktar, max}
+  const m=sk.miktar, mx=sk.max||1;
+  if(m===0) return {cls:'out', txt:'Tükendi'};
+  const ratio=m/mx;
+  if(ratio<=1/3) return {cls:'out', txt:'Son '+m+' adet kaldı'};
+  if(ratio<=2/3) return {cls:'low', txt:m+' adet kaldı'};
+  return {cls:'ok', txt:m+' adet'};
+}
+
+function renderStokList(){
+  const el=document.getElementById('stok-list');
+  const keys=Object.keys(stoklar);
+  if(!keys.length){el.innerHTML='<div style="text-align:center;padding:1rem;color:var(--cream-3);font-size:13px">Stok takibine eklenen ürün yok.</div>';return;}
+  let html='';
+  keys.forEach(urunAdi=>{
+    const s=stoklar[urunAdi];
+    const m=s.miktar;
+    const {cls:badgeCls,txt:badgeTxt}=stokBadgeInfo(stoklar[urunAdi]);
+    const prod=products.find(p=>p.isim===urunAdi);
+    const cat=prod?prod.kategori||'':'';
+    const aktif=s.aktif!==false;
+    html+='<div class="stok-item'+(aktif?'':' pasif')+'" data-urun="'+esc(urunAdi)+'">'
+      +'<div class="stok-item-info">'
+      +'<div class="stok-item-name">'+esc(urunAdi)+'</div>'
+      +(cat?'<div class="stok-item-cat">'+esc(cat)+'</div>':'')
+      +'</div>'
+      +(aktif?'<span class="stok-badge '+badgeCls+'">'+badgeTxt+'</span>':'')
+      +'<button class="btn-stok-edit" onclick="openStokEdit(this)"'+(aktif?'':' disabled style="opacity:.4;cursor:default"')+'><i class="fa-solid fa-pen" style="font-size:9px"></i> Stok Değiştir</button>'
+      +'<label class="ios-toggle" title="Stok takibini aç/kapat">'
+      +'<input type="checkbox"'+(aktif?' checked':'')+' onchange="toggleStokAktif(this)">'
+      +'<span class="ios-toggle-track"></span>'
+      +'</label>'
+      +'</div>';
+  });
+  el.innerHTML=html;
+}
+
+let _stokEditUrun=null;
+function openStokEdit(btn){
+  const urun=btn.closest('[data-urun]').dataset.urun;
+  _stokEditUrun=urun;
+  document.getElementById('m-stok-edit-title').textContent=esc(urun)+' — Stok';
+  document.getElementById('m-stok-edit-desc').textContent='Mevcut: '+(stoklar[urun]?.miktar??'?')+' adet';
+  document.getElementById('m-stok-edit-val').value=stoklar[urun]?.miktar??'';
+  openModal('m-stok-edit');
+  setTimeout(()=>document.getElementById('m-stok-edit-val').focus(),80);
+}
+
+async function saveStokFromModal(){
+  const val=parseInt(document.getElementById('m-stok-edit-val').value);
+  if(isNaN(val)||val<0){toast('Geçerli bir miktar girin.');return;}
+  const urun=_stokEditUrun;
+  if(!urun)return;
+  const s=stoklar[urun];
+  const{error}=await sb.from('stok').update({miktar:val}).eq('id',s.id);
+  if(error){toast('Hata: '+error.message);return;}
+  stoklar[urun].miktar=val;
+  closeModal('m-stok-edit');
+  renderStokList();
+  toast('✓ '+urun+' stoğu güncellendi.');
+}
+
+async function addStokUrun(){
+  const urunAdi=document.getElementById('stok-urun-sel').value;
+  const miktarRaw=document.getElementById('stok-miktar').value;
+  if(!urunAdi){toast('Ürün seçin.');return;}
+  if(miktarRaw===''||miktarRaw===null){toast('Bir miktar girmelisiniz.');return;}
+  const miktar=parseInt(miktarRaw);
+  if(isNaN(miktar)||miktar<0){toast('Geçerli bir miktar girin.');return;}
+  const{error}=await sb.from('stok').insert({urun_adi:urunAdi,miktar,baslangic_miktar:miktar});
+  if(error){toast('Hata: '+error.message);return;}
+  document.getElementById('stok-miktar').value='';
+  await loadAdminStok();
+  toast('✓ '+urunAdi+' stok takibine eklendi.');
+}
+
+async function toggleStokAktif(input){
+  const item=input.closest('[data-urun]');
+  const urun=item.dataset.urun;
+  if(!urun||!stoklar[urun])return;
+  const aktif=input.checked;
+  const{error}=await sb.from('stok').update({aktif}).eq('id',stoklar[urun].id);
+  if(error){toast('Hata: '+error.message);input.checked=!aktif;return;}
+  stoklar[urun].aktif=aktif;
+  item.classList.toggle('pasif',!aktif);
+  // Stok badge ve düzenle butonu
+  const badge=item.querySelector('.stok-badge');
+  const editBtn=item.querySelector('.btn-stok-edit');
+  if(aktif){
+    const{cls,txt}=stokBadgeInfo(stoklar[urun]);
+    if(!badge){
+      const sp=document.createElement('span');
+      sp.className='stok-badge '+cls;
+      sp.textContent=txt;
+      item.insertBefore(sp,editBtn);
+    }else{const{cls:c2,txt:t2}=stokBadgeInfo(stoklar[urun]);badge.className='stok-badge '+c2;badge.textContent=t2;}
+    if(editBtn){editBtn.disabled=false;editBtn.style.opacity='';editBtn.style.cursor='';}
+  } else {
+    if(badge)badge.remove();
+    if(editBtn){editBtn.disabled=true;editBtn.style.opacity='0.4';editBtn.style.cursor='default';}
+  }
+}
+
+async function removeStok(btn){
+  const urun=btn.closest('[data-urun]').dataset.urun;
+  if(!urun||!stoklar[urun])return;
+  if(!confirm('"'+urun+'" stok takibinden kaldırılsın mı?'))return;
+  await sb.from('stok').delete().eq('id',stoklar[urun].id);
+  delete stoklar[urun];
+  await loadAdminStok();
+  toast(urun+' stok takibinden kaldırıldı.');
+}
+
 async function loadAdminProds(){
-  const{data}=await sb.from('urunler').select('*').order('kategori').order('isim');
+  const{data}=await sb.from('urunler').select('*').order('isim');
   const el=document.getElementById('admin-prods');
   if(!data?.length){el.innerHTML='<div style="text-align:center;color:var(--cream-3);font-size:13px;padding:1rem">Henüz ürün yok.</div>';return;}
+  await loadSettings();
   const cats={};
   data.forEach(p=>{const k=p.kategori||'Genel';if(!cats[k])cats[k]=[];cats[k].push(p);});
+  // Kategori sıralamasını ayarlardan al
+  let so=[];try{so=settings['cat_order']?JSON.parse(settings['cat_order']):[]}catch(e){}
+  const allCatKeys=Object.keys(cats);
+  const sortedCatKeys=[...so.filter(k=>allCatKeys.includes(k)),...allCatKeys.filter(k=>!so.includes(k))];
   let html='';
-  Object.entries(cats).forEach(([cat,prods],idx)=>{
+  sortedCatKeys.forEach((cat,idx)=>{
+    const prods=cats[cat];
     const catId='adm-cat-'+idx;
     const chvId='adm-chv-'+idx;
     html+='<div class="cat-section admin-cat-section">';
@@ -1573,7 +1895,7 @@ async function loadAdminTables(){
   const renderChips=(alanKey,elId)=>{
     const el=document.getElementById(elId);
     const list=tables.filter(t=>t.alan===alanKey);
-    if(!list.length){el.innerHTML='<span style="font-size:12px;color:var(--cream-3)">Masa yok</span>';return;}
+    if(!list.length){el.innerHTML='<span style="font-size:12px;color:var(--cream-3)">Bu bölüme henüz bir masa eklenmedi.</span>';return;}
     el.innerHTML=list.map(t=>'<div class="t-chip" data-id="'+t.id+'" data-name="'+esc(t.isim)+'">'
       +'<span>'+esc(t.isim)+'</span>'
       +'<button class="btn-chip-edit" onclick="editTableNameById(this)" title="Adı düzenle"><i class="fa-solid fa-pen" style="font-size:9px"></i> <span style="font-size:10px">Ad Değiştir</span></button>'
@@ -1657,7 +1979,10 @@ async function loadIstatistik(){
   await loadSettings();
   const today=new Date().toISOString().split('T')[0];
   const now=new Date();
-  const monthStart=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split('T')[0];
+  const dd21=now.getDate();
+  const monthStart=(dd21>=21
+    ?new Date(now.getFullYear(),now.getMonth(),21)
+    :new Date(now.getFullYear(),now.getMonth()-1,21)).toISOString().split('T')[0];
   const{data:allOrders}=await sb.from('siparisler').select('id,kapandi_at').eq('durum','kapali');
   const todayIds=(allOrders||[]).filter(o=>o.kapandi_at?.startsWith(today)).map(o=>o.id);
   const monthIds=(allOrders||[]).filter(o=>o.kapandi_at&&o.kapandi_at>=monthStart+'T00:00:00').map(o=>o.id);
@@ -1686,15 +2011,201 @@ async function loadIstatistik(){
 
 
 
-async function loadMasaGecmisi(){
-  const{data}=await sb.from('siparisler').select('masa_adi,toplam,odeme_yontemi,kapandi_at').eq('durum','kapali').order('kapandi_at',{ascending:false}).limit(50);
-  const el=document.getElementById('hist-list');
-  if(!data?.length){el.innerHTML=`<div style="text-align:center;padding:1rem;color:var(--cream-3)">Geçmiş yok.</div>`;return}
-  el.innerHTML=data.map(r=>{
-    const dt=r.kapandi_at?new Date(r.kapandi_at).toLocaleString('tr-TR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'?';
-    const payBadge=r.odeme_yontemi==='nakit'?'<span class="hist-pay-cash"><i class="fa-solid fa-money-bill-wave"></i> Nakit ile ödendi.</span>':'<span class="hist-pay-iban"><i class="fa-solid fa-building-columns"></i> IBAN ile ödendi.</span>';
-    return`<div class="hist-item"><div class="hist-info"><div class="hist-masa">${esc(r.masa_adi||'?')}</div><div class="hist-meta">${dt} ${payBadge}</div></div><div class="hist-total">${fmt(r.toplam)}</div></div>`;
+function _histDayKey(dt){return dt.toISOString().split('T')[0];}
+function _histDayLabel(dateStr){
+  const today=new Date();today.setHours(0,0,0,0);
+  const d=new Date(dateStr+'T00:00:00');d.setHours(0,0,0,0);
+  const diff=Math.round((today-d)/86400000);
+  if(diff===0)return'Bugün';
+  if(diff===1)return'Dün';
+  const gunler=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+  return d.toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric'});
+}
+function _histWeekKey(dateStr){
+  const d=new Date(dateStr+'T00:00:00');
+  const dow=d.getDay();
+  const mon=new Date(d);mon.setDate(d.getDate()-(dow===0?6:dow-1));
+  return mon.toISOString().split('T')[0];
+}
+function _histWeekLabel(weekStart){
+  const ms=new Date(weekStart+'T00:00:00');
+  const me=new Date(ms);me.setDate(ms.getDate()+6);
+  return ms.toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric'})
+    +' – '+me.toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric'});
+}
+function _histDayOfWeekLabel(dateStr){
+  const gunler=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+  const d=new Date(dateStr+'T00:00:00');
+  return d.toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric'})+' – '+gunler[d.getDay()];
+}
+
+function _buildHistItems(rows){
+  return rows.map(r=>{
+    const dt=r.kapandi_at?new Date(r.kapandi_at).toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}):'?';
+    const payBadge=r.odeme_yontemi==='nakit'
+      ?'<span class="hist-pay-cash"><i class="fa-solid fa-money-bill-wave"></i> Nakit</span>'
+      :'<span class="hist-pay-iban"><i class="fa-solid fa-building-columns"></i> IBAN</span>';
+    return'<div class="hist-item hist-item-clickable" data-sid="'+r.id+'" onclick="openHistDetail(this)">'
+      +'<div class="hist-info"><div class="hist-masa">'+esc(r.masa_adi||'?')+'</div>'
+      +'<div class="hist-meta">'+dt+' '+payBadge+'</div></div>'
+      +'<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">'
+      +'<div class="hist-total">'+fmt(r.toplam)+'</div>'
+      +'<i class="fa-solid fa-chevron-right" style="font-size:10px;color:var(--cream-3)"></i>'
+      +'</div></div>';
   }).join('');
+}
+
+function _buildCollapsible(id,headerHtml,innerHtml,startOpen){
+  const open=startOpen?'open':'';
+  const chv=startOpen?'open':'';
+  return'<div class="hist-group">'
+    +'<div class="hist-group-hdr" data-target="hg-'+id+'" data-chv="hgc-'+id+'" onclick="toggleHistGroup(this)">'
+    +headerHtml
+    +'<span class="cat-chevron'+(chv?' open':'')+'" id="hgc-'+id+'">▼</span>'
+    +'</div>'
+    +'<div class="hist-group-body'+(open?' open':'')+'" id="hg-'+id+'">'+innerHtml+'</div>'
+    +'</div>';
+}
+
+function toggleHistGroup(hdr){
+  const el=document.getElementById(hdr.dataset.target);
+  const chv=document.getElementById(hdr.dataset.chv);
+  if(!el||!chv)return;
+  const open=el.classList.contains('open');
+  el.classList.toggle('open',!open);
+  chv.classList.toggle('open',!open);
+}
+
+async function loadMasaGecmisi(){
+  const{data}=await sb.from('siparisler').select('id,masa_adi,toplam,odeme_yontemi,kapandi_at').eq('durum','kapali').order('kapandi_at',{ascending:false}).limit(200);
+  const el=document.getElementById('hist-list');
+  if(!el)return;
+  if(!data?.length){el.innerHTML='<div style="text-align:center;padding:1rem;color:var(--cream-3)">Geçmiş yok.</div>';return;}
+
+  const today=new Date();today.setHours(0,0,0,0);
+  const todayStr=today.toISOString().split('T')[0];
+  const recentDays={},weekDays={},monthData={};
+  let uid=0;
+
+  const aylar=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+
+  data.forEach(r=>{
+    if(!r.kapandi_at)return;
+    const dStr=r.kapandi_at.split('T')[0];
+    const d=new Date(dStr+'T00:00:00');d.setHours(0,0,0,0);
+    const diffDays=Math.round((today-d)/86400000);
+    if(diffDays<7){
+      if(!recentDays[dStr])recentDays[dStr]=[];
+      recentDays[dStr].push(r);
+    } else if(diffDays<28){
+      const wk=_histWeekKey(dStr);
+      if(!weekDays[wk])weekDays[wk]={};
+      if(!weekDays[wk][dStr])weekDays[wk][dStr]=[];
+      weekDays[wk][dStr].push(r);
+    } else {
+      // Ay bazında grupla: "2025-11" gibi key
+      const mKey=dStr.slice(0,7);
+      if(!monthData[mKey])monthData[mKey]={};
+      const wk=_histWeekKey(dStr);
+      if(!monthData[mKey][wk])monthData[mKey][wk]={};
+      if(!monthData[mKey][wk][dStr])monthData[mKey][wk][dStr]=[];
+      monthData[mKey][wk][dStr].push(r);
+    }
+  });
+
+  let html='';
+
+  // Son 7 gün — her gün ayrı
+  const recentKeys=Object.keys(recentDays).sort((a,b)=>b.localeCompare(a));
+  recentKeys.forEach(dStr=>{
+    const isToday=dStr===todayStr;
+    html+=_buildCollapsible('d'+(uid++),
+      '<span class="hg-label">'+_histDayLabel(dStr)+'</span><span class="hg-count">'+recentDays[dStr].length+' sipariş</span>',
+      _buildHistItems(recentDays[dStr]), isToday);
+  });
+
+  // 7-28 gün — hafta bazında, içinde gün gün
+  const weekKeys=Object.keys(weekDays).sort((a,b)=>b.localeCompare(a));
+  weekKeys.forEach(wk=>{
+    const dayKeys=Object.keys(weekDays[wk]).sort((a,b)=>b.localeCompare(a));
+    let innerDays='';
+    dayKeys.forEach(dStr=>{
+      innerDays+=_buildCollapsible('wd'+(uid++),
+        '<span class="hg-label hg-label-sm">'+_histDayOfWeekLabel(dStr)+'</span><span class="hg-count">'+weekDays[wk][dStr].length+'</span>',
+        _buildHistItems(weekDays[wk][dStr]), false);
+    });
+    const total=dayKeys.reduce((s,k)=>s+weekDays[wk][k].length,0);
+    html+=_buildCollapsible('w'+(uid++),
+      '<span class="hg-label">'+_histWeekLabel(wk)+'</span><span class="hg-count">'+total+' sipariş</span>',
+      innerDays, false);
+  });
+
+  // 28+ gün — ay ay, her ayın içinde hafta hafta, her haftanın içinde gün gün
+  const monthKeys=Object.keys(monthData).sort((a,b)=>b.localeCompare(a));
+  monthKeys.forEach(mKey=>{
+    const [yil,ay]=mKey.split('-');
+    const ayAdi=aylar[parseInt(ay)-1]+' '+yil;
+    const wkKeys=Object.keys(monthData[mKey]).sort((a,b)=>b.localeCompare(a));
+    let monthInner='';
+    wkKeys.forEach(wk=>{
+      const dayKeys=Object.keys(monthData[mKey][wk]).sort((a,b)=>b.localeCompare(a));
+      let innerDays='';
+      dayKeys.forEach(dStr=>{
+        innerDays+=_buildCollapsible('mwd'+(uid++),
+          '<span class="hg-label hg-label-sm">'+_histDayOfWeekLabel(dStr)+'</span><span class="hg-count">'+monthData[mKey][wk][dStr].length+'</span>',
+          _buildHistItems(monthData[mKey][wk][dStr]), false);
+      });
+      const wkTotal=dayKeys.reduce((s,k)=>s+monthData[mKey][wk][k].length,0);
+      monthInner+=_buildCollapsible('mw'+(uid++),
+        '<span class="hg-label hg-label-sm">'+_histWeekLabel(wk)+'</span><span class="hg-count">'+wkTotal+' sipariş</span>',
+        innerDays, false);
+    });
+    const mTotal=wkKeys.reduce((s,wk)=>s+Object.keys(monthData[mKey][wk]).reduce((ss,d)=>ss+monthData[mKey][wk][d].length,0),0);
+    html+=_buildCollapsible('m'+(uid++),
+      '<span class="hg-label"><i class="fa-solid fa-calendar-days" style="font-size:11px;margin-right:6px"></i>'+ayAdi+'</span><span class="hg-count">'+mTotal+' sipariş</span>',
+      monthInner, false);
+  });
+
+  el.innerHTML=html;
+}
+
+async function openHistDetail(row){
+  const sid=row.dataset.sid;
+  if(!sid)return;
+  const masaAdi=row.querySelector('.hist-masa').textContent;
+  const totalTxt=row.querySelector('.hist-total').textContent;
+  const payEl=row.querySelector('.hist-pay-cash,.hist-pay-iban');
+  const payTxt=payEl?payEl.textContent.trim():'';
+  const metaTxt=(row.querySelector('.hist-meta').textContent||'').replace(payTxt,'').trim();
+  const{data:kalemleri}=await sb.from('siparis_kalemleri').select('urun_adi,miktar,fiyat,not_metni').eq('siparis_id',sid);
+  let html='<div class="hd-header">'
+    +'<div class="hd-masa">'+esc(masaAdi)+'</div>'
+    +'<div class="hd-meta">'+metaTxt+' '+payTxt+'</div>'
+    +'</div>'
+    +'<div class="hd-list">';
+  if(!kalemleri||!kalemleri.length){
+    html+='<div style="text-align:center;padding:1rem;color:var(--cream-3);font-size:13px">Kalem bilgisi bulunamadı.</div>';
+  } else {
+    kalemleri.forEach(k=>{
+      html+='<div class="hd-item">'
+        +'<div class="hd-item-info">'
+        +'<div class="hd-item-name">'+esc(k.urun_adi)+'</div>'
+        +(k.not_metni?'<div class="hd-item-note"><i class="fa-solid fa-pen" style="font-size:9px"></i> '+esc(k.not_metni)+'</div>':'')
+        +'</div>'
+        +'<div class="hd-item-right">'
+        +'<span class="hd-item-qty">x'+k.miktar+'</span>'
+        +'<span class="hd-item-price">'+fmt(parseFloat(k.fiyat)*k.miktar)+'</span>'
+        +'</div></div>';
+    });
+  }
+  html+='</div>'
+    +'<div class="hd-total-row">'
+    +'<span class="hd-total-label">Toplam</span>'
+    +'<span class="hd-total-val">'+totalTxt+'</span>'
+    +'</div>';
+  document.getElementById('m-hist-detail-body').innerHTML=html;
+  document.getElementById('m-hist-detail-title').textContent=masaAdi+' — Adisyon';
+  openModal('m-hist-detail');
 }
 
 // ==============================
@@ -1834,12 +2345,19 @@ async function changeAsciSifre(){
   if(eski!==mevcutSifre){errEl.textContent='Mevcut şifre yanlış.';return;}
   if(yeni1!==yeni2){errEl.textContent='Yeni şifreler eşleşmiyor.';return;}
   if(yeni1.length<4){errEl.textContent='Şifre en az 4 karakter olmalı.';return;}
+  if(yeni1===mevcutSifre){errEl.textContent='Bu şifreyi zaten kullanıyorsunuz, lütfen farklı bir şifre belirleyin.';return;}
   const{error}=await sb.from('ayarlar').upsert({anahtar:'asci_sifre',deger:yeni1,updated_at:new Date().toISOString()},{onConflict:'anahtar'});
   if(error){errEl.textContent='Hata: '+error.message;return;}
   settings['asci_sifre']=yeni1;
   errEl.style.color='var(--green-ok)';errEl.textContent='Şifre değiştirildi.';
   ['asci-eski','asci-yeni1','asci-yeni2'].forEach(id=>{document.getElementById(id).value='';});
   setTimeout(()=>{errEl.textContent='';errEl.style.color='var(--red)';},3000);
+  // Aşçı oturumu açıksa zorla çıkış
+  if(me&&me.role==='chef'){
+    toast('Yönetici tarafından şifre değiştirildi, oturumunuz sonlandırıldı.');
+    setTimeout(()=>doLogout(true),1800);
+  }
+
 }
 
 async function changeGarsonSifre(){
@@ -1854,12 +2372,19 @@ async function changeGarsonSifre(){
   if(eski!==mevcutGarson){errEl.textContent='Mevcut şifre yanlış.';return;}
   if(yeni1!==yeni2){errEl.textContent='Yeni şifreler eşleşmiyor.';return;}
   if(yeni1.length<4){errEl.textContent='Şifre en az 4 karakter olmalı.';return;}
+  if(yeni1===mevcutGarson){errEl.textContent='Bu şifreyi zaten kullanıyorsunuz, lütfen farklı bir şifre belirleyin.';return;}
   const{error}=await sb.from('ayarlar').upsert({anahtar:'garson_sifre',deger:yeni1,updated_at:new Date().toISOString()},{onConflict:'anahtar'});
   if(error){errEl.textContent='Hata: '+error.message;return;}
   settings['garson_sifre']=yeni1;
   errEl.style.color='var(--green-ok)';errEl.textContent='Garson şifresi değiştirildi.';
   ['garson-eski','garson-yeni1','garson-yeni2'].forEach(id=>{document.getElementById(id).value='';});
   setTimeout(()=>{errEl.textContent='';errEl.style.color='var(--red)';},3000);
+  // Garson oturumu açıksa zorla çıkış
+  if(me&&me.role==='waiter'){
+    toast('Yönetici tarafından şifre değiştirildi, oturumunuz sonlandırıldı.');
+    setTimeout(()=>doLogout(true),1800);
+  }
+
 }
 
 async function saveSetting(key,inputId){
@@ -1880,15 +2405,16 @@ async function goMutfakView(){
 }
 
 function switchAdminTab(tab){
-  ['menu','masalar','mutfak','istatistik','ayarlar'].forEach(t=>{
+  ['menu','masalar','mutfak','istatistik','ayarlar','stok'].forEach(t=>{
     document.getElementById('at-'+t).className='admin-tab'+(t===tab?' active':'');
     document.getElementById('ap-'+t).className='admin-panel'+(t===tab?' active':'');
   });
   if(tab==='menu')loadAdminProds();
-  if(tab==='masalar')loadAdminTables();
+  if(tab==='masalar'){loadAdminTables();}
   if(tab==='mutfak')loadAdminMutfak();
   if(tab==='istatistik')loadIstatistik();
   if(tab==='ayarlar')loadAdminSettings();
+  if(tab==='stok')loadAdminStok();
 }
 
 // ==============================
@@ -1987,6 +2513,8 @@ function isScreenActive(name){return document.getElementById('screen-'+name)?.cl
 function openModal(id){document.getElementById(id).classList.remove('hidden')}
 function closeModal(id){document.getElementById(id).classList.add('hidden')}
 document.querySelectorAll('.modal-overlay').forEach(el=>{el.addEventListener('click',e=>{if(e.target===el)el.classList.add('hidden')})});
+
+
 document.getElementById('note-overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeNoteOverlay();});
 function show(id){document.getElementById(id)?.classList.remove('hidden')}
 function hide(id){document.getElementById(id)?.classList.add('hidden')}
