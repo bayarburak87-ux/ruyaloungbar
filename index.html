@@ -368,21 +368,13 @@ input,textarea,select{font-family:inherit;outline:none}
 .stok-badge.low{background:rgba(200,124,42,.15);color:var(--toffee-l);border:1px solid rgba(200,124,42,.3)}
 .stok-badge.out{background:var(--red-dim);color:#ff9090;border:1px solid rgba(224,80,80,.3)}
 .btn-stok-edit{background:var(--s3);color:var(--cream-2);font-size:10px;padding:3px 7px;border:1px solid var(--border);border-radius:5px;cursor:pointer;display:inline-flex;align-items:center;gap:3px;flex-shrink:0;white-space:nowrap}
-.ios-toggle{position:relative;display:inline-block;width:34px;height:20px;flex-shrink:0}
-.ios-toggle input{opacity:0;width:0;height:0;position:absolute}
-.ios-toggle-track{position:absolute;inset:0;border-radius:10px;background:var(--s3);border:1px solid var(--border-2);transition:background .25s,border-color .25s;cursor:pointer}
-.ios-toggle-track:before{content:'';position:absolute;width:14px;height:14px;left:2px;top:2px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .25s}
-.ios-toggle input:checked+.ios-toggle-track{background:var(--green-ok);border-color:var(--green-ok)}
-.ios-toggle input:checked+.ios-toggle-track:before{transform:translateX(14px)}
-.stok-item.pasif{opacity:.45}
-.stok-item.pasif .stok-badge{display:none}
+
 .prod-stock-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;margin-left:5px;display:inline-flex;align-items:center;gap:3px;vertical-align:middle}
 .prod-stock-badge.ok{background:rgba(58,172,120,.15);color:var(--green-ok);border:1px solid rgba(58,172,120,.3)}
 .prod-stock-badge.low{background:rgba(200,124,42,.15);color:var(--toffee-l);border:1px solid rgba(200,124,42,.3)}
 .prod-stock-badge.out{background:var(--red-dim);color:#ff9090;border:1px solid rgba(224,80,80,.3)}
 .prod-item.out-of-stock{opacity:.55}
-.stok-badge.manuel{background:rgba(100,80,200,.15);color:#b0a0ff;border:1px solid rgba(100,80,200,.35)}
-.prod-stock-badge.manuel{background:rgba(100,80,200,.15);color:#b0a0ff;border:1px solid rgba(100,80,200,.35)}
+
 
 .hist-group{margin-bottom:6px}
 .hist-group-hdr{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;background:var(--s2);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;user-select:none;-webkit-user-select:none;gap:8px}
@@ -426,6 +418,7 @@ input,textarea,select{font-family:inherit;outline:none}
         <label for="l-remember" style="font-size:13px;color:var(--cream-2);cursor:pointer">Beni hatırla</label>
       </div>
       <button class="btn-login" onclick="doLogin()"><i class="fa-solid fa-right-to-bracket"></i> Giriş Yap</button>
+      <div id="l-mesai-err" style="font-size:12px;color:var(--toffee-l);text-align:center;margin-bottom:10px;display:none;line-height:1.5"><i class="fa-solid fa-moon"></i> Oturumlar şu an kapalı.<br>Lütfen mesai başlayana kadar bekleyin.</div>
       <div id="l-err" class="login-err"></div>
     </div>
   </div>
@@ -624,6 +617,15 @@ input,textarea,select{font-family:inherit;outline:none}
     <div id="ap-ayarlar" class="admin-panel">
 
       <div class="settings-card">
+        <p class="s-label"><i class="fa-solid fa-clock"></i> Mesai Oturumu</p>
+        <div id="mesai-durum-badge" style="font-size:13px;font-weight:600;margin-bottom:12px">Mesai Durumu: <span id="mesai-durum-txt" style="color:var(--green-ok)">Aktif</span></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-save" id="mesai-ac-btn" onclick="toggleMesai(true)" style="flex:1;background:var(--green-ok);display:none"><i class="fa-solid fa-play"></i> Mesayi Başlat</button>
+          <button class="btn-save" id="mesai-kapat-btn" onclick="toggleMesai(false)" style="flex:1;background:var(--red-dim);color:#ff8888;border:1px solid rgba(224,80,80,.3)"><i class="fa-solid fa-stop"></i> Mesayi Kapat</button>
+        </div>
+      </div>
+
+      <div class="settings-card">
         <p class="s-label"><i class="fa-solid fa-building-columns"></i> IBAN Ödeme Ayarları</p>
         <p class="s-label" style="margin-top:6px">IBAN Numarası</p>
         <input type="text" class="s-input" id="s-iban" placeholder="MK07 3000 0000 0000 182">
@@ -682,16 +684,8 @@ input,textarea,select{font-family:inherit;outline:none}
 
     <!-- STOK -->
     <div id="ap-stok" class="admin-panel">
-      <div class="add-form">
-        <p class="sec-title"><i class="fa-solid fa-boxes-stacked"></i> Stok Takibine Ekle</p>
-        <p style="font-size:11px;color:var(--cream-3);margin-bottom:10px;line-height:1.6">Seçtiğiniz ürünlerin stok miktarını takip edin. Stok girilen ürünler sipariş ekranında adet gösterir.</p>
-        <select id="stok-urun-sel" style="width:100%;padding:9px 12px;background:var(--s2);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--cream);font-size:16px;margin-bottom:8px;-webkit-appearance:none"><option value="">— Ürün seç —</option></select>
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
-          <input type="number" id="stok-miktar" class="s-input" placeholder="Mevcut stok miktarını giriniz." min="0" style="margin-bottom:0;flex:1">
-          <button class="btn-save" onclick="addStokUrun()"><i class="fa-solid fa-plus"></i> Ekle</button>
-        </div>
-      </div>
-      <p class="sec-title"><i class="fa-solid fa-list-check"></i> Stok Listesi</p>
+      <p class="sec-title"><i class="fa-solid fa-list-check"></i> Stok Durumu</p>
+      <p style="font-size:11px;color:var(--cream-3);margin-bottom:10px;line-height:1.6">Tüm ürünler azdan çoğa sıralı. <strong style="color:var(--cream-2)">Stok Durumu Belirle</strong> ile takip başlatın.</p>
       <div id="stok-list" style="background:var(--s1);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden"><div class="stat-loading" style="padding:1rem">Yükleniyor…</div></div>
     </div>
 
@@ -713,12 +707,12 @@ input,textarea,select{font-family:inherit;outline:none}
 <div id="m-stok-edit" class="modal-overlay hidden">
   <div class="modal-sheet">
     <div class="modal-header">
-      <span class="modal-title" id="m-stok-edit-title">Stok Güncelle</span>
+      <span class="modal-title" id="m-stok-edit-title">Stok Ekle</span>
       <button class="btn-modal-close" onclick="closeModal('m-stok-edit')">✕</button>
     </div>
     <div class="modal-body" style="padding:16px">
       <p style="font-size:13px;color:var(--cream-2);margin-bottom:12px" id="m-stok-edit-desc"></p>
-      <input type="number" id="m-stok-edit-val" class="s-input" placeholder="Yeni stok miktarı" min="0">
+      <input type="number" id="m-stok-edit-val" class="s-input" placeholder="Eklenecek miktar" min="0">
       <button class="btn-save" style="width:100%" onclick="saveStokFromModal()"><i class="fa-solid fa-floppy-disk"></i> Kaydet</button>
     </div>
   </div>
@@ -878,6 +872,7 @@ create table ayarlar (
 insert into ayarlar (anahtar, deger) values
   ('iban_no',''),('iban_qr',''),('iban_isim',''),
   ('cat_order','[]'),
+  ('mesai_acik','1'),
   ('asci_sifre','mutfak123'),
   ('garson_sifre','fındıklahmacun');
 
@@ -900,7 +895,8 @@ create policy "a" on ayarlar for all to anon using (true) with check (true);
 alter publication supabase_realtime add table masalar;
 alter publication supabase_realtime add table siparisler;
 alter publication supabase_realtime add table siparis_kalemleri;
-alter publication supabase_realtime add table mutfak_bildirimleri;`;
+alter publication supabase_realtime add table mutfak_bildirimleri;
+alter publication supabase_realtime add table stok;`;
 
 
 
@@ -936,6 +932,11 @@ window.addEventListener('load',async()=>{
       try{
         const s=JSON.parse(saved);
         if(s.username&&s.role&&s.display){
+          // Mesai kapalıysa asli dışındaki oturumları engelle
+          if(s.username!=='asli'){
+            const{data:mR}=await sb.from('ayarlar').select('deger').eq('anahtar','mesai_acik').maybeSingle();
+            if(mR&&mR.deger==='0'){localStorage.removeItem('rk_session');hide('loading');return;}
+          }
           me={...s};hide('loading');
           if(me.role==='chef'){await initChef()}else{await initApp()}
           return;
@@ -961,6 +962,15 @@ async function doLogin(){
   const p=document.getElementById('l-pass').value;
   document.getElementById('l-err').textContent='';
   const remember=document.getElementById('l-remember')?.checked;
+  // Mesai kapalıysa asli dışında giriş engelle
+  if(u!=='asli'){
+    const{data:mesaiRow}=await sb.from('ayarlar').select('deger').eq('anahtar','mesai_acik').maybeSingle();
+    const mesaiAcik=!mesaiRow||mesaiRow.deger==='1';
+    if(!mesaiAcik){
+      document.getElementById('l-err').textContent='Mesai kapalı. Lütfen daha sonra tekrar deneyin.';
+      return;
+    }
+  }
   if(u==='asci'){
     const{data}=await sb.from('ayarlar').select('deger').eq('anahtar','asci_sifre').maybeSingle();
     const pwd=(data?.deger)||'mutfak123';
@@ -1035,8 +1045,18 @@ function isMutfakUrun(name){return mutfakUrunler.some(m=>m.urun_adi===name)}
 function setupRealtime(){
   rtCh=sb.channel('rk-main')
     .on('postgres_changes',{event:'*',schema:'public',table:'masalar'},async()=>{await loadTables();await loadOpenOrders();if(area!=='mutfak')renderTables();updateCiro()})
-    .on('postgres_changes',{event:'*',schema:'public',table:'siparisler'},async()=>{await loadOpenOrders();if(area!=='mutfak')renderTables();updateCiro();if(curTblId&&isScreenActive('order'))refreshOrderView()})
-    .on('postgres_changes',{event:'*',schema:'public',table:'siparis_kalemleri'},async()=>{await loadOpenOrders();if(curTblId&&isScreenActive('order'))refreshOrderView()})
+    .on('postgres_changes',{event:'*',schema:'public',table:'siparisler'},async()=>{
+      await loadOpenOrders();
+      if(area!=='mutfak')renderTables();
+      updateCiro();
+      if(curTblId&&isScreenActive('order'))refreshOrderView();
+      if(isScreenActive('mutfak'))await renderMutfakTab();
+    })
+    .on('postgres_changes',{event:'*',schema:'public',table:'siparis_kalemleri'},async()=>{
+      await loadOpenOrders();
+      if(curTblId&&isScreenActive('order'))refreshOrderView();
+      if(isScreenActive('mutfak'))await renderMutfakTab();
+    })
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'mutfak_bildirimleri'},async(payload)=>{
       const d=payload.new;
       if(d.urun_listesi&&d.urun_listesi.startsWith('[HAZIR]')){
@@ -1048,19 +1068,49 @@ function setupRealtime(){
         const _lastV=[..._mn].reverse().find(ch=>_vowels.includes(ch.toLowerCase()))||'a';
         const _suffix=({'a':'nın','e':'nin','ı':'nın','i':'nin','o':'nun','ö':'nün','u':'nun','ü':'nün'})[_lastV]||'nın';
         toast('✅ '+_mn+"'"+_suffix+' '+_ul+' siparişleri hazır.');
+        // Mutfak ekranı açıksa güncelle
+        if(isScreenActive('mutfak'))await renderMutfakTab();
       }
-      // [GONDERILDI] gelince hiçbir şey yapma (garson zaten gönderdi)
+      if(d.urun_listesi&&d.urun_listesi.startsWith('[GONDERILDI]')){
+        // Garson mutfak ekranındaysa anlık güncelle
+        if(isScreenActive('mutfak'))await renderMutfakTab();
+      }
     })
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'ayarlar'},async(payload)=>{
       const row=payload.new;
-      if(!row||!me)return;
-      // Şifre değişince ilgili kullanıcıyı çıkar
-      if(row.anahtar==='asci_sifre'&&me.role==='chef'){
-        setTimeout(()=>doLogout(true),0);
+      if(!row)return;
+      if(me){
+        if(row.anahtar==='asci_sifre'&&me.role==='chef') setTimeout(()=>doLogout(true),0);
+        if(row.anahtar==='garson_sifre'&&me.role==='waiter') setTimeout(()=>doLogout(true),0);
       }
-      if(row.anahtar==='garson_sifre'&&me.role==='waiter'){
-        setTimeout(()=>doLogout(true),0);
+      // Login ekranında mesai durumu mesajını güncelle
+      if(row.anahtar==='mesai_acik'){
+        const el=document.getElementById('l-mesai-err');
+        if(el)el.style.display=row.deger==='0'?'block':'none';
       }
+    })
+    .on('postgres_changes',{event:'*',schema:'public',table:'stok'},async(payload)=>{
+      // Stok değişince local state güncelle, ekranları yenile
+      const row=payload.new||payload.old;
+      if(row&&row.urun_adi){
+        if(payload.eventType==='DELETE'){
+          delete stoklar[row.urun_adi];
+        } else {
+          stoklar[row.urun_adi]={
+            id:row.id,
+            miktar:row.miktar,
+            max:row.baslangic_miktar||row.miktar,
+            aktif:row.aktif!==false,
+            // sessionDelta'yı koru — bu cihazda yapılan değişiklikler korunmalı
+            _sessionDelta:(stoklar[row.urun_adi]?._sessionDelta)||0
+          };
+        }
+      }
+      // Adisyon açıksa güncelle
+      if(curTblId&&isScreenActive('order'))refreshOrderView();
+      // Stok admin ekranı açıksa güncelle
+      const stokPanel=document.getElementById('ap-stok');
+      if(stokPanel&&stokPanel.classList.contains('active'))renderStokList();
     })
     .subscribe();
 }
@@ -1081,6 +1131,13 @@ function setupChefRealtime(){
       const row=payload.new;
       if(row?.anahtar==='asci_sifre'&&me?.role==='chef'){
         setTimeout(()=>doLogout(true),0);
+      }
+    })
+    .on('postgres_changes',{event:'*',schema:'public',table:'stok'},async(payload)=>{
+      const row=payload.new||payload.old;
+      if(row&&row.urun_adi){
+        if(payload.eventType==='DELETE') delete stoklar[row.urun_adi];
+        else stoklar[row.urun_adi]={id:row.id,miktar:row.miktar,max:row.baslangic_miktar||row.miktar,_sessionDelta:(stoklar[row.urun_adi]?._sessionDelta)||0};
       }
     })
     .subscribe();
@@ -1264,7 +1321,7 @@ function renderOrderItems(items){
       return`<div class="order-item" id="oi-${item.id}">
         <div class="oi-main">
           <div style="flex:1;min-width:0">
-            <div class="oi-name">${statusDot}${esc(item.urun_adi)}${(()=>{const sk=stoklar[item.urun_adi];if(!sk||sk.aktif===false)return '';const b=stokBadgeInfo(sk);return '<span class="prod-stock-badge '+b.cls+'" style="font-size:10px">'+b.txt+'</span>';})()}</div>
+            <div class="oi-name">${statusDot}${esc(item.urun_adi)}${(()=>{const sk=stoklar[item.urun_adi];if(!sk)return '';const b=stokBadgeInfo(sk);return '<span class="prod-stock-badge '+b.cls+'" style="font-size:10px">'+b.txt+'</span>';})()}</div>
             <div class="oi-note-btn ${item.not_metni?'has-note':''}" id="note-btn-${item.id}" onclick="openNoteInput('${item.id}')">${noteBtnTxt}</div>
           </div>
           <div class="oi-qty">
@@ -1354,12 +1411,7 @@ async function changeQty(itemId,delta){
     const _sd=item._sessionDelta||0;
     if(stoklar[item.urun_adi]&&_sd>0){
       stoklar[item.urun_adi].miktar+=_sd;
-      const su2={miktar:stoklar[item.urun_adi].miktar};
-      if(stoklar[item.urun_adi].aktif===false&&stoklar[item.urun_adi].miktar>0){
-        stoklar[item.urun_adi].aktif=true;
-        su2.aktif=true;
-      }
-      sb.from('stok').update(su2).eq('id',stoklar[item.urun_adi].id).then(()=>{});
+      sb.from('stok').update({miktar:stoklar[item.urun_adi].miktar}).eq('id',stoklar[item.urun_adi].id).then(()=>{});
     }
     await sb.from('siparis_kalemleri').delete().eq('id',itemId);
     ord.siparis_kalemleri=ord.siparis_kalemleri.filter(i=>i.id!==itemId);
@@ -1390,14 +1442,7 @@ async function changeQty(itemId,delta){
           stoklar[item.urun_adi].miktar=curStok+1;
         }
       }
-      const su={miktar:stoklar[item.urun_adi].miktar};
-      if(stoklar[item.urun_adi].miktar===0&&delta>0&&stoklar[item.urun_adi].aktif!==false){
-        stoklar[item.urun_adi].aktif=false;su.aktif=false;
-      }
-      if(stoklar[item.urun_adi].miktar>0&&stoklar[item.urun_adi].aktif===false){
-        stoklar[item.urun_adi].aktif=true;su.aktif=true;
-      }
-      sb.from('stok').update(su).eq('id',stoklar[item.urun_adi].id).then(()=>{});
+      sb.from('stok').update({miktar:stoklar[item.urun_adi].miktar}).eq('id',stoklar[item.urun_adi].id).then(()=>{});
     }
     // Adet artışı + zaten mutfağa gönderilmişse aşçıya bildir
     if(delta>0&&item.mutfak_gonderildi&&isMutfakUrun(item.urun_adi)){
@@ -1455,7 +1500,7 @@ async function openProdModal(){
       <span class="cat-chevron" id="chv-${idx}">▼</span>
     </div>
     <div class="cat-items" id="cat-${idx}">${ps.map(p=>{
-      const stk=stoklar[p.isim]&&stoklar[p.isim].aktif!==false?stoklar[p.isim]:null;
+      const stk=stoklar[p.isim]||null;
       const outOfStock=stk&&stk.miktar===0;
       const stockBadge=stk?(()=>{const b=stokBadgeInfo(stk);return '<span class="prod-stock-badge '+b.cls+'">'+b.txt+'</span>';})():'';
       return`<div class="prod-item${outOfStock?' out-of-stock':''}">
@@ -1508,12 +1553,7 @@ async function addItem(pid){
     // Stok takibindeyse 1 azalt
     if(stoklar[p.isim]&&stoklar[p.isim].miktar>0){
       stoklar[p.isim].miktar--;
-      const stokUpdate={miktar:stoklar[p.isim].miktar};
-      if(stoklar[p.isim].miktar===0&&stoklar[p.isim].aktif!==false){
-        stoklar[p.isim].aktif=false;
-        stokUpdate.aktif=false;
-      }
-      sb.from('stok').update(stokUpdate).eq('id',stoklar[p.isim].id).then(()=>{});
+      sb.from('stok').update({miktar:stoklar[p.isim].miktar}).eq('id',stoklar[p.isim].id).then(()=>{});
     }
     renderOrderItems(ord.siparis_kalemleri);syncTotal();toast('✓ '+p.isim);closeModal('m-prods');
   }finally{addingItem=false}
@@ -1727,22 +1767,16 @@ async function exportExcel(){
 async function loadStok(){
   const{data}=await sb.from('stok').select('*');
   stoklar={};
-  (data||[]).forEach(s=>{stoklar[s.urun_adi]={id:s.id,miktar:s.miktar,max:s.baslangic_miktar||s.miktar,aktif:s.aktif!==false};});
+  (data||[]).forEach(s=>{stoklar[s.urun_adi]={id:s.id,miktar:s.miktar,max:s.baslangic_miktar||s.miktar};});
 }
 
 async function loadAdminStok(){
   await loadProducts();
   await loadStok();
-  // Dropdown: stok'ta olmayan ürünler
-  const sel=document.getElementById('stok-urun-sel');
-  sel.innerHTML='<option value="">— Ürün seç —</option>'
-    +products.filter(p=>!stoklar[p.isim]).map(p=>'<option value="'+esc(p.isim)+'">'+esc(p.isim)+'</option>').join('');
   renderStokList();
 }
-
 function stokBadgeInfo(sk){
   const m=sk.miktar, mx=sk.max||1;
-  if(m===0&&sk.aktif!==false) return {cls:'manuel', txt:'Stok yok — manuel açık'};
   if(m===0) return {cls:'out', txt:'Tükendi'};
   const ratio=m/mx;
   if(ratio<=1/3) return {cls:'out', txt:'Son '+m+' adet kaldı'};
@@ -1752,107 +1786,125 @@ function stokBadgeInfo(sk){
 
 function renderStokList(){
   const el=document.getElementById('stok-list');
-  const keys=Object.keys(stoklar);
-  if(!keys.length){el.innerHTML='<div style="text-align:center;padding:1rem;color:var(--cream-3);font-size:13px">Stok takibine eklenen ürün yok.</div>';return;}
+  if(!products.length){el.innerHTML='<div style="text-align:center;padding:1rem;color:var(--cream-3);font-size:13px">Ürün yok.</div>';return;}
+  // Stoklu ürünleri azdan çoğa, stoksuzları alta alfabetik sırala
+  const stokluUrunler=[];
+  const stoksuzUrunler=[];
+  products.forEach(p=>{
+    if(stoklar[p.isim]) stokluUrunler.push(p);
+    else stoksuzUrunler.push(p);
+  });
+  stokluUrunler.sort((a,b)=>stoklar[a.isim].miktar-stoklar[b.isim].miktar);
+  stoksuzUrunler.sort((a,b)=>a.isim.localeCompare(b.isim,'tr'));
+  const allUrunler=[...stokluUrunler,...stoksuzUrunler];
   let html='';
-  keys.forEach(urunAdi=>{
+  allUrunler.forEach(prod=>{
+    const urunAdi=prod.isim;
     const s=stoklar[urunAdi];
-    const m=s.miktar;
-    const {cls:badgeCls,txt:badgeTxt}=stokBadgeInfo(stoklar[urunAdi]);
-    const prod=products.find(p=>p.isim===urunAdi);
-    const cat=prod?prod.kategori||'':'';
-    const aktif=s.aktif!==false;
-    html+='<div class="stok-item'+(aktif?'':' pasif')+'" data-urun="'+esc(urunAdi)+'">'
-      +'<div class="stok-item-info">'
-      +'<div class="stok-item-name">'+esc(urunAdi)+'</div>'
-      +(cat?'<div class="stok-item-cat">'+esc(cat)+'</div>':'')
-      +'</div>'
-      +(aktif?'<span class="stok-badge '+badgeCls+'">'+badgeTxt+'</span>':'')
-      +'<button class="btn-stok-edit" onclick="openStokEdit(this)"'+(aktif?'':' disabled style="opacity:.4;cursor:default"')+'><i class="fa-solid fa-pen" style="font-size:9px"></i> Stok Değiştir</button>'
-      +'<label class="ios-toggle" title="Stok takibini aç/kapat">'
-      +'<input type="checkbox"'+(aktif?' checked':'')+' onchange="toggleStokAktif(this)">'
-      +'<span class="ios-toggle-track"></span>'
-      +'</label>'
-      +'</div>';
+    const cat=prod.kategori||'';
+    if(s){
+      const{cls:badgeCls,txt:badgeTxt}=stokBadgeInfo(s);
+      html+='<div class="stok-item" data-urun="'+esc(urunAdi)+'">'
+        +'<div class="stok-item-info">'
+        +'<div class="stok-item-name">'+esc(urunAdi)+'</div>'
+        +(cat?'<div class="stok-item-cat">'+esc(cat)+'</div>':'')
+        +'</div>'
+        +'<span class="stok-badge '+badgeCls+'">'+badgeTxt+'</span>'
+        +'<button class="btn-stok-edit" onclick="openStokEdit(this)"><i class="fa-solid fa-plus" style="font-size:9px"></i> Stok Ekle</button>'
+        +'<button class="btn-chip-del" onclick="removeStokByBtn(this)" title="Stok takibinden kaldır" style="flex-shrink:0">✕</button>'
+        +'</div>';
+    } else {
+      html+='<div class="stok-item" data-urun="'+esc(urunAdi)+'">'
+        +'<div class="stok-item-info">'
+        +'<div class="stok-item-name" style="color:var(--cream-3)">'+esc(urunAdi)+'</div>'
+        +(cat?'<div class="stok-item-cat">'+esc(cat)+'</div>':'')
+        +'</div>'
+        +'<button class="btn-chip-edit" onclick="openStokBelirle(this)"><i class="fa-solid fa-boxes-stacked" style="font-size:9px"></i> Stok Durumu Belirle</button>'
+        +'</div>';
+    }
   });
   el.innerHTML=html;
+}
+
+function removeStokByBtn(btn){
+  const urun=btn.closest('[data-urun]').dataset.urun;
+  if(!urun||!stoklar[urun])return;
+  if(!confirm('"'+urun+'" stok takibinden kaldırılsın mı?'))return;
+  sb.from('stok').delete().eq('id',stoklar[urun].id).then(async()=>{
+    delete stoklar[urun];
+    await loadAdminStok();
+    toast(urun+' stok takibinden kaldırıldı.');
+  });
+}
+
+let _stokBelirleUrun=null;
+function openStokBelirle(btn){
+  const urun=btn.closest('[data-urun]').dataset.urun;
+  _stokEditUrun=urun;
+  _stokBelirleUrun=urun;
+  document.getElementById('m-stok-edit-title').textContent=urun+' — Stok Durumu Belirle';
+  document.getElementById('m-stok-edit-desc').textContent='Bu ürün için mevcut stok miktarını girin.';
+  document.getElementById('m-stok-edit-val').value='';
+  openModal('m-stok-edit');
+  setTimeout(()=>document.getElementById('m-stok-edit-val').focus(),80);
 }
 
 let _stokEditUrun=null;
 function openStokEdit(btn){
   const urun=btn.closest('[data-urun]').dataset.urun;
   _stokEditUrun=urun;
-  document.getElementById('m-stok-edit-title').textContent=esc(urun)+' — Stok';
-  document.getElementById('m-stok-edit-desc').textContent='Mevcut: '+(stoklar[urun]?.miktar??'?')+' adet';
-  document.getElementById('m-stok-edit-val').value=stoklar[urun]?.miktar??'';
+  _stokBelirleUrun=null;
+  const mevcut=stoklar[urun]?.miktar??0;
+  document.getElementById('m-stok-edit-title').textContent=urun+' — Stok Ekle';
+  document.getElementById('m-stok-edit-desc').textContent='Mevcut stok: '+mevcut+' adet. Eklenecek miktarı girin.';
+  document.getElementById('m-stok-edit-val').value='';
   openModal('m-stok-edit');
   setTimeout(()=>document.getElementById('m-stok-edit-val').focus(),80);
 }
 
 async function saveStokFromModal(){
-  const val=parseInt(document.getElementById('m-stok-edit-val').value);
+  const valRaw=document.getElementById('m-stok-edit-val').value;
+  if(valRaw===''||valRaw===null){toast('Bir miktar giriniz.');return;}
+  const val=parseInt(valRaw);
   if(isNaN(val)||val<0){toast('Geçerli bir miktar girin.');return;}
   const urun=_stokEditUrun;
   if(!urun)return;
-  const s=stoklar[urun];
-  const{error}=await sb.from('stok').update({miktar:val}).eq('id',s.id);
-  if(error){toast('Hata: '+error.message);return;}
-  stoklar[urun].miktar=val;
+  if(_stokBelirleUrun){
+    // Yeni stok — doğrudan set
+    if(stoklar[urun]){
+      const{error}=await sb.from('stok').update({miktar:val,baslangic_miktar:val}).eq('id',stoklar[urun].id);
+      if(error){toast('Hata: '+error.message);return;}
+      stoklar[urun].miktar=val;stoklar[urun].max=val;
+    } else {
+      const{data,error}=await sb.from('stok').insert({urun_adi:urun,miktar:val,baslangic_miktar:val}).select().single();
+      if(error){toast('Hata: '+error.message);return;}
+      stoklar[urun]={id:data.id,miktar:val,max:val};
+    }
+    toast('✓ '+urun+' stok durumu belirlendi.');
+  } else {
+    // Mevcut stok üstüne ekle
+    const mevcutMiktar=stoklar[urun]?.miktar||0;
+    const yeniMiktar=mevcutMiktar+val;
+    if(stoklar[urun]){
+      const{error}=await sb.from('stok').update({miktar:yeniMiktar}).eq('id',stoklar[urun].id);
+      if(error){toast('Hata: '+error.message);return;}
+      stoklar[urun].miktar=yeniMiktar;
+      if(yeniMiktar>stoklar[urun].max)stoklar[urun].max=yeniMiktar;
+    } else {
+      const{data,error}=await sb.from('stok').insert({urun_adi:urun,miktar:yeniMiktar,baslangic_miktar:yeniMiktar}).select().single();
+      if(error){toast('Hata: '+error.message);return;}
+      stoklar[urun]={id:data.id,miktar:yeniMiktar,max:yeniMiktar};
+    }
+    toast('✓ '+urun+': '+mevcutMiktar+' → '+yeniMiktar+' adet.');
+  }
+  _stokBelirleUrun=null;
   closeModal('m-stok-edit');
   renderStokList();
-  toast('✓ '+urun+' stoğu güncellendi.');
 }
 
-async function addStokUrun(){
-  const urunAdi=document.getElementById('stok-urun-sel').value;
-  const miktarRaw=document.getElementById('stok-miktar').value;
-  if(!urunAdi){toast('Ürün seçin.');return;}
-  if(miktarRaw===''||miktarRaw===null){toast('Bir miktar girmelisiniz.');return;}
-  const miktar=parseInt(miktarRaw);
-  if(isNaN(miktar)||miktar<0){toast('Geçerli bir miktar girin.');return;}
-  const{error}=await sb.from('stok').insert({urun_adi:urunAdi,miktar,baslangic_miktar:miktar});
-  if(error){toast('Hata: '+error.message);return;}
-  document.getElementById('stok-miktar').value='';
-  await loadAdminStok();
-  toast('✓ '+urunAdi+' stok takibine eklendi.');
-}
 
-async function toggleStokAktif(input){
-  const item=input.closest('[data-urun]');
-  const urun=item.dataset.urun;
-  if(!urun||!stoklar[urun])return;
-  const aktif=input.checked;
-  const{error}=await sb.from('stok').update({aktif}).eq('id',stoklar[urun].id);
-  if(error){toast('Hata: '+error.message);input.checked=!aktif;return;}
-  stoklar[urun].aktif=aktif;
-  item.classList.toggle('pasif',!aktif);
-  // Stok badge ve düzenle butonu
-  const badge=item.querySelector('.stok-badge');
-  const editBtn=item.querySelector('.btn-stok-edit');
-  if(aktif){
-    const{cls,txt}=stokBadgeInfo(stoklar[urun]);
-    if(!badge){
-      const sp=document.createElement('span');
-      sp.className='stok-badge '+cls;
-      sp.textContent=txt;
-      item.insertBefore(sp,editBtn);
-    }else{const{cls:c2,txt:t2}=stokBadgeInfo(stoklar[urun]);badge.className='stok-badge '+c2;badge.textContent=t2;}
-    if(editBtn){editBtn.disabled=false;editBtn.style.opacity='';editBtn.style.cursor='';}
-  } else {
-    if(badge)badge.remove();
-    if(editBtn){editBtn.disabled=true;editBtn.style.opacity='0.4';editBtn.style.cursor='default';}
-  }
-}
 
-async function removeStok(btn){
-  const urun=btn.closest('[data-urun]').dataset.urun;
-  if(!urun||!stoklar[urun])return;
-  if(!confirm('"'+urun+'" stok takibinden kaldırılsın mı?'))return;
-  await sb.from('stok').delete().eq('id',stoklar[urun].id);
-  delete stoklar[urun];
-  await loadAdminStok();
-  toast(urun+' stok takibinden kaldırıldı.');
-}
+
 
 async function loadAdminProds(){
   const{data}=await sb.from('urunler').select('*').order('isim');
@@ -2254,6 +2306,10 @@ async function loadAdminSettings(){
   const asciErrEl=document.getElementById('asci-sifre-err');if(asciErrEl){asciErrEl.textContent='';asciErrEl.style.color='var(--red)';}
   const garsonErrEl=document.getElementById('garson-sifre-err');if(garsonErrEl){garsonErrEl.textContent='';garsonErrEl.style.color='var(--red)';}
   loadCatSortPanel();
+  // Mesai durumu
+  const mesaiVal=settings['mesai_acik'];
+  const mesaiAcik=mesaiVal===undefined||mesaiVal==='1'||mesaiVal===true;
+  updateMesaiUI(mesaiAcik);
   // Ciro is password-protected, reset fields
   const errEl=document.getElementById('ciro-pwd-err');if(errEl)errEl.textContent='';
   ['ct-nakit','ct-iban','ct-total'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—'});
@@ -2420,6 +2476,27 @@ async function changeGarsonSifre(){
     setTimeout(()=>doLogout(true),1800);
   }
 
+}
+
+async function toggleMesai(acik){
+  const mesajAc='Mesayi başlatmak istediğinizden emin misiniz? Garson ve aşçı hesapları giriş yapabilecek.';
+  const mesajKapat='Mesayi kapatmak istediğinizden emin misiniz? Asli hesabı dışında kimse giriş yapamayacak.';
+  if(!confirm(acik?mesajAc:mesajKapat))return;
+  const deger=acik?'1':'0';
+  const{error}=await sb.from('ayarlar').upsert({anahtar:'mesai_acik',deger,updated_at:new Date().toISOString()},{onConflict:'anahtar'});
+  if(error){toast('Hata: '+error.message);return;}
+  settings['mesai_acik']=deger;
+  updateMesaiUI(acik);
+  toast(acik?'Mesai başlatıldı.':'Mesai kapatıldı.');
+}
+
+function updateMesaiUI(acik){
+  const txt=document.getElementById('mesai-durum-txt');
+  const acBtn=document.getElementById('mesai-ac-btn');
+  const kapatBtn=document.getElementById('mesai-kapat-btn');
+  if(txt){txt.textContent=acik?'Aktif':'Kapalı';txt.style.color=acik?'var(--green-ok)':'#ff9090';}
+  if(acBtn)acBtn.style.display=acik?'none':'block';
+  if(kapatBtn)kapatBtn.style.display=acik?'block':'none';
 }
 
 async function saveSetting(key,inputId){
