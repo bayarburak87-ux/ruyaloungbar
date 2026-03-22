@@ -381,6 +381,8 @@ input,textarea,select{font-family:inherit;outline:none}
 .prod-stock-badge.low{background:rgba(200,124,42,.15);color:var(--toffee-l);border:1px solid rgba(200,124,42,.3)}
 .prod-stock-badge.out{background:var(--red-dim);color:#ff9090;border:1px solid rgba(224,80,80,.3)}
 .prod-item.out-of-stock{opacity:.55}
+.stok-badge.manuel{background:rgba(100,80,200,.15);color:#b0a0ff;border:1px solid rgba(100,80,200,.35)}
+.prod-stock-badge.manuel{background:rgba(100,80,200,.15);color:#b0a0ff;border:1px solid rgba(100,80,200,.35)}
 
 .hist-group{margin-bottom:6px}
 .hist-group-hdr{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;background:var(--s2);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;user-select:none;-webkit-user-select:none;gap:8px}
@@ -1348,10 +1350,16 @@ async function changeQty(itemId,delta){
   const nq=item.miktar+delta;
   const tbl=tables.find(t=>t.id===curTblId);
   if(nq<=0){
-    // Stok geri yükle (silinen ürün adedi kadar)
-    if(stoklar[item.urun_adi]){
-      stoklar[item.urun_adi].miktar+=item.miktar;
-      sb.from('stok').update({miktar:stoklar[item.urun_adi].miktar}).eq('id',stoklar[item.urun_adi].id).then(()=>{});
+    // Sadece bu oturumda eklenen miktar kadar stok geri yükle
+    const _sd=item._sessionDelta||0;
+    if(stoklar[item.urun_adi]&&_sd>0){
+      stoklar[item.urun_adi].miktar+=_sd;
+      const su2={miktar:stoklar[item.urun_adi].miktar};
+      if(stoklar[item.urun_adi].aktif===false&&stoklar[item.urun_adi].miktar>0){
+        stoklar[item.urun_adi].aktif=true;
+        su2.aktif=true;
+      }
+      sb.from('stok').update(su2).eq('id',stoklar[item.urun_adi].id).then(()=>{});
     }
     await sb.from('siparis_kalemleri').delete().eq('id',itemId);
     ord.siparis_kalemleri=ord.siparis_kalemleri.filter(i=>i.id!==itemId);
@@ -1365,10 +1373,31 @@ async function changeQty(itemId,delta){
     await sb.from('siparis_kalemleri').update({miktar:nq}).eq('id',itemId);
     item.miktar=nq;
     // Stok senkronizasyonu: +1 → stok -1, -1 (silinmeden) → stok +1
+    item._sessionDelta=(item._sessionDelta||0)+delta;
     if(stoklar[item.urun_adi]){
-      stoklar[item.urun_adi].miktar-=delta; // delta=+1 ise stok azalır, -1 ise artar
-      if(stoklar[item.urun_adi].miktar<0)stoklar[item.urun_adi].miktar=0;
-      sb.from('stok').update({miktar:stoklar[item.urun_adi].miktar}).eq('id',stoklar[item.urun_adi].id).then(()=>{});
+      // Sadece bu oturumda yapılan değişiklikleri stoka yansıt
+      // delta>0 (artırma) → stok azalır, delta<0 (azaltma) → stok artar
+      // Ama stoku hiç negatife düşürme
+      const curStok=stoklar[item.urun_adi].miktar;
+      if(delta>0){
+        // Artırma: stok varsa azalt
+        if(curStok>0){
+          stoklar[item.urun_adi].miktar=Math.max(0,curStok-1);
+        }
+      } else {
+        // Azaltma: sadece session'da gerçekten eklendiyse geri ver
+        if((item._sessionDelta||0)>=0){
+          stoklar[item.urun_adi].miktar=curStok+1;
+        }
+      }
+      const su={miktar:stoklar[item.urun_adi].miktar};
+      if(stoklar[item.urun_adi].miktar===0&&delta>0&&stoklar[item.urun_adi].aktif!==false){
+        stoklar[item.urun_adi].aktif=false;su.aktif=false;
+      }
+      if(stoklar[item.urun_adi].miktar>0&&stoklar[item.urun_adi].aktif===false){
+        stoklar[item.urun_adi].aktif=true;su.aktif=true;
+      }
+      sb.from('stok').update(su).eq('id',stoklar[item.urun_adi].id).then(()=>{});
     }
     // Adet artışı + zaten mutfağa gönderilmişse aşçıya bildir
     if(delta>0&&item.mutfak_gonderildi&&isMutfakUrun(item.urun_adi)){
@@ -1456,6 +1485,7 @@ async function addItem(pid){
     if(ex){
       await sb.from('siparis_kalemleri').update({miktar:ex.miktar+1}).eq('id',ex.id);
       ex.miktar++;
+      ex._sessionDelta=(ex._sessionDelta||0)+1;
       // Zaten gönderilmişse mutfağa güncelleme bildirimi gönder
       if(ex.mutfak_gonderildi&&isMutfakUrun(p.isim)){
         const tblM=tables.find(t=>t.id===curTblId);
@@ -1467,7 +1497,7 @@ async function addItem(pid){
       }
     } else {
       const{data,error}=await sb.from('siparis_kalemleri').insert({siparis_id:curOrdId,urun_adi:p.isim,fiyat:p.fiyat,miktar:1,mutfak_hazir:false,mutfak_gonderildi:false}).select().single();
-      if(!error&&data){if(!ord.siparis_kalemleri)ord.siparis_kalemleri=[];ord.siparis_kalemleri.push(data)}
+      if(!error&&data){if(!ord.siparis_kalemleri)ord.siparis_kalemleri=[];data._sessionDelta=1;ord.siparis_kalemleri.push(data)}
     }
     // İlk ürün giriliyorsa masayı dolu yap
     const tbl2=tables.find(t=>t.id===curTblId);
@@ -1478,7 +1508,12 @@ async function addItem(pid){
     // Stok takibindeyse 1 azalt
     if(stoklar[p.isim]&&stoklar[p.isim].miktar>0){
       stoklar[p.isim].miktar--;
-      sb.from('stok').update({miktar:stoklar[p.isim].miktar}).eq('id',stoklar[p.isim].id).then(()=>{});
+      const stokUpdate={miktar:stoklar[p.isim].miktar};
+      if(stoklar[p.isim].miktar===0&&stoklar[p.isim].aktif!==false){
+        stoklar[p.isim].aktif=false;
+        stokUpdate.aktif=false;
+      }
+      sb.from('stok').update(stokUpdate).eq('id',stoklar[p.isim].id).then(()=>{});
     }
     renderOrderItems(ord.siparis_kalemleri);syncTotal();toast('✓ '+p.isim);closeModal('m-prods');
   }finally{addingItem=false}
@@ -1568,7 +1603,7 @@ async function renderChefOrders(){
   const pending=await getPendingKitchenItems();
   const badge=document.getElementById('chef-pending-badge');
   if(badge)badge.textContent=pending.length?pending.length+' Sipariş':'';
-  if(!pending.length){el.innerHTML=`<div class="kitchen-empty"><div class="kitchen-empty-icon">✅</div><p style="color:var(--cream-3);font-size:14px">Bekleyen sipariş yok. </p></div>`;return}
+  if(!pending.length){el.innerHTML=`<div class="kitchen-empty"><div class="kitchen-empty-icon">✅</div><p style="color:var(--cream-3);font-size:14px">Bekleyen mutfak siparişi yok.</p></div>`;return}
   pendingByTable={};
   pending.forEach(row=>{if(!pendingByTable[row.masa_adi])pendingByTable[row.masa_adi]=[];pendingByTable[row.masa_adi].push(row)});
   el.innerHTML=Object.entries(pendingByTable).map(([masa,items])=>{
@@ -1706,8 +1741,8 @@ async function loadAdminStok(){
 }
 
 function stokBadgeInfo(sk){
-  // sk = {miktar, max}
   const m=sk.miktar, mx=sk.max||1;
+  if(m===0&&sk.aktif!==false) return {cls:'manuel', txt:'Stok yok — manuel açık'};
   if(m===0) return {cls:'out', txt:'Tükendi'};
   const ratio=m/mx;
   if(ratio<=1/3) return {cls:'out', txt:'Son '+m+' adet kaldı'};
